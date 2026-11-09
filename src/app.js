@@ -357,11 +357,6 @@
     $('prev').addEventListener('click', () => shiftDay(-1));
     $('next').addEventListener('click', () => shiftDay(1));
     $('now').addEventListener('click', () => { setNow(true); render(); });
-    $('example').addEventListener('click', () => {
-      $('place').value = String(PLACES.findIndex((p) => p[0] === 'New York'));
-      $('date').value = '2026-11-09'; $('time').value = '02:02'; $('hsys').value = 'natural';
-      render();
-    });
     ['date', 'time', 'place', 'hsys', 'lat', 'lon', 'tz'].forEach((id) => $(id).addEventListener('change', render));
     $('controls').addEventListener('submit', (e) => e.preventDefault());
     document.addEventListener('keydown', (e) => {
