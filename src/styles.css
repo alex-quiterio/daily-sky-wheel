@@ -251,3 +251,23 @@ table.eph .hcell:hover, table.eph .hcell:focus-visible { color: var(--gold-brigh
   .logo .logo-star { animation: star-pulse 4.5s ease-in-out infinite; }
 }
 @keyframes star-pulse { 0%, 100% { opacity: 1; transform: scale(1) rotate(0deg); } 50% { opacity: .65; transform: scale(.86) rotate(22.5deg); } }
+
+.iconbtn { display: inline-flex; align-items: center; gap: 7px; }
+.iconbtn svg { color: var(--gold); flex: none; }
+button:disabled { opacity: .6; cursor: progress; }
+button.primary { background: linear-gradient(180deg, rgba(216, 180, 106, 0.3), rgba(216, 180, 106, 0.14)); color: var(--gold-bright); border-color: var(--gold); }
+
+.infobtn {
+  width: 26px; height: 26px; min-height: 0; padding: 0; border-radius: 50%;
+  font-family: var(--f-body); font-style: italic; font-size: 16px; font-weight: 600; line-height: 1; color: var(--gold);
+  border: 1px solid var(--gold); background: rgba(216, 180, 106, 0.08); cursor: help;
+}
+.seg label[data-tip] { cursor: pointer; }
+#tip.wide { max-width: min(460px, calc(100vw - 16px)); }
+#tip .hlist { display: grid; gap: 6px; }
+#tip .hlist > div { display: grid; grid-template-columns: 22px minmax(0, 1fr); gap: 8px; align-items: baseline; }
+#tip .hlist b { font-family: var(--f-display); color: var(--gold-bright); text-align: right; }
+#tip .hlist .ht { display: block; color: var(--ink); font-weight: 600; }
+#tip .hlist .hp { display: block; color: var(--muted); font-size: 13.5px; line-height: 1.4; }
+#tip { max-height: calc(100vh - 16px); overflow-y: auto; overscroll-behavior: contain; }
+#tip.pinned { pointer-events: auto; }

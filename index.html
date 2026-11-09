@@ -7,6 +7,11 @@
 <meta name="description" content="The astrology chart for any day and place: chart wheel, positions, aspects, patterns and the day's lunations, ingresses and stations.">
 <meta name="theme-color" content="#07061a">
 <link rel="icon" type="image/svg+xml" href="assets/logo.svg">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Sky Wheel">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600&family=EB+Garamond:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&family=Noto+Sans+Symbols:wght@400;600&family=Noto+Sans+Symbols+2&display=swap">
@@ -69,8 +74,10 @@
       <label class="field"><span>Time zone</span><select id="tz"></select></label>
     </div>
     <div class="spacer"></div>
+    <button type="button" id="locate" class="iconbtn"><svg viewBox="0 0 24 24" aria-hidden="true" width="16" height="16"><circle cx="12" cy="12" r="3.2" fill="currentColor"/><circle cx="12" cy="12" r="7.5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M12 1.5v3.5M12 19v3.5M1.5 12H5M19 12h3.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg><span>My location</span></button>
     <button type="button" id="now">Now</button>
     <button type="button" id="copylink">Copy link</button>
+    <button type="button" id="install" class="primary" hidden>Install app</button>
     <p class="urlnote" id="urlnote" role="status" hidden></p>
   </form>
 
@@ -80,11 +87,12 @@
       <div class="wheelbar">
         <span class="wheelbar-label" id="hsysLabel">Houses</span>
         <div class="seg" role="radiogroup" aria-labelledby="hsysLabel">
-          <label><input type="radio" name="hsysPick" value="placidus"><span>Placidus</span></label>
-          <label><input type="radio" name="hsysPick" value="whole"><span>Whole sign</span></label>
-          <label><input type="radio" name="hsysPick" value="equal"><span>Equal</span></label>
-          <label><input type="radio" name="hsysPick" value="natural"><span>Natural</span></label>
+          <label data-tip="hsys:placidus" data-tip-hover><input type="radio" name="hsysPick" value="placidus"><span>Placidus</span></label>
+          <label data-tip="hsys:whole" data-tip-hover><input type="radio" name="hsysPick" value="whole"><span>Whole sign</span></label>
+          <label data-tip="hsys:equal" data-tip-hover><input type="radio" name="hsysPick" value="equal"><span>Equal</span></label>
+          <label data-tip="hsys:natural" data-tip-hover><input type="radio" name="hsysPick" value="natural"><span>Natural</span></label>
         </div>
+        <button type="button" class="infobtn" data-tip="houses:all" aria-label="What each house means">i</button>
         <input type="hidden" id="hsys" value="placidus">
       </div>
       <svg id="wheel" viewBox="-16 -16 672 672" role="img" aria-label="Chart wheel"></svg>

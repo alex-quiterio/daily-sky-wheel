@@ -88,9 +88,47 @@
     $('lon').value = saved.lon != null ? saved.lon : -9.14;
     $('tz').value = saved.tz || 'Europe/Lisbon';
     if (savedIdx !== 'custom' && savedIdx < 0) useBrowserPlace();
+    fromGeo = savedIdx === 'custom' && saved.geo === true;
     setNow(false);
     $('time').value = '12:00';
     applyQuery();
+  }
+
+  // ---------- current location ----------
+  let fromGeo = false;
+  function locate() {
+    const btn = $('locate'), label = btn.querySelector('span'), note = $('urlnote');
+    if (!navigator.geolocation) { note.textContent = "This browser can't share its location. Pick a place or enter coordinates under Custom."; note.hidden = false; return; }
+    btn.disabled = true; label.textContent = 'Locating…';
+    navigator.geolocation.getCurrentPosition((pos) => {
+      btn.disabled = false; label.textContent = 'My location';
+      note.hidden = true;
+      urlSync = true; fromGeo = true;
+      $('place').value = 'custom';
+      $('lat').value = pos.coords.latitude.toFixed(4);
+      $('lon').value = pos.coords.longitude.toFixed(4);
+      pickTZ(browserTZ());
+      render();
+    }, (err) => {
+      btn.disabled = false; label.textContent = 'My location';
+      note.textContent = err.code === 1
+        ? 'Location access was blocked. Allow it for this site in the browser, or pick a place from the list.'
+        : "Couldn't get your location right now. Try again, or pick a place from the list.";
+      note.hidden = false;
+    }, { enableHighAccuracy: false, timeout: 15000, maximumAge: 600000 });
+  }
+
+  // ---------- install as an app ----------
+  let installEvent = null;
+  window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); installEvent = e; $('install').hidden = false; });
+  window.addEventListener('appinstalled', () => { installEvent = null; $('install').hidden = true; });
+  function install() {
+    if (!installEvent) return;
+    installEvent.prompt();
+    installEvent.userChoice.finally(() => { installEvent = null; $('install').hidden = true; });
+  }
+  if ('serviceWorker' in navigator && location.protocol === 'https:') {
+    window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js').catch(() => { /* offline support unavailable */ }); });
   }
 
   // ---------- URL parameters ----------
@@ -162,7 +200,8 @@
     const v = $('place').value;
     if (v === 'custom') {
       const lat = parseFloat($('lat').value), lon = parseFloat($('lon').value);
-      return { name: `${Math.abs(lat).toFixed(2)}°${lat >= 0 ? 'N' : 'S'}, ${Math.abs(lon).toFixed(2)}°${lon >= 0 ? 'E' : 'W'}`, lat: isFinite(lat) ? lat : 0, lon: isFinite(lon) ? lon : 0, tz: $('tz').value || 'UTC' };
+      const coords = `${Math.abs(lat).toFixed(2)}°${lat >= 0 ? 'N' : 'S'}, ${Math.abs(lon).toFixed(2)}°${lon >= 0 ? 'E' : 'W'}`;
+      return { name: fromGeo ? `My location (${coords})` : coords, lat: isFinite(lat) ? lat : 0, lon: isFinite(lon) ? lon : 0, tz: $('tz').value || 'UTC' };
     }
     const p = PLACES[+v] || PLACES[0];
     return { name: p[0], lat: p[1], lon: p[2], tz: p[3] };
@@ -432,6 +471,23 @@
     ['Carcer', 'The hidden and solitude', 'Retreat and solitude, secrets, hidden enemies, hospitals and other institutions, the unconscious, and self-undoing.'],
   ];
   const HOUSE_KIND = ['Angular', 'Succedent', 'Cadent'];
+  const HOUSE_SYSTEMS = {
+    placidus: ['Placidus', 'Divides the time each degree takes to rise from the IC to the Ascendant to the Midheaven into thirds. The most widely used modern system. Houses come out unequal, and it breaks down above about 66° latitude.'],
+    whole: ['Whole sign', 'Each sign is one house, starting with the rising sign as the 1st. The oldest system, from Hellenistic astrology. The Midheaven can fall in any house from the 9th to the 11th.'],
+    equal: ['Equal', 'Twelve 30° houses measured from the exact degree of the Ascendant. The Midheaven floats and is not always the 10th cusp.'],
+    natural: ['Natural', 'Aries is the 1st house, Taurus the 2nd, and so on, whatever the time or place. A flat view of the sky itself, useful for daily and mundane charts.'],
+  };
+  function tipSystem(v) {
+    const [name, text] = HOUSE_SYSTEMS[v] || [];
+    if (!name) return '';
+    const active = ctx && ctx.chart.system === v;
+    return `<div class="th">${name} houses${active ? ' <span class="badge">in use</span>' : ''}</div><div class="tplain">${text}</div>`;
+  }
+  function tipAllHouses() {
+    let h = `<div class="th">The twelve houses</div><div class="muted tnote" style="margin:0 0 6px">Each house is one area of life. Hover a house number on the wheel for its cusp, ruler and the planets in it.</div>`;
+    h += '<div class="hlist">' + HOUSE_MEANING.map(([latin, topic, plain], i) => `<div><b>${i + 1}</b><span><span class="ht">${topic}</span><span class="hp">${plain}</span></span></div>`).join('') + '</div>';
+    return h;
+  }
 
   function tipHouse(i) {
     const { chart, houseOf } = ctx;
@@ -504,6 +560,8 @@
     if (kind === 'house') return tipHouse(+v);
     if (kind === 'angle') return tipAngle(v);
     if (kind === 'aspect') return tipAspect(+v);
+    if (kind === 'hsys') return tipSystem(v);
+    if (kind === 'houses') return tipAllHouses();
     return '';
   }
   function focusWheel(key) {
@@ -530,6 +588,7 @@
     if (!html) return hideTip(true);
     current = key;
     tip.innerHTML = html;
+    tip.classList.toggle('wide', key === 'houses:all');
     tip.classList.toggle('pinned', !!pinned);
     tip.hidden = false;
     focusWheel(key);
@@ -553,6 +612,7 @@
   });
   document.addEventListener('click', (e) => {
     const z = zoneOf(e);
+    if (z && z.hasAttribute('data-tip-hover')) { hideTip(true); return; }
     if (z) {
       if (pinned === z.getAttribute('data-tip')) { hideTip(true); return; }
       pinned = z.getAttribute('data-tip');
@@ -576,7 +636,7 @@
     const hsys = $('hsys').value;
     document.querySelectorAll('input[name="hsysPick"]').forEach((r) => { r.checked = r.value === hsys; });
     $('customBox').hidden = $('place').value !== 'custom';
-    store.set({ place: $('place').value === 'custom' ? 'custom' : slug(currentPlace().name), hsys, lat: $('lat').value, lon: $('lon').value, tz: $('tz').value });
+    store.set({ geo: fromGeo, place: $('place').value === 'custom' ? 'custom' : slug(currentPlace().name), hsys, lat: $('lat').value, lon: $('lon').value, tz: $('tz').value });
     if (!$('date').value) return;
     const [y, m, d] = $('date').value.split('-').map(Number);
     const [hh, mm] = ($('time').value || '12:00').split(':').map(Number);
@@ -689,6 +749,9 @@
       if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(url).then(() => done(true), () => done(false));
       else done(false);
     });
+    $('locate').addEventListener('click', locate);
+    $('install').addEventListener('click', install);
+    ['lat', 'lon', 'place'].forEach((id) => $(id).addEventListener('change', () => { fromGeo = false; }, true));
     $('prev').addEventListener('click', () => shiftDay(-1));
     $('next').addEventListener('click', () => shiftDay(1));
     $('now').addEventListener('click', () => { urlSync = true; useBrowserPlace(); setNow(true); render(); });

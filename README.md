@@ -35,7 +35,13 @@ Pick a day, a time and a place and the sky comes back as a chart.
 | **⌂ Houses** | Placidus, Whole sign, Equal, or Natural (Aries on the 1st), switched from the toggle above the wheel. |
 | **✧ Hover anything** | Every symbol has a tooltip. **Houses** open with a plain-language line on what that house covers, for anyone new to astrology. **Planets** show position to the arcsecond, house, daily motion, latitude, declination (flagged when out of bounds), dignity, the houses they rule, antiscia, and each aspect with its orb and whether it's applying or separating. **Signs** show element, mode, polarity, rulers, exaltation, detriment and fall, and which cusps and bodies fall in them. **Houses** show the cusp, size, the cusp ruler and where it sits, interceptions and the bodies inside. **Angles and aspect lines** have their own details. Hovering a planet lights up its aspects. Click or tap a symbol to pin its tooltip, and press Esc to close it. |
 
+**My location** uses your device's position (the browser asks first). The **i** next to the house toggle explains all twelve houses, and hovering a house system explains how it divides the chart.
+
 Move through the days with **‹ ›** or the arrow keys. **Now** casts the chart for this minute in your own time zone, picked up from the browser.
+
+## ☾ Install it as an app
+
+In Chrome or Edge, click **Install app** on the page, or use the install icon in the address bar. It opens in its own window with the logo as its icon, and works offline once it has loaded. On iPhone and iPad, use Safari's **Share → Add to Home Screen**.
 
 ## ⚹ Link to any moment
 
@@ -99,6 +105,8 @@ src/app.js         controls, time zones, the SVG wheel
 src/stars.js       the twinkling sky behind it all
 src/styles.css     the night theme
 assets/logo.svg    the logo, also the browser tab icon
+assets/icons/      app icons
+manifest.webmanifest, sw.js   install as an app, work offline
 ```
 
 - **Planets** come from [Astronomy Engine](https://github.com/cosinekitty/astronomy) (MIT), accurate to well under an arcminute.
