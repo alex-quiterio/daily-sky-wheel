@@ -256,8 +256,14 @@
 
   function drawWheel(chart, asps) {
     const svg = $('wheel'); svg.innerHTML = '';
+    // Compact wheel on phones: the SVG renders at about half size, so type and hit areas grow.
+    const compact = isCompact();
+    svg.classList.toggle('compact', compact);
     const cx = 320, cy = 320;
-    const R0 = 300, R1 = 268, R2 = 258, RP = 222, RD = 194, RH = 168, RC = 120;
+    const R0 = 300, R1 = 268, R2 = 258, RP = compact ? 224 : 222, RD = compact ? 186 : 194, RH = 168, RC = 120;
+    const F = compact
+      ? { sign: 27, house: 17, houseR: RC + 17, houseHit: 15, angle: 17, angleR: R0 + 26, glyph: 34, glyphText: 18, deg: 19, min: 0, hit: 19, MIN: 13 }
+      : { sign: 19, house: 10, houseR: RC + 12, houseHit: 9, angle: 10, angleR: R0 + 22, glyph: 21, glyphText: 12, deg: 11.5, min: 9, hit: 13, MIN: 8.6 };
     const left = chart.cusps[0];
     const ang = (lon) => (180 + norm(lon) - left) * Math.PI / 180;
     const P = (lon, r) => [cx + r * Math.cos(ang(lon)), cy - r * Math.sin(ang(lon))];
@@ -276,7 +282,7 @@
       const [x0, y0] = P(a0, R0), [x1, y1] = P(a1, R0), [x2, y2] = P(a1, R1), [x3, y3] = P(a0, R1);
       el('path', { d: `M${x0} ${y0} A${R0} ${R0} 0 0 0 ${x1} ${y1} L${x2} ${y2} A${R1} ${R1} 0 0 1 ${x3} ${y3}Z`, fill: `var(${EL_VAR[s % 4]})`, 'fill-opacity': 0.13, stroke: 'var(--rule)', 'stroke-width': 1, 'data-tip': `sign:${s}`, class: 'tipzone' }, svg);
       const [gx, gy] = P(a0 + 15, (R0 + R1) / 2);
-      el('text', { x: gx, y: gy, 'text-anchor': 'middle', 'dominant-baseline': 'central', 'font-size': 19, fill: `var(${EL_VAR[s % 4]})`, 'font-family': 'var(--f-glyph)', 'data-tip': `sign:${s}`, class: 'tipzone', tabindex: 0, 'aria-label': `${E.SIGNS[s]} details` }, svg, sg(s));
+      el('text', { x: gx, y: gy, 'text-anchor': 'middle', 'dominant-baseline': 'central', 'font-size': F.sign, fill: `var(${EL_VAR[s % 4]})`, 'font-family': 'var(--f-glyph)', 'data-tip': `sign:${s}`, class: 'tipzone', tabindex: 0, 'aria-label': `${E.SIGNS[s]} details` }, svg, sg(s));
     }
     // degree ticks
     for (let d = 0; d < 360; d += 1) {
@@ -295,16 +301,16 @@
       el('line', { x1: x0, y1: y0, x2: x1, y2: y1, stroke: angle ? 'var(--gold)' : 'var(--rule)', 'stroke-width': angle ? 1.3 : 1 }, svg);
       const next = chart.cusps[(i + 1) % 12];
       const mid = c + norm(next - c) / 2;
-      const [hx, hy] = P(mid, RC + 12);
-      el('circle', { cx: hx, cy: hy, r: 9, fill: 'rgba(0,0,0,0)', 'data-tip': `house:${i}`, class: 'tipzone' }, svg);
-      el('text', { x: hx, y: hy, 'text-anchor': 'middle', 'dominant-baseline': 'central', 'font-size': 10, fill: 'var(--muted)', 'font-family': 'var(--f-data)', 'data-tip': `house:${i}`, class: 'tipzone', tabindex: 0, 'aria-label': `House ${i + 1} details` }, svg, String(i + 1));
+      const [hx, hy] = P(mid, F.houseR);
+      el('circle', { cx: hx, cy: hy, r: F.houseHit, fill: 'rgba(0,0,0,0)', 'data-tip': `house:${i}`, class: 'tipzone' }, svg);
+      el('text', { x: hx, y: hy, 'text-anchor': 'middle', 'dominant-baseline': 'central', 'font-size': F.house, fill: 'var(--muted)', 'font-family': 'var(--f-data)', 'data-tip': `house:${i}`, class: 'tipzone', tabindex: 0, 'aria-label': `House ${i + 1} details` }, svg, String(i + 1));
     });
     // angle markers ASC / MC (always drawn at their real positions)
     [['AC', chart.asc], ['MC', chart.mc], ['DC', chart.asc + 180], ['IC', chart.mc + 180]].forEach(([lab, lon]) => {
       const [x0, y0] = P(lon, R0), [x1, y1] = P(lon, R0 + 0.01);
-      const [tx, ty] = P(lon, R0 + 22);
+      const [tx, ty] = P(lon, F.angleR);
       el('line', { x1: P(lon, R1)[0], y1: P(lon, R1)[1], x2: x0, y2: y0, stroke: 'var(--accent)', 'stroke-width': 2.2 }, svg);
-      el('text', { x: tx, y: ty, 'text-anchor': 'middle', 'dominant-baseline': 'central', 'font-size': 10, 'font-weight': 600, fill: 'var(--accent)', 'font-family': 'var(--f-data)', 'data-tip': `angle:${lab}`, class: 'tipzone', tabindex: 0, 'aria-label': `${lab} details` }, svg, lab);
+      el('text', { x: tx, y: ty, 'text-anchor': 'middle', 'dominant-baseline': 'central', 'font-size': F.angle, 'font-weight': 600, fill: 'var(--accent)', 'font-family': 'var(--f-data)', 'data-tip': `angle:${lab}`, class: 'tipzone', tabindex: 0, 'aria-label': `${lab} details` }, svg, lab);
     });
 
     // aspect lines
@@ -322,7 +328,7 @@
     items.push({ name: 'Vertex', lon: chart.vertex, disp: chart.vertex, retro: false, minor: true });
     items.sort((a, b) => a.lon - b.lon);
     // spread clusters: group neighbours closer than MIN, fan each group evenly around its centre
-    const MIN = 8.6;
+    const MIN = F.MIN;
     let groups = items.map((p) => [p]);
     for (let iter = 0; iter < 40; iter++) {
       groups.forEach((gr) => {
@@ -353,14 +359,18 @@
       const [gx, gy] = P(p.disp, RP);
       const isText = (GLYPH[p.name] || '').length > 1;
       const key = p.name === 'Vertex' ? 'angle:Vx' : `planet:${p.name}`;
-      el('circle', { cx: gx, cy: gy, r: 13, fill: 'rgba(0,0,0,0)', 'data-tip': key, class: 'tipzone' }, gp);
-      el('text', { x: gx, y: gy, 'text-anchor': 'middle', 'dominant-baseline': 'central', 'font-size': isText ? 12 : 21, fill: 'var(--ink)', 'font-family': isText ? 'var(--f-data)' : 'var(--f-glyph)', 'font-weight': isText ? 600 : 400, 'data-tip': key, class: 'tipzone pglyph', tabindex: 0, 'aria-label': `${LABEL[p.name] || p.name} details` }, gp, g(p.name));
+      el('circle', { cx: gx, cy: gy, r: F.hit, fill: 'rgba(0,0,0,0)', 'data-tip': key, class: 'tipzone' }, gp);
+      el('text', { x: gx, y: gy, 'text-anchor': 'middle', 'dominant-baseline': 'central', 'font-size': isText ? F.glyphText : F.glyph, fill: 'var(--ink)', 'font-family': isText ? 'var(--f-data)' : 'var(--f-glyph)', 'font-weight': isText ? 600 : 400, 'data-tip': key, class: 'tipzone pglyph', tabindex: 0, 'aria-label': `${LABEL[p.name] || p.name} details` }, gp, g(p.name));
       const [dx, dy] = P(p.disp, RD);
-      el('text', { x: dx, y: dy, 'text-anchor': 'middle', 'dominant-baseline': 'central', 'font-size': 11.5, fill: color, 'font-family': 'var(--f-data)' }, gp, `${pos.deg}°${p.retro ? 'ʀ' : ''}`);
-      const [mx, my] = P(p.disp, RD - 15);
-      el('text', { x: mx, y: my, 'text-anchor': 'middle', 'dominant-baseline': 'central', 'font-size': 9, fill: 'var(--muted)', 'font-family': 'var(--f-data)' }, gp, pad(pos.min) + '′');
+      el('text', { x: dx, y: dy, 'text-anchor': 'middle', 'dominant-baseline': 'central', 'font-size': F.deg, fill: color, 'font-family': 'var(--f-data)' }, gp, `${pos.deg}°${p.retro ? 'ʀ' : ''}`);
+      if (F.min) {
+        const [mx, my] = P(p.disp, RD - 15);
+        el('text', { x: mx, y: my, 'text-anchor': 'middle', 'dominant-baseline': 'central', 'font-size': F.min, fill: 'var(--muted)', 'font-family': 'var(--f-data)' }, gp, pad(pos.min) + '′');
+      }
     });
   }
+
+  function isCompact() { return window.innerWidth < 600; }
 
   function drawMoon(phase) {
     const svg = $('moonpic'); svg.innerHTML = '';
@@ -587,11 +597,12 @@
     const html = tipHTML(key);
     if (!html) return hideTip(true);
     current = key;
-    tip.innerHTML = html;
+    tip.innerHTML = (isCompact() ? '<button type="button" class="tipclose" aria-label="Close">✕</button>' : '') + html;
     tip.classList.toggle('wide', key === 'houses:all');
     tip.classList.toggle('pinned', !!pinned);
     tip.hidden = false;
     focusWheel(key);
+    if (isCompact()) { tip.style.left = ''; tip.style.top = ''; tip.scrollTop = 0; return; } // bottom sheet, placed by CSS
     const r = target.getBoundingClientRect();
     const ax = x != null ? x : r.left + r.width / 2, ay = y != null ? y : r.bottom;
     const tw = tip.offsetWidth, th = tip.offsetHeight, vw = window.innerWidth, vh = window.innerHeight;
@@ -611,6 +622,7 @@
     if (z) showTip(z, e.clientX, e.clientY); else if (current) hideTip();
   });
   document.addEventListener('click', (e) => {
+    if (e.target.closest && e.target.closest('.tipclose')) { hideTip(true); return; }
     const z = zoneOf(e);
     if (z && z.hasAttribute('data-tip-hover')) { hideTip(true); return; }
     if (z) {
@@ -750,6 +762,17 @@
       else done(false);
     });
     $('locate').addEventListener('click', locate);
+    // redraw the wheel when crossing the phone/desktop width (e.g. rotating a phone)
+    let wasCompact = isCompact(), rt = 0;
+    window.addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(() => { if (isCompact() !== wasCompact) { wasCompact = isCompact(); render(); } }, 150); });
+    // swipe the wheel left/right to change day
+    let sx = 0, sy = 0, st = 0;
+    const wheelbox = document.querySelector('.wheelbox svg');
+    wheelbox.addEventListener('touchstart', (e) => { const t = e.touches[0]; sx = t.clientX; sy = t.clientY; st = Date.now(); }, { passive: true });
+    wheelbox.addEventListener('touchend', (e) => {
+      const t = e.changedTouches[0], dx = t.clientX - sx, dy = t.clientY - sy;
+      if (Date.now() - st < 600 && Math.abs(dx) > 60 && Math.abs(dy) < 45) shiftDay(dx < 0 ? 1 : -1);
+    }, { passive: true });
     $('install').addEventListener('click', install);
     ['lat', 'lon', 'place'].forEach((id) => $(id).addEventListener('change', () => { fromGeo = false; }, true));
     $('prev').addEventListener('click', () => shiftDay(-1));

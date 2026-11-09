@@ -271,3 +271,35 @@ button.primary { background: linear-gradient(180deg, rgba(216, 180, 106, 0.3), r
 #tip .hlist .hp { display: block; color: var(--muted); font-size: 13.5px; line-height: 1.4; }
 #tip { max-height: calc(100vh - 16px); overflow-y: auto; overscroll-behavior: contain; }
 #tip.pinned { pointer-events: auto; }
+
+/* phones */
+.tipclose { display: none; }
+@media (max-width: 599px) {
+  body { padding-block: max(18px, calc(env(safe-area-inset-top, 0px) + 10px)) max(32px, calc(env(safe-area-inset-bottom, 0px) + 16px)); }
+  .wrap { gap: 14px; }
+  input, select, button { font-size: 16px; }
+  .brand { gap: 12px; }
+  .big3 { display: flex; flex-wrap: wrap; gap: 2px 14px; font-size: 13px; }
+  .controls { gap: 10px; padding: 12px; }
+  .controls .field:has(#place) { flex: 1 1 100%; }
+  .controls #place { width: 100%; }
+  .controls > button { flex: 1 1 auto; justify-content: center; }
+  .spacer { display: none; }
+  .wheelbox { padding: 8px 4px; border-radius: 14px; }
+  .wheelbar { padding-inline: 4px; }
+  .seg span { padding: 4px 10px; }
+  section.card { padding: 14px; }
+  .legend { font-size: 13px; gap: 4px 12px; }
+  table.eph td { padding: 5px 3px; }
+  #tip {
+    left: max(8px, env(safe-area-inset-left, 0px)) !important; right: max(8px, env(safe-area-inset-right, 0px));
+    top: auto !important; bottom: max(8px, env(safe-area-inset-bottom, 0px));
+    width: auto; max-width: none; max-height: 62vh; padding: 14px 16px 16px;
+    border-radius: 16px; pointer-events: auto; font-size: 15px;
+  }
+  #tip.wide { max-width: none; }
+  .tipclose {
+    display: grid; place-items: center; position: sticky; top: 0; float: right; margin: -4px -6px 0 8px;
+    width: 32px; height: 32px; min-height: 0; padding: 0; border-radius: 50%; font-size: 14px; color: var(--muted);
+  }
+}
