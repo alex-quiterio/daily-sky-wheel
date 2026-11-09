@@ -592,6 +592,7 @@
     if (kind === 'hsys') return tipSystem(v);
     if (kind === 'houses') return tipAllHouses();
     if (kind === 'cn-stem') return tipCnStem(+v);
+    if (kind === 'ph') return `<div class="th">${g(v)} ${v}</div><div class="tplain">${E.HOUR_MEANING[v]}</div><div class="muted tnote">In the tradition of planetary hours, a matter is begun in the hour of the planet that rules it.</div>`;
     if (kind === 'my-sign') return tipMayaSign(+v);
     if (kind === 'kb-sefira') return tipSefira(+v);
     if (kind === 'vd-nak') return tipNakshatra(+v);
@@ -669,6 +670,45 @@
     if ((e.key === 'Enter' || e.key === ' ') && zoneOf(e) && e.target.tagName !== 'BUTTON') { e.preventDefault(); pinned = zoneOf(e).getAttribute('data-tip'); showTip(zoneOf(e)); }
   });
   window.addEventListener('scroll', () => { if (!pinned) hideTip(); }, { passive: true });
+
+  // ---------- planetary hours ----------
+  let phTimer = 0;
+  function renderPlanetaryHours(when, local, place) {
+    const A = window.Astronomy, obs = new A.Observer(place.lat, place.lon, 0);
+    const dayAt = (y, m, d) => {
+      const mid = localToUTC(y, m, d, 0, 0, place.tz);
+      const r = A.SearchRiseSet(A.Body.Sun, obs, +1, mid, 1), s2 = A.SearchRiseSet(A.Body.Sun, obs, -1, mid, 1);
+      return r && s2 ? { sunrise: r.date, sunset: s2.date, weekday: new Date(Date.UTC(y, m - 1, d)).getUTCDay() } : null;
+    };
+    const shift = (n) => { const t = new Date(Date.UTC(local.y, local.m - 1, local.d + n)); return [t.getUTCFullYear(), t.getUTCMonth() + 1, t.getUTCDate()]; };
+    let today = dayAt(local.y, local.m, local.d);
+    if (!today) { $('phNow').innerHTML = '<p class="empty">The Sun does not rise or set here today, so there are no planetary hours.</p>'; $('phList').innerHTML = ''; return; }
+    // before sunrise the hours still belong to the previous planetary day
+    let base = today, next = dayAt(...shift(1));
+    if (when < today.sunrise) { base = dayAt(...shift(-1)); next = today; }
+    if (!base || !next) { $('phList').innerHTML = ''; return; }
+    const ph = E.planetaryHours(base.sunrise, base.sunset, next.sunrise, base.weekday);
+    const cur = ph.hours.find((x) => when >= x.start && when < x.end);
+    const t = (d) => localParts(d, place.tz).time;
+    $('phNow').innerHTML = `<div class="ph-now">
+        <div class="ph-big tipzone" data-tip="ph:${ph.dayRuler}" tabindex="0"><span class="ph-g">${g(ph.dayRuler)}</span><div><small>Day of</small><b>${ph.dayRuler}</b></div></div>
+        ${cur ? `<div class="ph-big ph-cur tipzone" data-tip="ph:${cur.ruler}" tabindex="0"><span class="ph-g">${g(cur.ruler)}</span><div><small>${cur.isDay ? 'Day' : 'Night'} hour ${cur.isDay ? cur.n : cur.n - 12} of 12</small><b>Hour of ${cur.ruler}</b><small id="phCountdown" data-end="${cur.end.toISOString()}">until ${t(cur.end)}</small></div></div>` : ''}
+      </div>`;
+    const item = (x) => `<button type="button" class="ph-item${x === cur ? ' now' : ''}" data-t="${x.start.toISOString()}" title="${x.ruler} · ${Math.round(x.minutes)} minutes">
+        <span class="ph-t">${t(x.start)}</span><span class="ph-ig">${g(x.ruler)}</span><span>${x.ruler}</span></button>`;
+    $('phList').innerHTML = `<div><div class="ph-head">☀︎ Day · ${Math.round(ph.hours[0].minutes)} min hours</div>${ph.hours.slice(0, 12).map(item).join('')}</div>`
+      + `<div><div class="ph-head">☾ Night · ${Math.round(ph.hours[12].minutes)} min hours</div>${ph.hours.slice(12).map(item).join('')}</div>`;
+    clearInterval(phTimer);
+    const cd = document.getElementById('phCountdown');
+    // count down only when the chart shows the present moment
+    if (cd && Math.abs(when - Date.now()) < 5 * 60000) {
+      const tick = () => {
+        const ms = new Date(cd.dataset.end) - Date.now();
+        if (ms > 0 && ms < 6 * 3600000) cd.textContent = `${Math.floor(ms / 60000)} min left · until ${t(new Date(cd.dataset.end))}`;
+      };
+      tick(); phTimer = setInterval(tick, 30000);
+    }
+  }
 
   // ---------- year ahead ----------
   const YEAR_CATS = [['all', 'All'], ['eclipse', 'Eclipses'], ['retro', 'Stations'], ['ingress', 'Ingresses'], ['aspect', 'Outer aspects'], ['venus', 'Venus'], ['season', 'Seasons']];
@@ -1459,6 +1499,7 @@
     ctx = { chart, asps, byName, place, houseOf: (lon) => houseOfCusps(chart.cusps, lon) };
     lastWhen = when;
     renderYear(place, when);
+    renderPlanetaryHours(when, { y, m, d }, place);
     drawWheel(chart, asps);
     if (view === 'chinese') renderChinese(when, { y, m, d, hh, mm }, place);
     if (view === 'maya') renderMaya({ y, m, d }, place);
@@ -1597,6 +1638,11 @@
     $('vdAhead').addEventListener('click', (e) => { const b = e.target.closest('.vd-item'); if (b) { $('date').value = b.dataset.date; urlSync = true; render(); } });
     $('kbComing').addEventListener('click', (e) => { const b = e.target.closest('.kb-coming'); if (b) { $('date').value = b.dataset.date; urlSync = true; render(); } });
     $('myNext').addEventListener('click', (e) => { const b = e.target.closest('.my-day'); if (b) { $('date').value = b.dataset.date; urlSync = true; render(); } });
+    $('phList').addEventListener('click', (e) => {
+      const b = e.target.closest('.ph-item'); if (!b) return;
+      const lp = localParts(new Date(b.dataset.t), currentPlace().tz);
+      $('date').value = lp.date; $('time').value = lp.time; urlSync = true; render();
+    });
     $('yearlist').addEventListener('click', (e) => { const b = e.target.closest('.yitem'); if (b) jumpTo(b.dataset.t); });
     setTimeout(() => {
       const d = new Date(); const start = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()));

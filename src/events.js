@@ -267,5 +267,32 @@
     return out.sort((a, b) => a.t - b.t);
   }
 
-  root.AstroEvents = { yearAhead, dignity, signInfo, SIGNS, ELEMENT, MODE, RULER, ASPECTS, aspects, patterns, balance, moonPhase, dayEvents, sep };
+  // ---------- planetary hours ----------
+  // Chaldean order, slowest to fastest. Each hour passes to the next planet in this order.
+  const CHALDEAN = ['Saturn', 'Jupiter', 'Mars', 'Sun', 'Venus', 'Mercury', 'Moon'];
+  const DAY_RULER = ['Sun', 'Moon', 'Mars', 'Mercury', 'Jupiter', 'Venus', 'Saturn']; // Sunday = 0
+  const HOUR_MEANING = {
+    Sun: 'Vitality, leadership, recognition, dealings with people in authority.',
+    Moon: 'Home and family, the public, travel, dreams and anything that changes.',
+    Mars: 'Courage, competition, physical effort, cutting through obstacles.',
+    Mercury: 'Writing, study, messages, trade, contracts and short journeys.',
+    Jupiter: 'Growth, generosity, law, teaching, asking for favours.',
+    Venus: 'Love, friendship, art, beauty, pleasure and reconciliation.',
+    Saturn: 'Structure, discipline, endings, long-term and solitary work.',
+  };
+  // sunrise → sunset → next sunrise of one planetary day, and its weekday (0 = Sunday)
+  function planetaryHours(sunrise, sunset, nextSunrise, weekday) {
+    const out = [];
+    const first = CHALDEAN.indexOf(DAY_RULER[weekday]);
+    const dayLen = (sunset - sunrise) / 12, nightLen = (nextSunrise - sunset) / 12;
+    for (let i = 0; i < 24; i++) {
+      const isDay = i < 12;
+      const start = isDay ? sunrise.getTime() + i * dayLen : sunset.getTime() + (i - 12) * nightLen;
+      const len = isDay ? dayLen : nightLen;
+      out.push({ n: i + 1, isDay, ruler: CHALDEAN[(first + i) % 7], start: new Date(start), end: new Date(start + len), minutes: len / 60000 });
+    }
+    return { dayRuler: DAY_RULER[weekday], hours: out };
+  }
+
+  root.AstroEvents = { planetaryHours, HOUR_MEANING, CHALDEAN, yearAhead, dignity, signInfo, SIGNS, ELEMENT, MODE, RULER, ASPECTS, aspects, patterns, balance, moonPhase, dayEvents, sep };
 })(typeof window !== 'undefined' ? window : globalThis);

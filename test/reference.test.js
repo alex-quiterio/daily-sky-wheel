@@ -210,3 +210,17 @@ test('Vedic festivals 2026 (Delhi) follow the observance rules', () => {
   for (const [name, date] of Object.entries(want)) assert.strictEqual(on(name), date, name);
   assert.strictEqual(ev.filter((e) => e.kind === 'ekadashi').length, 24, 'two Ekadashis a month');
 });
+
+test('Planetary hours: Chaldean order from the day ruler', () => {
+  // Monday 9 Nov 2026, illustrative sunrise/sunset/next sunrise
+  const sr = new Date('2026-11-09T06:42:00Z'), ss = new Date('2026-11-09T16:57:00Z'), nx = new Date('2026-11-10T06:44:00Z');
+  const ph = E.planetaryHours(sr, ss, nx, 1);
+  assert.strictEqual(ph.dayRuler, 'Moon');
+  assert.deepStrictEqual(ph.hours.slice(0, 8).map((h) => h.ruler), ['Moon', 'Saturn', 'Jupiter', 'Mars', 'Sun', 'Venus', 'Mercury', 'Moon']);
+  assert.strictEqual(ph.hours.length, 24);
+  assert.strictEqual(ph.hours[11].end.getTime(), ss.getTime(), 'twelfth day hour ends at sunset');
+  assert.strictEqual(ph.hours[23].end.getTime(), nx.getTime(), 'last night hour ends at the next sunrise');
+  // the hour after the 24th is the next day's ruler (Tuesday → Mars)
+  const next = E.CHALDEAN[(E.CHALDEAN.indexOf(ph.hours[23].ruler) + 1) % 7];
+  assert.strictEqual(next, 'Mars');
+});
