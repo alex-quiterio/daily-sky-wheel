@@ -141,3 +141,29 @@ test('Hebrew numerals and the Omer', () => {
   const o = H.omer(H.hebrewDate(2026, 5, 5, false)); // Lag BaOmer
   assert.deepStrictEqual([o.day, H.SEFIROT[o.inner][1], H.SEFIROT[o.outer][1]], [33, 'Hod', 'Hod']);
 });
+
+require('../src/vedic.js');
+const V = globalThis.Vedic;
+
+test('Vedic: Lahiri ayanamsa, adhika month, dignities', () => {
+  assert.ok(Math.abs(V.ayanamsa(new Date(Date.UTC(2000, 0, 1, 12))) - 23.8571) < 0.001);
+  assert.ok(Math.abs(V.ayanamsa(new Date(Date.UTC(2026, 0, 1))) - 24.225) < 0.01, '24°13′ in 2026');
+  const adhika = V.lunarMonth(new Date(Date.UTC(2026, 5, 1)));
+  assert.deepStrictEqual([adhika.name, adhika.adhika], ['Jyeshtha', true], 'Adhika Jyeshtha 2026');
+  const diwali = V.lunarMonth(new Date(Date.UTC(2025, 9, 20, 12)));
+  assert.strictEqual(diwali.name, 'Ashvina', 'Diwali 2025 closes amanta Ashvina');
+  const g = V.grahas(when).list;
+  const by = Object.fromEntries(g.map((x) => [x.key, x]));
+  assert.strictEqual(V.RASHIS[by.Sun.sign][1], 'Tula');
+  assert.strictEqual(by.Sun.dignity, 'Debilitated');
+  assert.strictEqual(V.NAKSHATRAS[by.Moon.nak.i][0], 'Vishakha');
+  assert.strictEqual(Math.round(Math.abs(by.Rahu.sid - by.Ketu.sid)), 180);
+});
+
+test('Vedic panchang at the new moon', () => {
+  const p = V.panchang(new Date(when.getTime() + 60000), 28.61, 77.21, new Date(Date.UTC(2026, 10, 8, 18, 30)));
+  assert.deepStrictEqual([p.tithi.paksha, p.tithi.name], ['Shukla', 'Pratipada']);
+  assert.strictEqual(p.karana.name, 'Kimstughna');
+  const before = V.panchang(new Date(when.getTime() - 60000), 28.61, 77.21);
+  assert.strictEqual(before.tithi.name, 'Amavasya');
+});

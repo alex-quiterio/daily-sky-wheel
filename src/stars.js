@@ -111,6 +111,36 @@
   function spawnSpark(anywhere) {
     sparks.push({ x: Math.random() * w, y: anywhere ? Math.random() * h : h + 10, vy: 14 + Math.random() * 26, sway: 4 + Math.random() * 10, ph: Math.random() * Math.PI * 2, r: 0.8 + Math.random() * 1.4, a: 0.4 + Math.random() * 0.5 });
   }
+  // Vedic theme: the 27 nakshatras around the 12 rashis
+  (function nakshatraRing() {
+    const ring = document.createElement('div');
+    ring.className = 'sky-ring sky-ring-vedic';
+    ring.setAttribute('aria-hidden', 'true');
+    const naks = ['Ashwini', 'Bharani', 'Krittika', 'Rohini', 'Mrigashira', 'Ardra', 'Punarvasu', 'Pushya', 'Ashlesha', 'Magha', 'P.Phalguni', 'U.Phalguni', 'Hasta', 'Chitra', 'Swati', 'Vishakha', 'Anuradha', 'Jyeshtha', 'Mula', 'P.Ashadha', 'U.Ashadha', 'Shravana', 'Dhanishta', 'Shatabhisha', 'P.Bhadra', 'U.Bhadra', 'Revati'];
+    const rashis = ['मेष', 'वृषभ', 'मिथुन', 'कर्क', 'सिंह', 'कन्या', 'तुला', 'वृश्चिक', 'धनु', 'मकर', 'कुम्भ', 'मीन'];
+    let svg = '<svg viewBox="-500 -500 1000 1000" xmlns="http://www.w3.org/2000/svg">';
+    svg += '<circle r="475" fill="none" stroke="currentColor" stroke-width="1.2"/><circle r="400" fill="none" stroke="currentColor" stroke-width="0.7"/><circle r="300" fill="none" stroke="currentColor" stroke-width="0.7"/>';
+    for (let i = 0; i < 27; i++) {
+      const a = (i * 360 / 27 - 90) * Math.PI / 180, m = (i * 360 / 27 - 90 + 180 / 27) * Math.PI / 180;
+      svg += `<line x1="${400 * Math.cos(a)}" y1="${400 * Math.sin(a)}" x2="${475 * Math.cos(a)}" y2="${475 * Math.sin(a)}" stroke="currentColor" stroke-width="0.6"/>`;
+      svg += `<text x="${438 * Math.cos(m)}" y="${438 * Math.sin(m)}" font-size="17" text-anchor="middle" dominant-baseline="central" fill="currentColor" font-family="Cinzel, serif" transform="rotate(${i * 360 / 27 + 180 / 27} ${438 * Math.cos(m)} ${438 * Math.sin(m)})">${naks[i]}</text>`;
+    }
+    for (let i = 0; i < 12; i++) {
+      const a = (i * 30 - 75) * Math.PI / 180;
+      svg += `<text x="${350 * Math.cos(a)}" y="${350 * Math.sin(a)}" font-size="32" text-anchor="middle" dominant-baseline="central" fill="currentColor" font-family="Tiro Devanagari Sanskrit, serif" transform="rotate(${i * 30 + 15} ${350 * Math.cos(a)} ${350 * Math.sin(a)})">${rashis[i]}</text>`;
+    }
+    // lotus at the centre
+    for (let k = 0; k < 16; k++) svg += `<ellipse cx="0" cy="-150" rx="34" ry="120" fill="none" stroke="currentColor" stroke-width="1" transform="rotate(${k * 22.5})"/>`;
+    svg += '<circle r="60" fill="none" stroke="currentColor" stroke-width="1.4"/></svg>';
+    ring.innerHTML = svg;
+    document.body.insertBefore(ring, canvas.nextSibling);
+  })();
+  const isVedic = () => document.documentElement.classList.contains('theme-vedic');
+  let petals = [];
+  function spawnPetal(anywhere) {
+    const warm = Math.random();
+    petals.push({ x: Math.random() * w, y: anywhere ? Math.random() * h : -20, vy: 12 + Math.random() * 18, vx: (Math.random() - 0.5) * 10, rot: Math.random() * Math.PI, vr: (Math.random() - 0.5) * 1.6, s: 3 + Math.random() * 4, ph: Math.random() * 6, c: warm < 0.55 ? '255,150,30' : warm < 0.85 ? '255,196,60' : '235,70,60' });
+  }
   const isMaya = () => document.documentElement.classList.contains('theme-maya');
   let flies = [];
   function spawnFly() {
@@ -191,6 +221,20 @@
         ctx.fillStyle = gr; ctx.beginPath(); ctx.arc(x, p.y, p.r * 6, 0, Math.PI * 2); ctx.fill();
       }
     } else if (sparks.length) sparks = [];
+    const vedNow = isVedic();
+    if (vedNow) {
+      const want = Math.round(w / 40);
+      if (!petals.length) for (let k = 0; k < want; k++) spawnPetal(true);
+      petals = petals.filter((p) => p.y < h + 30);
+      while (!still && petals.length < want) spawnPetal(false);
+      for (const p of petals) {
+        if (!still) { p.y += p.vy * dt; p.x += (p.vx + Math.sin(p.ph + t / 900) * 12) * dt; p.rot += p.vr * dt; }
+        ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.rot);
+        ctx.fillStyle = `rgba(${p.c},0.55)`;
+        ctx.beginPath(); ctx.ellipse(0, 0, p.s * 0.55, p.s, 0, 0, Math.PI * 2); ctx.fill();
+        ctx.restore();
+      }
+    } else if (petals.length) petals = [];
     const mayaNow = isMaya();
     if (mayaNow) {
       const want = Math.round((w * h) / 26000);
@@ -229,7 +273,7 @@
       }
     } else if (lanterns.length) lanterns = [];
     if (!still) {
-      if (!cnNow && !mayaNow && !kabNow && t > nextMeteor) { if (nextMeteor) spawnMeteor(); nextMeteor = t + 4000 + Math.random() * 9000; }
+      if (!cnNow && !mayaNow && !kabNow && !vedNow && t > nextMeteor) { if (nextMeteor) spawnMeteor(); nextMeteor = t + 4000 + Math.random() * 9000; }
       meteors = meteors.filter((m) => m.life < m.max);
       for (const m of meteors) {
         m.life += dt; m.x += m.vx * dt; m.y += m.vy * dt;

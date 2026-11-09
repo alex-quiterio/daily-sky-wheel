@@ -593,6 +593,9 @@
     if (kind === 'cn-stem') return tipCnStem(+v);
     if (kind === 'my-sign') return tipMayaSign(+v);
     if (kind === 'kb-sefira') return tipSefira(+v);
+    if (kind === 'vd-nak') return tipNakshatra(+v);
+    if (kind === 'vd-rashi') return tipRashi(+v);
+    if (kind === 'vd-graha') return tipGraha(v);
     if (kind === 'cn-branch') return tipCnBranch(+v);
     return '';
   }
@@ -726,7 +729,7 @@
   let view = 'western';
   let cn = null; // last computed Chinese chart
 
-  const VIEWS = [['western', 'Western', '#07061a', ''], ['chinese', 'Chinese', '#0d0506', 'theme-cn'], ['maya', 'Maya', '#03110d', 'theme-maya'], ['kabbalah', 'Kabbalah', '#050a24', 'theme-kab']];
+  const VIEWS = [['western', 'Western', '#07061a', ''], ['chinese', 'Chinese', '#0d0506', 'theme-cn'], ['maya', 'Maya', '#03110d', 'theme-maya'], ['kabbalah', 'Kabbalah', '#050a24', 'theme-kab'], ['vedic', 'Vedic', '#1a0712', 'theme-vedic']];
   function setView(v, fromUser) {
     view = VIEWS.some(([k]) => k === v) ? v : 'western';
     VIEWS.forEach(([k, label, color, theme]) => {
@@ -1148,6 +1151,126 @@
     return h;
   }
 
+
+  // ---------- Vedic tab ----------
+  const VD = window.Vedic;
+  let vdStyle = (() => { try { return localStorage.getItem('skywheel-vedic-style') || 'north'; } catch (e) { return 'north'; } })();
+  let vdLast = null;
+
+  function renderVedic(when, local, place, chart) {
+    const dayStart = localToUTC(local.y, local.m, local.d, 0, 0, place.tz);
+    const p = VD.panchang(when, place.lat, place.lon, dayStart);
+    const g = VD.grahas(when);
+    const lagna = VD.sidereal(chart.asc, when), lagnaSign = Math.floor(lagna / 30);
+    const lm = VD.lunarMonth(when);
+    const civilDow = new Date(Date.UTC(local.y, local.m - 1, local.d)).getUTCDay();
+    const vara = p.sunrise && when < p.sunrise ? (civilDow + 6) % 7 : civilDow; // the Vedic day turns at sunrise
+    const per = VD.periods(p.sunrise, p.sunset, civilDow);
+    const t = (d) => (d ? localParts(d, place.tz).time : '—');
+    const ends = (d) => (d ? `until ${new Intl.DateTimeFormat('en-GB', { timeZone: place.tz, weekday: 'short', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).format(d)}` : '');
+    const dm = (x) => `${Math.floor(x)}°${pad(Math.floor((x % 1) * 60))}′`;
+    vdLast = { g, lagnaSign, lagna };
+
+    const limb = (label, value, sub, endAt) => `<div class="vd-limb"><span class="vd-l">${label}</span><span class="vd-v">${value}${sub ? `<small>${sub}</small>` : ''}</span><span class="vd-e">${ends(endAt)}</span></div>`;
+    $('vdPanchang').innerHTML = `
+      <div class="vd-head"><div class="vd-big">${p.tithi.paksha} ${p.tithi.name}</div><div class="muted">${lm.adhika ? 'Adhika ' : ''}${lm.name} month (amanta) · ${p.tithi.paksha === 'Shukla' ? 'waxing' : 'waning'} fortnight</div></div>
+      ${limb('Tithi', `${p.tithi.n > 15 ? p.tithi.n - 15 : p.tithi.n}. ${p.tithi.name}`, `${p.tithi.paksha} paksha`, p.tithi.ends)}
+      ${limb('Vara', VD.VARAS[vara][0], `day of ${VD.VARAS[vara][1]}`, null)}
+      ${limb('Nakshatra', `<span class="tipzone" data-tip="vd-nak:${p.nakshatra.i}" tabindex="0">${p.nakshatra.name}</span> · pada ${p.nakshatra.pada}`, `ruled by ${p.nakshatra.lord} · deity ${p.nakshatra.deity}`, p.nakshatra.ends)}
+      ${limb('Yoga', `${p.yoga.n}. ${p.yoga.name}`, '', p.yoga.ends)}
+      ${limb('Karana', p.karana.name, '', p.karana.ends)}
+      <p class="cn-note">Ayanamsa (Lahiri) ${dm(p.ayanamsa)} · Moon in ${VD.RASHIS[Math.floor(p.moonSid / 30)][1]} · Sun in ${VD.RASHIS[Math.floor(p.sunSid / 30)][1]}</p>`;
+
+    const span = (x) => (x ? `${t(x.start)} – ${t(x.end)}` : '—');
+    const now = (x) => x && when >= x.start && when < x.end;
+    $('vdTimes').innerHTML = `
+      ${row('Sunrise', t(p.sunrise))}
+      ${row('Sunset', t(p.sunset))}
+      ${per ? [['Rahu Kaal', per.rahu, 'bad'], ['Yamaganda', per.yama, 'bad'], ['Gulika Kaal', per.gulika, 'bad'], ['Abhijit muhurta', per.abhijit, 'good']].map(([n, x, kind]) => `<div class="tr vd-per ${kind}${now(x) ? ' now' : ''}"><span>${n}${now(x) ? ' <b class="vd-now">now</b>' : ''}</span><span>${span(x)}</span></div>`).join('') : ''}
+      <p class="cn-note">Rahu Kaal, Yamaganda and Gulika are avoided for new beginnings. Abhijit, the midday muhurta, is favoured.</p>`;
+
+    const moon = g.list.find((x) => x.key === 'Moon');
+    const ds = VD.dashas(when, moon.sid);
+    const fy = (d) => new Intl.DateTimeFormat('en-GB', { timeZone: place.tz, month: 'short', year: 'numeric' }).format(d);
+    $('vdDasha').innerHTML = `<p class="cn-note" style="margin-top:0">For someone born at this moment: the Moon in ${VD.NAKSHATRAS[moon.nak.i][0]} (ruled by ${moon.nak.lord}) sets the sequence.</p>`
+      + ds.map((x, i) => `<div class="tr${i === 0 ? ' vd-first' : ''}"><span>${x.lord}${i === 0 ? ' <small class="muted">(balance)</small>' : ''}</span><span>${fy(x.start)} – ${fy(x.end)} <small class="muted">${x.years.toFixed(1)} y</small></span></div>`).join('');
+
+    // grahas table
+    const house = (sign) => ((sign - lagnaSign + 12) % 12) + 1;
+    $('vdGrahas').innerHTML = `<tr class="vd-lagna"><td class="g">La</td><td>Lagna</td><td class="pos">${dm(lagna % 30)} ${VD.RASHIS[lagnaSign][1]}</td><td>${VD.NAKSHATRAS[VD.nakshatraOf(lagna).i][0]} ${VD.nakshatraOf(lagna).pada}</td><td class="h">H1</td></tr>`
+      + g.list.map((x) => {
+        const [, skt, dev] = VD.GRAHAS.find((q) => q[0] === x.key);
+        return `<tr><td class="g dev">${dev}</td><td>${skt}${x.retro && x.key !== 'Rahu' && x.key !== 'Ketu' ? ' <span class="r">R</span>' : ''}${x.dignity ? ` <span class="vd-dig ${x.dignity === 'Debilitated' ? 'down' : 'up'}">${x.dignity}</span>` : ''}</td><td class="pos">${dm(x.deg)} ${VD.RASHIS[x.sign][1]}</td><td><span class="tipzone" data-tip="vd-nak:${x.nak.i}" tabindex="0">${VD.NAKSHATRAS[x.nak.i][0]}</span> ${x.nak.pada}</td><td class="h">H${house(x.sign)}</td></tr>`;
+      }).join('');
+
+    document.querySelectorAll('input[name="vdStyle"]').forEach((r) => { r.checked = r.value === vdStyle; });
+    drawRashi();
+    $('title').textContent = `${p.tithi.paksha} ${p.tithi.name} · ${p.nakshatra.name}`;
+    $('big3').innerHTML = `<div><b>${VD.RASHIS[lagnaSign][1]}</b> Lagna</div><div><b>${VD.RASHIS[Math.floor(p.moonSid / 30)][1]}</b> Chandra</div><div><b>${lm.adhika ? 'Adhika ' : ''}${lm.name}</b> masa</div>`;
+  }
+
+  function drawRashi() {
+    if (!vdLast) return;
+    const { g, lagnaSign } = vdLast;
+    const svg = $('vdChart'); svg.innerHTML = '';
+    const bySign = {};
+    g.list.forEach((x) => { (bySign[x.sign] = bySign[x.sign] || []).push(x); });
+    const label = (x) => VD.GRAHAS.find((q) => q[0] === x.key)[3] + (x.retro && x.key !== 'Rahu' && x.key !== 'Ketu' ? 'ᴿ' : '');
+    const planets = (sign, cx, cy, maxW) => {
+      const list = bySign[sign] || [];
+      list.forEach((x, k) => {
+        const perRow = maxW < 70 ? 2 : 3, row = Math.floor(k / perRow), col = k % perRow, n = Math.min(perRow, list.length - row * perRow);
+        el('text', { x: cx + (col - (n - 1) / 2) * 30, y: cy + row * 18, 'text-anchor': 'middle', 'dominant-baseline': 'central', 'font-size': 14, 'font-weight': 600, fill: x.dignity === 'Exalted' || x.dignity === 'Own sign' ? 'var(--gold-bright)' : x.dignity === 'Debilitated' ? 'var(--fire)' : 'var(--ink)', 'font-family': 'var(--f-data)', 'data-tip': `vd-graha:${x.key}`, class: 'tipzone' }, svg, label(x));
+      });
+    };
+    const stroke = { fill: 'none', stroke: 'var(--gold)', 'stroke-width': 1.4 };
+    el('rect', { x: 2, y: 2, width: 396, height: 396, rx: 6, fill: 'var(--wheel-bg)', 'fill-opacity': 0.6, stroke: 'var(--gold)', 'stroke-width': 1.6 }, svg);
+    if (vdStyle === 'north') {
+      el('path', { d: 'M2 2 L398 398 M398 2 L2 398 M200 2 L398 200 L200 398 L2 200 Z', ...stroke }, svg);
+      const C = [[200, 100], [100, 40], [40, 100], [100, 200], [40, 300], [100, 360], [200, 300], [300, 360], [360, 300], [300, 200], [360, 100], [300, 40]];
+      const N = [[200, 168], [100, 82], [82, 100], [168, 200], [82, 300], [100, 318], [200, 232], [300, 318], [318, 300], [232, 200], [318, 100], [300, 82]];
+      for (let hNum = 0; hNum < 12; hNum++) {
+        const sign = (lagnaSign + hNum) % 12;
+        el('text', { x: N[hNum][0], y: N[hNum][1], 'text-anchor': 'middle', 'dominant-baseline': 'central', 'font-size': 12, fill: 'var(--muted)', 'font-family': 'var(--f-data)', 'data-tip': `vd-rashi:${sign}`, class: 'tipzone' }, svg, String(sign + 1));
+        const big = hNum % 3 === 0;
+        planets(sign, C[hNum][0], C[hNum][1] - (big ? 10 : 6), big ? 120 : 60);
+      }
+      el('text', { x: 200, y: 124, 'text-anchor': 'middle', 'font-size': 11, fill: 'var(--gold-bright)', 'font-family': 'var(--f-display)', 'letter-spacing': '0.15em' }, svg, 'LAGNA');
+    } else {
+      // South Indian: fixed signs, Pisces at the top left
+      const cells = { 11: [0, 0], 0: [1, 0], 1: [2, 0], 2: [3, 0], 10: [0, 1], 3: [3, 1], 9: [0, 2], 4: [3, 2], 8: [0, 3], 7: [1, 3], 6: [2, 3], 5: [3, 3] };
+      for (let sign = 0; sign < 12; sign++) {
+        const [cx, cy] = cells[sign], x = 2 + cx * 99, y = 2 + cy * 99;
+        el('rect', { x, y, width: 99, height: 99, ...stroke, 'stroke-width': 1, 'data-tip': `vd-rashi:${sign}`, class: 'tipzone', fill: sign === lagnaSign ? 'rgba(255,190,90,0.08)' : 'rgba(0,0,0,0)' }, svg);
+        el('text', { x: x + 6, y: y + 13, 'font-size': 10.5, fill: 'var(--muted)', 'font-family': 'var(--f-body)', 'pointer-events': 'none' }, svg, VD.RASHIS[sign][1]);
+        if (sign === lagnaSign) el('path', { d: `M${x} ${y + 26} L${x + 26} ${y}`, stroke: 'var(--gold-bright)', 'stroke-width': 1.6 }, svg);
+        planets(sign, x + 49.5, y + 48, 99);
+      }
+      el('text', { x: 200, y: 190, 'text-anchor': 'middle', 'font-size': 26, fill: 'var(--gold-bright)', 'font-family': 'var(--f-dev)' }, svg, 'राशि');
+      el('text', { x: 200, y: 222, 'text-anchor': 'middle', 'font-size': 11, fill: 'var(--muted)', 'font-family': 'var(--f-display)', 'letter-spacing': '0.14em' }, svg, 'LAHIRI · WHOLE SIGN');
+    }
+  }
+
+  function tipNakshatra(i) {
+    const [name, deity, meaning] = VD.NAKSHATRAS[i];
+    const lords = ['Ketu', 'Venus', 'Sun', 'Moon', 'Mars', 'Rahu', 'Jupiter', 'Saturn', 'Mercury'];
+    const from = i * 360 / 27, sign = (x) => `${Math.floor(x % 30)}°${pad(Math.round(((x % 30) % 1) * 60))}′ ${VD.RASHIS[Math.floor(x / 30)][1]}`;
+    return `<div class="th">${i + 1}. ${name}</div><div class="tplain">${meaning}</div>${row('Deity', deity)}${row('Ruler', lords[i % 9])}${row('Span', `${sign(from)} – ${sign(from + 360 / 27 - 0.0001)}`)}`;
+  }
+  function tipRashi(sign) {
+    const [en, skt, dev] = VD.RASHIS[sign];
+    const lords = ['Mars', 'Venus', 'Mercury', 'Moon', 'Sun', 'Mercury', 'Venus', 'Mars', 'Jupiter', 'Saturn', 'Saturn', 'Jupiter'];
+    const inside = vdLast ? vdLast.g.list.filter((x) => x.sign === sign).map((x) => `${x.key} ${Math.floor(x.deg)}°`).join(', ') : '';
+    const house = vdLast ? ((sign - vdLast.lagnaSign + 12) % 12) + 1 : '';
+    return `<div class="th"><span class="dev">${dev}</span> ${skt} · ${en}</div>${row('House', `H${house}`)}${row('Lord', lords[sign])}${inside ? row('Grahas', inside) : ''}`;
+  }
+  function tipGraha(key) {
+    if (!vdLast) return '';
+    const x = vdLast.g.list.find((q) => q.key === key); if (!x) return '';
+    const [, skt, dev] = VD.GRAHAS.find((q) => q[0] === key);
+    return `<div class="th"><span class="dev">${dev}</span> ${skt} · ${key}</div>${row('Position', `${Math.floor(x.deg)}°${pad(Math.floor((x.deg % 1) * 60))}′ ${VD.RASHIS[x.sign][1]}`)}${row('Nakshatra', `${VD.NAKSHATRAS[x.nak.i][0]} · pada ${x.nak.pada}`)}${row('House', `H${((x.sign - vdLast.lagnaSign + 12) % 12) + 1}`)}${x.dignity ? row('Dignity', x.dignity) : ''}${x.retro && key !== 'Rahu' && key !== 'Ketu' ? row('Motion', 'Retrograde (vakri)') : ''}`;
+  }
+
   // ---------- render ----------
 
   function render() {
@@ -1193,6 +1316,7 @@
     if (view === 'chinese') renderChinese(when, { y, m, d, hh, mm }, place);
     if (view === 'maya') renderMaya({ y, m, d }, place);
     if (view === 'kabbalah') renderKabbalah(when, { y, m, d }, place);
+    if (view === 'vedic') renderVedic(when, { y, m, d }, place, chart);
 
     // today card
     drawMoon(phase);
@@ -1313,6 +1437,7 @@
     });
     render();
     if (document.fonts && document.fonts.ready) document.fonts.ready.then(render);
+    document.querySelectorAll('input[name="vdStyle"]').forEach((r) => r.addEventListener('change', () => { if (!r.checked) return; vdStyle = r.value; try { localStorage.setItem('skywheel-vedic-style', vdStyle); } catch (e) { /* ignore */ } drawRashi(); }));
     $('kbComing').addEventListener('click', (e) => { const b = e.target.closest('.kb-coming'); if (b) { $('date').value = b.dataset.date; urlSync = true; render(); } });
     $('myNext').addEventListener('click', (e) => { const b = e.target.closest('.my-day'); if (b) { $('date').value = b.dataset.date; urlSync = true; render(); } });
     $('yearlist').addEventListener('click', (e) => { const b = e.target.closest('.yitem'); if (b) jumpTo(b.dataset.t); });
