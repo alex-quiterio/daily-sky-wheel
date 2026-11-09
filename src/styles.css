@@ -856,3 +856,20 @@ section.card h2 .ar { font-size: 18px; color: var(--muted); font-weight: 400; }
 .vd-moon .vd-ico { background: #f4ecd0; }
 .vd-sankranti .vd-ico { background: #ff6b5a; border-radius: 2px; transform: rotate(45deg); }
 @media (max-width: 599px) { .vd-item { grid-template-columns: 66px 12px minmax(0, 1fr); } }
+
+/* phones: nothing may widen the page; the six tabs become a 3 × 2 grid */
+.wrap > * { min-width: 0; }
+.tabs { max-width: 100%; }
+@media (max-width: 720px) {
+  .tabs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); width: 100%; border-radius: 18px; gap: 4px; }
+  .tabs button { padding: 8px 4px; font-size: 12px; letter-spacing: .1em; border-radius: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+}
+@media (max-width: 599px) {
+  h1 { font-size: clamp(24px, 7.4vw, 32px); overflow-wrap: anywhere; }
+  .brand { gap: 10px; }
+  .logo, .seal, .emblem, .kb-emblem, .vd-emblem, .is-emblem { width: 56px !important; }
+  .theme-cn .seal span { font-size: 38px; }
+  .theme-kab .kb-emblem span, .theme-vedic .vd-emblem span { font-size: 32px; }
+  .theme-islamic .is-emblem span { font-size: 22px; }
+  .sub { font-size: 14px; }
+}

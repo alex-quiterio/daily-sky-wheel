@@ -1089,19 +1089,17 @@
       ${row('Sense', sense)}
       <p class="cn-note">Sefer Yetzirah gives each month one of the twelve simple letters, a sign of the zodiac, a tribe of Israel and a human faculty.</p>`;
 
-    // coming days: holy days in the next 120 days
-    const coming = [];
-    for (let k = 1; k <= 120 && coming.length < 7; k++) {
+    // coming days: holy days in the next 120 days, each holiday grouped into its own run of days
+    const runs = [], open = {};
+    for (let k = 1; k <= 120; k++) {
       const hh = HB.hebrewFromFixed(h.rd + k);
-      const list = HB.holidays(hh);
-      if (list.length) {
-        const c = HB.civilFromRd(h.rd + k);
-        const prev = coming[coming.length - 1];
-        const label = list.join(' · ');
-        if (prev && prev.label === label && prev.endK === k - 1) { prev.endK = k; continue; }
-        coming.push({ k, endK: k, label, c, hh });
-      }
+      const names = HB.holidays(hh);
+      names.forEach((n) => {
+        if (open[n] && open[n].endK === k - 1) open[n].endK = k;
+        else { open[n] = { k, endK: k, label: n, c: HB.civilFromRd(h.rd + k), hh }; runs.push(open[n]); }
+      });
     }
+    const coming = runs.sort((x, y) => x.k - y.k).slice(0, 8);
     $('kbComing').innerHTML = coming.map((x) => {
       const c = new Date(Date.UTC(x.c.y, x.c.m - 1, x.c.d));
       const label = new Intl.DateTimeFormat('en-GB', { timeZone: 'UTC', weekday: 'short', day: 'numeric', month: 'short' }).format(c);
