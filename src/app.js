@@ -120,8 +120,7 @@
         $('place').value = 'custom';
         $('lat').value = lat; $('lon').value = lon;
         const tz = q.get('tz') || browserTZ();
-        if ([...$('tz').options].some((o) => o.value === tz)) $('tz').value = tz;
-        else { problems.push(`time zone "${tz}" is not recognised`); $('tz').value = browserTZ(); }
+        if (!pickTZ(tz)) { problems.push(`time zone "${tz}" is not recognised`); pickTZ(browserTZ()); }
       }
     } else if (q.has('lat') || q.has('lon')) problems.push('lat and lon must both be numbers');
 
@@ -171,13 +170,24 @@
 
   function browserTZ() { try { return Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC'; } catch (e) { return 'UTC'; } }
   // Pick the place matching the browser's time zone (keeping the current place if it already matches).
+  // Canonical zone name, so aliases match (Asia/Saigon = Asia/Ho_Chi_Minh, Europe/Kiev = Europe/Kyiv, ...)
+  function canonTZ(tz) { try { return new Intl.DateTimeFormat('en', { timeZone: tz }).resolvedOptions().timeZone; } catch (e) { return null; } }
+  const sameTZ = (a, b) => a === b || (canonTZ(a) !== null && canonTZ(a) === canonTZ(b));
+  // Select a zone in the custom list, matching aliases; returns false when the zone is unknown.
+  function pickTZ(tz) {
+    const opt = [...$('tz').options].find((o) => sameTZ(o.value, tz));
+    if (opt) { $('tz').value = opt.value; return true; }
+    if (canonTZ(tz)) { const o = document.createElement('option'); o.value = tz; o.textContent = tz.replace(/_/g, ' '); $('tz').appendChild(o); $('tz').value = tz; return true; }
+    return false;
+  }
+
   function useBrowserPlace() {
     const tz = browserTZ();
-    if (currentPlace().tz === tz) return;
-    const idx = PLACES.findIndex((p) => p[3] === tz);
+    if (sameTZ(currentPlace().tz, tz)) return;
+    const idx = PLACES.findIndex((p) => sameTZ(p[3], tz));
     if (idx >= 0) { $('place').value = String(idx); return; }
     $('place').value = 'custom';
-    if ([...$('tz').options].some((o) => o.value === tz)) $('tz').value = tz;
+    pickTZ(tz);
   }
 
   function setNow(withTime) {
