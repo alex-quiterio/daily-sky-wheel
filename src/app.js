@@ -1211,8 +1211,40 @@
 
     document.querySelectorAll('input[name="vdStyle"]').forEach((r) => { r.checked = r.value === vdStyle; });
     drawRashi();
+    renderVedicAhead(local, place, when);
     $('title').textContent = `${p.tithi.paksha} ${p.tithi.name} · ${p.nakshatra.name}`;
     $('big3').innerHTML = `<div><b>${VD.RASHIS[lagnaSign][1]}</b> Lagna</div><div><b>${VD.RASHIS[Math.floor(p.moonSid / 30)][1]}</b> Chandra</div><div><b>${lm.adhika ? 'Adhika ' : ''}${lm.name}</b> masa</div>`;
+  }
+
+  // days ahead: computed for a year from the selected day, cached per place and start
+  const VD_CATS = [['all', 'All'], ['festival', 'Festivals'], ['ekadashi', 'Ekadashi'], ['moon', 'Purnima & Amavasya'], ['sankranti', 'Sankranti']];
+  let vdAhead = null, vdCat = (() => { try { return localStorage.getItem('skywheel-vedic-cat') || 'festival'; } catch (e) { return 'festival'; } })();
+  function renderVedicAhead(local, place, when) {
+    const startDay = Date.UTC(local.y, local.m - 1, local.d);
+    const key = `${place.lat},${place.lon},${place.tz}`;
+    // reuse a computed year while the selected day stays inside its first month
+    if (!vdAhead || vdAhead.key !== key || startDay < vdAhead.startDay || startDay > vdAhead.startDay + 30 * 86400000) {
+      const start = localToUTC(local.y, local.m, local.d, 0, 0, place.tz);
+      vdAhead = { key, startDay, list: VD.daysAhead(start, 400, place.lat, place.lon).map((e) => ({ ...e, civil: new Date(startDay + e.k * 86400000) })) };
+    }
+    const chips = $('vdChips');
+    chips.innerHTML = VD_CATS.map(([c, l]) => `<button type="button" data-cat="${c}" aria-pressed="${c === vdCat}">${l}</button>`).join('');
+    const list = vdAhead.list.filter((e) => e.civil >= new Date(startDay) && e.civil < new Date(startDay + 366 * 86400000) && (vdCat === 'all' || e.kind === vdCat));
+    const fmtM = new Intl.DateTimeFormat('en-GB', { timeZone: 'UTC', month: 'long', year: 'numeric' });
+    const fmtD = new Intl.DateTimeFormat('en-GB', { timeZone: 'UTC', weekday: 'short', day: 'numeric', month: 'short' });
+    let month = '', html = '';
+    list.forEach((e) => {
+      const mlabel = fmtM.format(e.civil);
+      if (mlabel !== month) { html += `<div class="ymonth">${mlabel}</div>`; month = mlabel; }
+      const days = Math.round((e.civil - startDay) / 86400000);
+      const iso = e.civil.toISOString().slice(0, 10);
+      html += `<button type="button" class="yitem vd-item vd-${e.kind}${days === 0 ? ' active' : ''}" data-date="${iso}">
+        <span class="yd"><b>${fmtD.format(e.civil).replace(',', '')}</b></span>
+        <span class="vd-ico" aria-hidden="true"></span>
+        <span class="yt">${e.name}${e.note ? `<small>${e.note}</small>` : ''}</span>
+        <span class="yin">${days === 0 ? 'today' : days === 1 ? 'tomorrow' : `in ${days} d`}</span></button>`;
+    });
+    $('vdAhead').innerHTML = html || '<p class="empty">Nothing of this kind in the coming year.</p>';
   }
 
   function drawRashi() {
@@ -1556,6 +1588,8 @@
     $('isMethod').addEventListener('change', (e) => { e.stopPropagation(); isMethod = $('isMethod').value; saveIs(); render(); });
     document.querySelectorAll('input[name="isAsr"]').forEach((r) => r.addEventListener('change', () => { if (r.checked) { isAsr = +r.value; saveIs(); render(); } }));
     $('isComing').addEventListener('click', (e) => { const b = e.target.closest('.kb-coming'); if (b) { $('date').value = b.dataset.date; urlSync = true; render(); } });
+    $('vdChips').addEventListener('click', (e) => { const b = e.target.closest('button[data-cat]'); if (!b) return; vdCat = b.dataset.cat; try { localStorage.setItem('skywheel-vedic-cat', vdCat); } catch (err) { /* ignore */ } render(); });
+    $('vdAhead').addEventListener('click', (e) => { const b = e.target.closest('.vd-item'); if (b) { $('date').value = b.dataset.date; urlSync = true; render(); } });
     $('kbComing').addEventListener('click', (e) => { const b = e.target.closest('.kb-coming'); if (b) { $('date').value = b.dataset.date; urlSync = true; render(); } });
     $('myNext').addEventListener('click', (e) => { const b = e.target.closest('.my-day'); if (b) { $('date').value = b.dataset.date; urlSync = true; render(); } });
     $('yearlist').addEventListener('click', (e) => { const b = e.target.closest('.yitem'); if (b) jumpTo(b.dataset.t); });

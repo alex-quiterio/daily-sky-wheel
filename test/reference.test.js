@@ -195,3 +195,18 @@ test('Prayer times and Qibla', () => {
   const june = I.prayerTimes(new Date(Date.UTC(2026, 5, 20, 22)), 52.37, 4.90, 'mwl', 1);
   assert.ok(june.fajr && june.isha && june.adjusted, 'high-latitude fallback in June');
 });
+
+test('Vedic festivals 2026 (Delhi) follow the observance rules', () => {
+  const ev = V.daysAhead(new Date(Date.UTC(2025, 11, 31, 18, 30)), 365, 28.61, 77.21);
+  const ist = (e) => new Date(e.date.getTime() + 5.5 * 3600000).toISOString().slice(0, 10);
+  const on = (name) => { const e = ev.find((x) => x.name === name); return e && ist(e); };
+  const want = {
+    'Makar Sankranti': '2026-01-14', 'Vasant Panchami': '2026-01-23', 'Maha Shivaratri': '2026-02-15',
+    'Holika Dahan': '2026-03-03', Holi: '2026-03-04', 'Ugadi · Gudi Padwa': '2026-03-19', 'Rama Navami': '2026-03-26',
+    'Akshaya Tritiya': '2026-04-19', 'Raksha Bandhan': '2026-08-28', 'Krishna Janmashtami': '2026-09-04',
+    'Ganesh Chaturthi': '2026-09-14', 'Navaratri begins': '2026-10-11', 'Dussehra · Vijayadashami': '2026-10-20',
+    Dhanteras: '2026-11-06', 'Diwali · Lakshmi Puja': '2026-11-08', 'Bhai Dooj': '2026-11-11',
+  };
+  for (const [name, date] of Object.entries(want)) assert.strictEqual(on(name), date, name);
+  assert.strictEqual(ev.filter((e) => e.kind === 'ekadashi').length, 24, 'two Ekadashis a month');
+});

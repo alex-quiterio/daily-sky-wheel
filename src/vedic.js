@@ -161,5 +161,111 @@
     return out;
   }
 
-  root.Vedic = { ayanamsa, sidereal, grahas, panchang, periods, lunarMonth, dashas, nakshatraOf, RASHIS, GRAHAS, NAKSHATRAS, VARAS, DASHA_YEARS };
+  // ---------- days ahead: festivals and observances ----------
+  // [amanta month, tithi 1-30 (16-30 = Krishna), name, when the tithi is read: sunrise | sunset | midnight, kind]
+  const FESTIVALS = [
+    ['Chaitra', 1, 'Ugadi · Gudi Padwa', 'sunrise', 'Hindu new year in the south and west'],
+    ['Chaitra', 9, 'Rama Navami', 'midday', 'birth of Rama, celebrated at midday'],
+    ['Chaitra', 15, 'Hanuman Jayanti', 'sunrise', ''],
+    ['Vaishakha', 3, 'Akshaya Tritiya', 'forenoon', 'the undiminishing third'],
+    ['Vaishakha', 15, 'Buddha Purnima', 'sunrise', ''],
+    ['Ashadha', 15, 'Guru Purnima', 'sunrise', 'honouring teachers'],
+    ['Shravana', 15, 'Raksha Bandhan', 'sunrise', ''],
+    ['Shravana', 23, 'Krishna Janmashtami', 'midnight', 'birth of Krishna at midnight'],
+    ['Bhadrapada', 4, 'Ganesh Chaturthi', 'midday', ''],
+    ['Ashvina', 1, 'Navaratri begins', 'sunrise', 'nine nights of the Goddess'],
+    ['Ashvina', 8, 'Durga Ashtami', 'sunrise', ''],
+    ['Ashvina', 10, 'Dussehra · Vijayadashami', 'afternoon', ''],
+    ['Ashvina', 15, 'Sharad Purnima', 'sunset', ''],
+    ['Ashvina', 28, 'Dhanteras', 'sunset', ''],
+    ['Ashvina', 30, 'Diwali · Lakshmi Puja', 'sunset', 'festival of lights'],
+    ['Kartika', 1, 'Govardhan Puja', 'sunrise', ''],
+    ['Kartika', 2, 'Bhai Dooj', 'sunrise', ''],
+    ['Kartika', 15, 'Kartik Purnima · Dev Deepavali', 'sunrise', ''],
+    ['Margashirsha', 11, 'Gita Jayanti', 'sunrise', 'Mokshada Ekadashi'],
+    ['Magha', 5, 'Vasant Panchami', 'sunrise', 'Saraswati Puja'],
+    ['Magha', 29, 'Maha Shivaratri', 'midnight', 'the great night of Shiva'],
+    ['Phalguna', 15, 'Holika Dahan', 'sunset', 'Holi follows the next day'],
+  ];
+
+  // Festivals and observances from the civil day starting at local midnight `start` for `days` days.
+  // tzOffsetFn(date) → minutes east of UTC at the place, so each civil day can be stepped.
+  function daysAhead(start, days, lat, lon) {
+    const obs = new A.Observer(lat, lon, 0);
+    const tithiAt = (d) => Math.floor(norm(C.lonOf('Moon', d) - C.lonOf('Sun', d)) / 12) + 1;
+    const sunSignAt = (d) => Math.floor(norm(C.lonOf('Sun', d) - ayanamsa(d)) / 30);
+    // new moons over the window, each naming its amanta month
+    const months = [];
+    let t = A.MakeTime(new Date(start.getTime() - 35 * DAY));
+    for (let k = 0; k < Math.ceil(days / 29) + 3; k++) {
+      const nm = A.SearchMoonPhase(0, t, 40); if (!nm) break;
+      months.push({ at: nm.date, sign: sunSignAt(nm.date) }); t = nm.AddDays(1);
+    }
+    months.forEach((m, i) => { m.name = MONTHS[m.sign]; m.adhika = months[i + 1] ? months[i + 1].sign === m.sign : false; });
+    const monthAt = (d) => { for (let i = months.length - 1; i >= 0; i--) if (months[i].at <= d) return months[i]; return null; };
+
+    const out = [], seen = new Set();
+    const karanaAt = (d) => Math.floor(norm(C.lonOf('Moon', d) - C.lonOf('Sun', d)) / 6);
+    const isVishti = (d) => { const k = karanaAt(d); return k > 0 && k < 57 && (k - 1) % 7 === 6; };
+    // observation times within a civil day
+    const TIMES = {
+      sunrise: (x) => x.sunrise,
+      forenoon: (x) => new Date(x.sunrise.getTime() + (x.sunset - x.sunrise) * 0.3),
+      midday: (x) => new Date(x.sunrise.getTime() + (x.sunset - x.sunrise) * 0.5),
+      afternoon: (x) => new Date(x.sunrise.getTime() + (x.sunset - x.sunrise) * 0.7),
+      sunset: (x) => new Date(x.sunset.getTime() + 20 * 60000), // pradosh, just after sunset
+      midnight: (x) => new Date(x.date.getTime() + DAY), // Nishita: local clock midnight closing the day
+    };
+    const daysList = [];
+    for (let k = 0; k <= days + 1; k++) {
+      const midnight = new Date(start.getTime() + k * DAY);
+      const r = A.SearchRiseSet(A.Body.Sun, obs, +1, midnight, 1), st = A.SearchRiseSet(A.Body.Sun, obs, -1, midnight, 1);
+      if (!r || !st) { daysList.push(null); continue; }
+      const day = { k, date: midnight, sunrise: r.date, sunset: st.date, t: {}, m: {} };
+      Object.entries(TIMES).forEach(([key, f]) => { const at = f(day); day.t[key] = tithiAt(at); day.m[key] = monthAt(at); day[key + 'At'] = at; });
+      daysList.push(day);
+    }
+    const add = (k, kind, name, note, key) => {
+      if (k > days || (key && seen.has(key))) return;
+      if (key) seen.add(key);
+      out.push({ k, date: new Date(start.getTime() + k * DAY), kind, name, note });
+    };
+    const mkey = (m) => (m ? m.at.getTime() : 0);
+    // which civil day observes tithi tt by rule: the day it holds at that time, or (if it is skipped
+    // between two observations) the day on which it began
+    // returns { at, m }: the observing day and the lunar month the tithi belongs to
+    function observe(rule, tt, k) {
+      const d = daysList[k], p = daysList[k - 1];
+      if (!d) return null;
+      if (d.t[rule] === tt) return { at: k, m: d.m[rule] };
+      if (p && ((d.t[rule] - p.t[rule] + 30) % 30) === 2 && ((tt - p.t[rule] + 30) % 30) === 1) return { at: k - 1, m: d.m[rule] };
+      return null;
+    }
+    let prevSunSign = null;
+    for (let k = 0; k <= days; k++) {
+      const day = daysList[k]; if (!day) continue;
+      [11, 26, 15, 30].forEach((tt) => {
+        const o = observe('sunrise', tt, k); if (!o || o.at < 0) return;
+        const at = o.at, m = o.m;
+        if (tt === 11 || tt === 26) add(at, 'ekadashi', `${tt === 11 ? 'Shukla' : 'Krishna'} Ekadashi`, 'fasting day', `ek${mkey(m)}-${tt}`);
+        if (tt === 15) add(at, 'moon', 'Purnima', 'full moon', `pu${mkey(m)}`);
+        if (tt === 30) add(at, 'moon', 'Amavasya', 'new moon', `am${mkey(m)}`);
+      });
+      FESTIVALS.forEach(([mn, tt, name, rule, note]) => {
+        const o = observe(rule, tt, k); if (!o || o.at < 0) return;
+        let at = o.at; const m = o.m;
+        if (!m || m.adhika || m.name !== mn) return;
+        // Holika Dahan is not done under Bhadra (Vishti karana); then it moves to the next evening
+        if (name === 'Holika Dahan' && isVishti(daysList[at].sunsetAt)) at += 1;
+        if (add(at, 'festival', name, note, `f${mkey(m)}-${name}`) !== false && name === 'Holika Dahan') add(at + 1, 'festival', 'Holi', 'festival of colours', `holi${mkey(m)}`);
+      });
+      // Sankranti: the Sun enters a sidereal sign during this civil day
+      const ss = sunSignAt(new Date(day.date.getTime() + DAY));
+      if (prevSunSign != null && ss !== prevSunSign) add(k, ss === 9 ? 'festival' : 'sankranti', ss === 9 ? 'Makar Sankranti' : `${RASHIS[ss][1]} Sankranti`, ss === 9 ? 'the Sun enters Makara' : `the Sun enters ${RASHIS[ss][1]}`, `sk${k}`);
+      prevSunSign = ss;
+    }
+    return out.sort((a, b) => a.k - b.k);
+  }
+
+  root.Vedic = { daysAhead, FESTIVALS, ayanamsa, sidereal, grahas, panchang, periods, lunarMonth, dashas, nakshatraOf, RASHIS, GRAHAS, NAKSHATRAS, VARAS, DASHA_YEARS };
 })(typeof window !== 'undefined' ? window : globalThis);
