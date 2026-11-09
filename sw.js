@@ -1,5 +1,5 @@
 // Offline support. Bump VERSION when the list of app files changes.
-const VERSION = 'v1';
+const VERSION = 'dev'; // replaced with the commit id on deploy
 const SHELL = `shell-${VERSION}`;
 const CDN = 'cdn-v1';
 const APP_FILES = [
@@ -36,11 +36,12 @@ self.addEventListener('fetch', (event) => {
   if (url.origin === self.location.origin) {
     event.respondWith((async () => {
       try {
-        const res = await fetch(req);
+        // no-cache: always revalidate with the server, so a new deploy never mixes old and new files
+        const res = await fetch(req, { cache: 'no-cache' });
         if (res.ok) (await caches.open(SHELL)).put(req, res.clone());
         return res;
       } catch (e) {
-        const hit = await caches.match(req, { ignoreSearch: req.mode === 'navigate' });
+        const hit = await caches.match(req, { ignoreSearch: true });
         return hit || caches.match('index.html');
       }
     })());
