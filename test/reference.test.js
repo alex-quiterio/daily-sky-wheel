@@ -116,3 +116,28 @@ test('Maya calendar: neighbouring days and the 260-day count', () => {
   const c = M.mayaDate(2027, 11, 9); // 365 days later: same Haab' date
   assert.deepStrictEqual([c.hb.month, c.hb.day], [a.hb.month, a.hb.day]);
 });
+
+require('../src/hebrew.js');
+const H = globalThis.Hebrew;
+const heb = (y, m, d) => { const h = H.hebrewDate(y, m, d, false); return `${h.day} ${h.monthName} ${h.year}`; };
+
+test('Hebrew calendar: Rosh Hashanah, Pesach, Chanukah, Purim', () => {
+  assert.strictEqual(heb(2024, 10, 3), '1 Tishrei 5785');
+  assert.strictEqual(heb(2025, 9, 23), '1 Tishrei 5786');
+  assert.strictEqual(heb(2026, 9, 12), '1 Tishrei 5787');
+  assert.strictEqual(heb(2026, 4, 2), '15 Nisan 5786');
+  assert.strictEqual(heb(2025, 12, 15), '25 Kislev 5786');
+  assert.strictEqual(heb(2024, 3, 24), '14 Adar II 5784');
+  assert.ok(H.holidays(H.hebrewDate(2026, 7, 23, false)).includes("Tisha B'Av"));
+  assert.strictEqual(heb(2026, 11, 8), '28 Cheshvan 5787');
+  assert.strictEqual(H.hebrewDate(2026, 11, 8, true).day, 29, 'after sunset it is the next Hebrew day');
+});
+
+test('Hebrew numerals and the Omer', () => {
+  assert.strictEqual(H.gematria(5787), 'תשפ״ז');
+  assert.strictEqual(H.gematria(15), 'ט״ו');
+  assert.strictEqual(H.gematria(16), 'ט״ז');
+  assert.strictEqual(H.gematria(1), 'א׳');
+  const o = H.omer(H.hebrewDate(2026, 5, 5, false)); // Lag BaOmer
+  assert.deepStrictEqual([o.day, H.SEFIROT[o.inner][1], H.SEFIROT[o.outer][1]], [33, 'Hod', 'Hod']);
+});

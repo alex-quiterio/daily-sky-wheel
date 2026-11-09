@@ -84,6 +84,33 @@
     ring.innerHTML = svg;
     document.body.insertBefore(ring, canvas.nextSibling);
   })();
+  // Kabbalah theme: the 22 letters around the ten sefirot
+  (function letterRing() {
+    const ring = document.createElement('div');
+    ring.className = 'sky-ring sky-ring-kab';
+    ring.setAttribute('aria-hidden', 'true');
+    const letters = 'אבגדהוזחטיכלמנסעפצקרשת';
+    let svg = '<svg viewBox="-500 -500 1000 1000" xmlns="http://www.w3.org/2000/svg">';
+    svg += '<circle r="470" fill="none" stroke="currentColor" stroke-width="1"/><circle r="390" fill="none" stroke="currentColor" stroke-width="0.6"/>';
+    for (let i = 0; i < 22; i++) {
+      const a = (i * 360 / 22 - 90) * Math.PI / 180;
+      svg += `<text x="${430 * Math.cos(a)}" y="${430 * Math.sin(a)}" font-size="48" text-anchor="middle" dominant-baseline="central" fill="currentColor" font-family="Frank Ruhl Libre, serif" transform="rotate(${i * 360 / 22} ${430 * Math.cos(a)} ${430 * Math.sin(a)})">${letters[i]}</text>`;
+    }
+    // ten points in the pattern of the tree
+    const pts = [[0, -300], [110, -235], [-110, -235], [110, -125], [-110, -125], [0, -70], [110, -5], [-110, -5], [0, 55], [0, 140]];
+    const paths = [[0, 1], [0, 2], [0, 5], [1, 2], [1, 3], [1, 5], [2, 4], [2, 5], [3, 4], [3, 5], [3, 6], [4, 5], [4, 7], [5, 6], [5, 7], [5, 8], [6, 7], [6, 8], [6, 9], [7, 8], [7, 9], [8, 9]];
+    svg += '<g transform="translate(0 80)">';
+    paths.forEach(([p, q]) => { svg += `<line x1="${pts[p][0]}" y1="${pts[p][1]}" x2="${pts[q][0]}" y2="${pts[q][1]}" stroke="currentColor" stroke-width="1"/>`; });
+    pts.forEach(([x, y]) => { svg += `<circle cx="${x}" cy="${y}" r="22" fill="none" stroke="currentColor" stroke-width="1.4"/>`; });
+    svg += '</g></svg>';
+    ring.innerHTML = svg;
+    document.body.insertBefore(ring, canvas.nextSibling);
+  })();
+  const isKab = () => document.documentElement.classList.contains('theme-kab');
+  let sparks = [];
+  function spawnSpark(anywhere) {
+    sparks.push({ x: Math.random() * w, y: anywhere ? Math.random() * h : h + 10, vy: 14 + Math.random() * 26, sway: 4 + Math.random() * 10, ph: Math.random() * Math.PI * 2, r: 0.8 + Math.random() * 1.4, a: 0.4 + Math.random() * 0.5 });
+  }
   const isMaya = () => document.documentElement.classList.contains('theme-maya');
   let flies = [];
   function spawnFly() {
@@ -145,6 +172,25 @@
         ctx.beginPath(); ctx.arc(s.x, s.y, s.r * 4, 0, Math.PI * 2); ctx.fill();
       }
     }
+    const kabNow = isKab();
+    if (kabNow) {
+      const want = Math.round(w / 24);
+      if (!sparks.length) for (let k = 0; k < want; k++) spawnSpark(true);
+      sparks = sparks.filter((p) => p.y > -10);
+      while (!still && sparks.length < want) spawnSpark(false);
+      for (const p of sparks) {
+        if (!still) p.y -= p.vy * dt;
+        const x = p.x + Math.sin(p.ph + t / 1400) * p.sway;
+        const fade = Math.min(1, p.y / (h * 0.35));
+        const a = p.a * fade * (still ? 1 : 0.7 + 0.3 * Math.sin(p.ph + t / 300));
+        if (a <= 0) continue;
+        const gr = ctx.createRadialGradient(x, p.y, 0, x, p.y, p.r * 6);
+        gr.addColorStop(0, `rgba(255,250,225,${a.toFixed(3)})`);
+        gr.addColorStop(0.35, `rgba(150,180,255,${(a * 0.35).toFixed(3)})`);
+        gr.addColorStop(1, 'rgba(120,150,255,0)');
+        ctx.fillStyle = gr; ctx.beginPath(); ctx.arc(x, p.y, p.r * 6, 0, Math.PI * 2); ctx.fill();
+      }
+    } else if (sparks.length) sparks = [];
     const mayaNow = isMaya();
     if (mayaNow) {
       const want = Math.round((w * h) / 26000);
@@ -183,7 +229,7 @@
       }
     } else if (lanterns.length) lanterns = [];
     if (!still) {
-      if (!cnNow && !mayaNow && t > nextMeteor) { if (nextMeteor) spawnMeteor(); nextMeteor = t + 4000 + Math.random() * 9000; }
+      if (!cnNow && !mayaNow && !kabNow && t > nextMeteor) { if (nextMeteor) spawnMeteor(); nextMeteor = t + 4000 + Math.random() * 9000; }
       meteors = meteors.filter((m) => m.life < m.max);
       for (const m of meteors) {
         m.life += dt; m.x += m.vx * dt; m.y += m.vy * dt;

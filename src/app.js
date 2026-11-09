@@ -592,6 +592,7 @@
     if (kind === 'houses') return tipAllHouses();
     if (kind === 'cn-stem') return tipCnStem(+v);
     if (kind === 'my-sign') return tipMayaSign(+v);
+    if (kind === 'kb-sefira') return tipSefira(+v);
     if (kind === 'cn-branch') return tipCnBranch(+v);
     return '';
   }
@@ -725,7 +726,7 @@
   let view = 'western';
   let cn = null; // last computed Chinese chart
 
-  const VIEWS = [['western', 'Western', '#07061a', ''], ['chinese', 'Chinese', '#0d0506', 'theme-cn'], ['maya', 'Maya', '#03110d', 'theme-maya']];
+  const VIEWS = [['western', 'Western', '#07061a', ''], ['chinese', 'Chinese', '#0d0506', 'theme-cn'], ['maya', 'Maya', '#03110d', 'theme-maya'], ['kabbalah', 'Kabbalah', '#050a24', 'theme-kab']];
   function setView(v, fromUser) {
     view = VIEWS.some(([k]) => k === v) ? v : 'western';
     VIEWS.forEach(([k, label, color, theme]) => {
@@ -1016,6 +1017,137 @@
     return h;
   }
 
+
+  // ---------- Kabbalah tab ----------
+  const HB = window.Hebrew;
+  // Tree of Life: positions of the ten sefirot and the 22 paths
+  const TREE_POS = [[180, 40], [290, 105], [70, 105], [290, 215], [70, 215], [180, 270], [290, 335], [70, 335], [180, 395], [180, 480]];
+  const TREE_PATHS = [[0, 1], [0, 2], [0, 5], [1, 2], [1, 3], [1, 5], [2, 4], [2, 5], [3, 4], [3, 5], [3, 6], [4, 5], [4, 7], [5, 6], [5, 7], [5, 8], [6, 7], [6, 8], [6, 9], [7, 8], [7, 9], [8, 9]];
+  let kb = null;
+
+  function sunEvents(dateLocal, place) {
+    // sunset on the given civil date, and nightfall (Sun 8.5° below the horizon)
+    const A = window.Astronomy, obs = new A.Observer(place.lat, place.lon, 0);
+    const start = localToUTC(dateLocal.y, dateLocal.m, dateLocal.d, 0, 0, place.tz);
+    try {
+      const set = A.SearchRiseSet(A.Body.Sun, obs, -1, start, 1);
+      const night = A.SearchAltitude(A.Body.Sun, obs, -1, start, 1, -8.5);
+      return { sunset: set && set.date, nightfall: night && night.date };
+    } catch (e) { return {}; }
+  }
+
+  function renderKabbalah(when, local, place) {
+    const today = sunEvents(local, place);
+    const after = today.sunset ? when >= today.sunset : false;
+    const h = HB.hebrewDate(local.y, local.m, local.d, after);
+    const civilDow = (HB.rdFromCivil(local.y, local.m, local.d) % 7 + 7) % 7;
+    const fmtT = (d) => (d ? localParts(d, place.tz).time : '—');
+    const fmtD = (d) => new Intl.DateTimeFormat('en-GB', { timeZone: place.tz, weekday: 'short', day: 'numeric', month: 'short' }).format(d);
+    const hol = HB.holidays(h);
+    const om = HB.omer(h);
+    kb = { h, om };
+
+    // Shabbat times for the coming (or current) Shabbat
+    const toFri = (5 - civilDow + 7) % 7;
+    const friRd = HB.rdFromCivil(local.y, local.m, local.d) + (civilDow === 6 ? -1 : toFri);
+    const fri = HB.civilFromRd(friRd), sat = HB.civilFromRd(friRd + 1);
+    const friEv = sunEvents(fri, place), satEv = sunEvents(sat, place);
+    const candles = friEv.sunset ? new Date(friEv.sunset.getTime() - 18 * 60000) : null;
+
+    $('kbDate').innerHTML = `
+      <div class="kb-hero">
+        <div class="kb-he" lang="he" dir="rtl">${HB.gematria(h.day)} ${h.monthNameHe} ${HB.gematria(h.year)}</div>
+        <div class="kb-en">${h.day} ${h.monthName} ${h.year}</div>
+        <div class="muted">${HB.DAY_NAMES[h.dow]}${after ? ' · began at sunset' : ''}</div>
+      </div>
+      ${hol.length ? `<div class="kb-hol">${hol.join(' · ')}</div>` : ''}
+      ${row(after ? 'Began at sunset' : 'Sunset today', fmtT(today.sunset))}
+      ${row('Nightfall', fmtT(today.nightfall))}
+      ${row('Candle lighting', candles ? `${fmtD(candles)} · ${fmtT(candles)}` : '—')}
+      ${row('Havdalah', satEv.nightfall ? `${fmtD(satEv.nightfall)} · ${fmtT(satEv.nightfall)}` : '—')}`;
+
+    const [letter, lname, sign, tribe, sense] = HB.MONTH_KABBALAH[h.month];
+    $('kbMonth').innerHTML = `
+      <div class="kb-month">
+        <span class="kb-letter" lang="he">${letter}</span>
+        <div><div class="kb-en">${h.monthName} <span class="he" lang="he">${h.monthNameHe}</span></div>
+        <div class="muted">${h.monthLength} days · day ${h.day}</div></div>
+      </div>
+      ${row('Letter', `${lname} <span class="he" lang="he">${letter}</span>`)}
+      ${row('Sign', sign)}
+      ${row('Tribe', tribe)}
+      ${row('Sense', sense)}
+      <p class="cn-note">Sefer Yetzirah gives each month one of the twelve simple letters, a sign of the zodiac, a tribe of Israel and a human faculty.</p>`;
+
+    // coming days: holy days in the next 120 days
+    const coming = [];
+    for (let k = 1; k <= 120 && coming.length < 7; k++) {
+      const hh = HB.hebrewFromFixed(h.rd + k);
+      const list = HB.holidays(hh);
+      if (list.length) {
+        const c = HB.civilFromRd(h.rd + k);
+        const prev = coming[coming.length - 1];
+        const label = list.join(' · ');
+        if (prev && prev.label === label && prev.endK === k - 1) { prev.endK = k; continue; }
+        coming.push({ k, endK: k, label, c, hh });
+      }
+    }
+    $('kbComing').innerHTML = coming.map((x) => {
+      const c = new Date(Date.UTC(x.c.y, x.c.m - 1, x.c.d));
+      const label = new Intl.DateTimeFormat('en-GB', { timeZone: 'UTC', weekday: 'short', day: 'numeric', month: 'short' }).format(c);
+      const span = x.endK > x.k ? ` (${x.endK - x.k + 1} days)` : '';
+      return `<button type="button" class="kb-coming" data-date="${c.toISOString().slice(0, 10)}"><span class="kb-c-d">${label}</span><span>${x.label}${span}<small>${x.hh.day} ${HB.monthName(x.hh.year, x.hh.month)} · from the evening before · in ${x.k} d</small></span></button>`;
+    }).join('') || '<p class="empty">No holy days in the next 120 days.</p>';
+
+    // the day: sefira and planet of the weekday, or the Omer
+    const ds = HB.DAY_SEFIRA[h.dow], [dhe, dtr, den, ddesc] = HB.SEFIROT[ds];
+    let day = `<div class="kb-sef tipzone" data-tip="kb-sefira:${ds}" tabindex="0"><span class="kb-sef-he" lang="he">${dhe}</span><div><div class="kb-en">${dtr} · ${den}</div><div class="muted">${HB.DAY_NAMES[h.dow]} · day of ${HB.DAY_PLANET[h.dow]}</div></div></div><div class="tplain">${ddesc}</div>`;
+    if (om) {
+      const inn = HB.SEFIROT[om.inner], out = HB.SEFIROT[om.outer];
+      day += `<div class="kb-omer"><div class="kb-omer-n">${om.day}</div><div><b>Day ${om.day} of the Omer</b>${om.day >= 7 ? `<div class="muted">${om.weeks} week${om.weeks === 1 ? '' : 's'}${om.rest < 7 ? ` and ${om.rest} day${om.rest === 1 ? '' : 's'}` : ''}</div>` : ''}<div>${inn[1]} she'b'${out[1]} <span class="he" lang="he">${inn[0]} שב${out[0]}</span></div><div class="muted">${inn[2]} within ${out[2]}</div></div></div>`;
+    }
+    $('kbDayTitle').textContent = om ? 'The day · Counting of the Omer' : 'The day';
+    $('kbDay').innerHTML = day;
+
+    drawTree(ds, om);
+    $('kbEmblemLetter').textContent = letter;
+    $('title').textContent = `${h.day} ${h.monthName} ${h.year}`;
+    $('big3').innerHTML = `<div><b>${HB.DAY_NAMES[h.dow]}</b> · ${dtr}</div><div>Month of <b>${lname}</b> · ${sign}</div><div>Sunset <b>${fmtT(today.sunset)}</b></div>`;
+  }
+
+  function drawTree(daySef, om) {
+    const svg = $('kbTree'); svg.innerHTML = '';
+    const defs = el('defs', {}, svg);
+    const gl = el('radialGradient', { id: 'kbGlow' }, defs);
+    el('stop', { offset: '0%', style: 'stop-color:var(--kb-light);stop-opacity:0.95' }, gl);
+    el('stop', { offset: '60%', style: 'stop-color:var(--gold);stop-opacity:0.35' }, gl);
+    el('stop', { offset: '100%', style: 'stop-color:var(--gold);stop-opacity:0' }, gl);
+    const lit = new Set([daySef]); if (om) { lit.add(om.inner); lit.add(om.outer); }
+    TREE_PATHS.forEach(([a, b]) => {
+      const on = lit.has(a) && lit.has(b);
+      el('line', { x1: TREE_POS[a][0], y1: TREE_POS[a][1], x2: TREE_POS[b][0], y2: TREE_POS[b][1], stroke: on ? 'var(--gold-bright)' : 'var(--kb-path)', 'stroke-width': on ? 3 : 2, 'stroke-linecap': 'round', class: 'kb-path' }, svg);
+    });
+    // Da'at, the hidden sefira
+    el('circle', { cx: 180, cy: 160, r: 16, fill: 'none', stroke: 'var(--rule)', 'stroke-dasharray': '3 4' }, svg);
+    HB.SEFIROT.forEach(([he, tr], i) => {
+      const [x, y] = TREE_POS[i], on = lit.has(i), main = i === daySef;
+      if (on) el('circle', { cx: x, cy: y, r: 46, fill: 'url(#kbGlow)', class: main ? 'kb-pulse' : '', 'pointer-events': 'none' }, svg);
+      el('circle', { cx: x, cy: y, r: 27, fill: on ? 'var(--kb-orb-on)' : 'var(--kb-orb)', stroke: on ? 'var(--gold-bright)' : 'var(--gold)', 'stroke-width': on ? 2 : 1.2, 'data-tip': `kb-sefira:${i}`, class: 'tipzone', tabindex: 0, 'aria-label': `${tr} details` }, svg);
+      el('text', { x, y: y - 3, 'text-anchor': 'middle', 'dominant-baseline': 'central', 'font-size': he.length > 4 ? 13 : 15, fill: on ? '#1a1640' : 'var(--ink)', 'font-family': 'var(--f-he)', 'pointer-events': 'none' }, svg, he);
+      el('text', { x, y: y + 13, 'text-anchor': 'middle', 'dominant-baseline': 'central', 'font-size': 8.5, fill: on ? '#2a2560' : 'var(--muted)', 'font-family': 'var(--f-body)', 'pointer-events': 'none' }, svg, tr);
+    });
+    $('kbLegend').innerHTML = `<span><b class="kb-dot"></b>the day's sefira${om ? ' and the Omer pair' : ''}</span>`;
+  }
+
+  function tipSefira(i) {
+    const [he, tr, en, desc] = HB.SEFIROT[i];
+    let h = `<div class="th"><span class="he" lang="he">${he}</span> ${tr} · ${en}</div><div class="tplain">${desc}</div>`;
+    const days = HB.DAY_SEFIRA.map((s, d) => (s === i ? HB.DAY_NAMES[d] : null)).filter(Boolean);
+    if (days.length) h += row('Day of the week', days.join(', '));
+    h += row('Position', `${i + 1} of 10${i < 3 ? ' · intellect' : i < 6 ? ' · emotion' : ' · action'}`);
+    return h;
+  }
+
   // ---------- render ----------
 
   function render() {
@@ -1060,6 +1192,7 @@
     drawWheel(chart, asps);
     if (view === 'chinese') renderChinese(when, { y, m, d, hh, mm }, place);
     if (view === 'maya') renderMaya({ y, m, d }, place);
+    if (view === 'kabbalah') renderKabbalah(when, { y, m, d }, place);
 
     // today card
     drawMoon(phase);
@@ -1180,6 +1313,7 @@
     });
     render();
     if (document.fonts && document.fonts.ready) document.fonts.ready.then(render);
+    $('kbComing').addEventListener('click', (e) => { const b = e.target.closest('.kb-coming'); if (b) { $('date').value = b.dataset.date; urlSync = true; render(); } });
     $('myNext').addEventListener('click', (e) => { const b = e.target.closest('.my-day'); if (b) { $('date').value = b.dataset.date; urlSync = true; render(); } });
     $('yearlist').addEventListener('click', (e) => { const b = e.target.closest('.yitem'); if (b) jumpTo(b.dataset.t); });
     setTimeout(() => {

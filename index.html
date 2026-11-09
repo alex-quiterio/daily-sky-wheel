@@ -17,6 +17,7 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600&family=EB+Garamond:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&family=Noto+Sans+Symbols:wght@400;600&family=Noto+Sans+Symbols+2&display=swap">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@500;700&display=swap&text=%E4%B8%81%E4%B8%83%E4%B8%91%E4%B8%99%E4%B8%AD%E4%B9%99%E4%BA%8C%E4%BA%94%E4%BA%A5%E5%81%8F%E5%82%B7%E5%86%AC%E5%88%86%E5%8A%AB%E5%8D%81%E5%8D%88%E5%8D%AF%E5%8D%B0%E5%9B%9B%E5%9C%9F%E5%A3%AC%E5%A4%8F%E5%A4%A7%E5%AD%90%E5%AE%98%E5%AF%85%E5%AF%92%E5%B0%8F%E5%B7%B1%E5%B7%B3%E5%B9%B4%E5%BA%9A%E6%88%8A%E6%88%8C%E6%97%A5%E6%98%8E%E6%98%A5%E6%99%82%E6%9A%91%E6%9B%86%E6%9C%88%E6%9C%A8%E6%9C%AA%E6%9F%B1%E6%AD%A3%E6%AE%BA%E6%AF%94%E6%B0%B4%E6%B8%85%E6%BB%BF%E7%81%AB%E7%94%9F%E7%94%B2%E7%94%B3%E7%99%B8%E7%99%BD%E7%A5%9E%E7%A7%8B%E7%A8%AE%E7%A9%80%E7%AB%8B%E8%82%96%E8%82%A9%E8%87%B3%E8%8A%92%E8%99%95%E8%9F%84%E8%A1%8C%E8%B2%A1%E8%BE%9B%E8%BE%B0%E8%BE%B2%E9%85%89%E9%87%91%E9%99%8D%E9%9B%A8%E9%9B%AA%E9%9C%9C%E9%9C%B2%E9%A3%9F%E9%A9%9A">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&display=swap&text=%E4%B8%81%E4%B8%83%E4%B8%91%E4%B8%99%E4%B8%AD%E4%B9%99%E4%BA%8C%E4%BA%94%E4%BA%A5%E5%81%8F%E5%82%B7%E5%86%AC%E5%88%86%E5%8A%AB%E5%8D%81%E5%8D%88%E5%8D%AF%E5%8D%B0%E5%9B%9B%E5%9C%9F%E5%A3%AC%E5%A4%8F%E5%A4%A7%E5%AD%90%E5%AE%98%E5%AF%85%E5%AF%92%E5%B0%8F%E5%B7%B1%E5%B7%B3%E5%B9%B4%E5%BA%9A%E6%88%8A%E6%88%8C%E6%97%A5%E6%98%8E%E6%98%A5%E6%99%82%E6%9A%91%E6%9B%86%E6%9C%88%E6%9C%A8%E6%9C%AA%E6%9F%B1%E6%AD%A3%E6%AE%BA%E6%AF%94%E6%B0%B4%E6%B8%85%E6%BB%BF%E7%81%AB%E7%94%9F%E7%94%B2%E7%94%B3%E7%99%B8%E7%99%BD%E7%A5%9E%E7%A7%8B%E7%A8%AE%E7%A9%80%E7%AB%8B%E8%82%96%E8%82%A9%E8%87%B3%E8%8A%92%E8%99%95%E8%9F%84%E8%A1%8C%E8%B2%A1%E8%BE%9B%E8%BE%B0%E8%BE%B2%E9%85%89%E9%87%91%E9%99%8D%E9%9B%A8%E9%9B%AA%E9%9C%9C%E9%9C%B2%E9%A3%9F%E9%A9%9A">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@500;700&display=swap&text=%D7%90%D7%91%D7%92%D7%93%D7%94%D7%95%D7%96%D7%97%D7%98%D7%99%D7%9B%D7%9C%D7%9D%D7%9E%D7%9F%D7%A0%D7%A1%D7%A2%D7%A4%D7%A5%D7%A6%D7%A7%D7%A8%D7%A9%D7%AA%D7%B3%D7%B4">
 <link rel="stylesheet" href="src/styles.css?v=dev">
 </head>
 <body>
@@ -27,6 +28,7 @@
     <div class="brand">
       <div class="seal" id="seal" aria-hidden="true"><span id="sealChar">午</span></div>
       <div class="emblem" id="emblem" aria-hidden="true"><span id="emblemNum"></span></div>
+      <div class="kb-emblem" id="kbEmblem" aria-hidden="true"><span id="kbEmblemLetter">נ</span></div>
       <svg class="logo" viewBox="0 0 120 120" aria-hidden="true" focusable="false">
         <defs>
           <linearGradient id="pgold" x1="0" y1="0" x2="1" y2="1">
@@ -90,6 +92,7 @@
     <button type="button" role="tab" id="tabWestern" aria-controls="viewWestern" aria-selected="true">Western</button>
     <button type="button" role="tab" id="tabChinese" aria-controls="viewChinese" aria-selected="false" tabindex="-1">Chinese <span class="zh">中</span></button>
     <button type="button" role="tab" id="tabMaya" aria-controls="viewMaya" aria-selected="false" tabindex="-1">Maya</button>
+    <button type="button" role="tab" id="tabKabbalah" aria-controls="viewKabbalah" aria-selected="false" tabindex="-1">Kabbalah <span class="he">א</span></button>
   </div>
 
   <div class="main" id="viewWestern" role="tabpanel" aria-labelledby="tabWestern">
@@ -206,6 +209,34 @@
     </div>
   </div>
 
+  <div class="main" id="viewKabbalah" role="tabpanel" aria-labelledby="tabKabbalah" hidden>
+    <div class="side">
+      <section class="card">
+        <h2>Hebrew date</h2>
+        <div id="kbDate"></div>
+      </section>
+      <section class="card">
+        <h2>The month · Sefer Yetzirah</h2>
+        <div id="kbMonth"></div>
+      </section>
+      <section class="card">
+        <h2>Coming days</h2>
+        <div id="kbComing"></div>
+      </section>
+    </div>
+    <div class="side">
+      <section class="card">
+        <h2>Tree of Life <span class="he">עץ חיים</span></h2>
+        <svg id="kbTree" viewBox="0 0 360 520" role="img" aria-label="The Tree of Life with this day's sefira lit"></svg>
+        <div class="legend" id="kbLegend"></div>
+      </section>
+      <section class="card">
+        <h2 id="kbDayTitle">The day</h2>
+        <div id="kbDay"></div>
+      </section>
+    </div>
+  </div>
+
   <footer class="method">
     <h2>Method</h2>
     <dl>
@@ -215,6 +246,7 @@
       <div><dt>Houses</dt><dd>Placidus falls back to Equal above 66° latitude.</dd></div>
       <div><dt>Chinese</dt><dd>Lunar months and New Year follow China Standard Time. The month pillar turns at each solar term and the day pillar at local midnight, with no true-solar-time correction.</dd></div>
       <div><dt>Maya</dt><dd>GMT correlation (584283): 21 Dec 2012 = 13.0.0.0.0 4 Ajaw 3 K'ank'in. The day turns at local midnight.</dd></div>
+      <div><dt>Kabbalah</dt><dd>Hebrew calendar by the fixed arithmetic rules; the day turns at local sunset. Candle lighting 18 minutes before sunset; Havdalah when the Sun is 8.5° below the horizon. Month correspondences after Sefer Yetzirah.</dd></div>
       <div><dt>Times</dt><dd>Shown in the selected place's local time.</dd></div>
     </dl>
   </footer>
@@ -226,6 +258,7 @@
 <script src="src/events.js?v=dev"></script>
 <script src="src/chinese.js?v=dev"></script>
 <script src="src/maya.js?v=dev"></script>
+<script src="src/hebrew.js?v=dev"></script>
 <script src="src/app.js?v=dev"></script>
 </body>
 </html>
