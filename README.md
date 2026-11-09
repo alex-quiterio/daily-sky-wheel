@@ -153,6 +153,4 @@ Placidus falls back to Equal houses above 66° latitude. There's no city search,
 
 ☉ ☽ ☿ ♀ ♂ ♃ ♄ ♅ ♆ ♇
 
-<sub>Made with Claude Code.</sub>
-
 </div>
