@@ -23,11 +23,9 @@
     ['Bologna', 44.49, 11.34, 'Europe/Rome'],
     ['Francavilla al Mare', 42.42, 14.29, 'Europe/Rome'],
     ['New York', 40.72, -74.00, 'America/New_York'],
-    ['Los Angeles', 34.05, -118.24, 'America/Los_Angeles'],
     ['Mexico City', 19.43, -99.13, 'America/Mexico_City'],
     ['São Paulo', -23.55, -46.63, 'America/Sao_Paulo'],
     ['Mumbai', 19.08, 72.88, 'Asia/Kolkata'],
-    ['Tokyo', 35.68, 139.69, 'Asia/Tokyo'],
     ['Sydney', -33.87, 151.21, 'Australia/Sydney'],
   ];
 
@@ -82,12 +80,14 @@
     zones.forEach((z) => { const o = document.createElement('option'); o.value = z; o.textContent = z.replace(/_/g, ' '); $('tz').appendChild(o); });
 
     const saved = store.get();
-    sel.value = saved.place != null ? saved.place : '0';
+    // places are remembered by name, so adding or removing cities never shifts a saved choice
+    const savedIdx = saved.place === 'custom' ? 'custom' : PLACES.findIndex((p) => slug(p[0]) === saved.place);
+    sel.value = savedIdx === 'custom' ? 'custom' : savedIdx >= 0 ? String(savedIdx) : '0';
     $('hsys').value = ['placidus', 'whole', 'equal', 'natural'].includes(saved.hsys) ? saved.hsys : 'placidus';
     $('lat').value = saved.lat != null ? saved.lat : 38.72;
     $('lon').value = saved.lon != null ? saved.lon : -9.14;
     $('tz').value = saved.tz || 'Europe/Lisbon';
-    if (saved.place == null) useBrowserPlace();
+    if (savedIdx !== 'custom' && savedIdx < 0) useBrowserPlace();
     setNow(false);
     $('time').value = '12:00';
     applyQuery();
@@ -545,7 +545,7 @@
     const hsys = $('hsys').value;
     document.querySelectorAll('input[name="hsysPick"]').forEach((r) => { r.checked = r.value === hsys; });
     $('customBox').hidden = $('place').value !== 'custom';
-    store.set({ place: $('place').value, hsys, lat: $('lat').value, lon: $('lon').value, tz: $('tz').value });
+    store.set({ place: $('place').value === 'custom' ? 'custom' : slug(currentPlace().name), hsys, lat: $('lat').value, lon: $('lon').value, tz: $('tz').value });
     if (!$('date').value) return;
     const [y, m, d] = $('date').value.split('-').map(Number);
     const [hh, mm] = ($('time').value || '12:00').split(':').map(Number);
