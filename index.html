@@ -39,21 +39,25 @@
       <label class="field"><span>Longitude</span><input id="lon" type="number" step="0.01" min="-180" max="180"></label>
       <label class="field"><span>Time zone</span><select id="tz"></select></label>
     </div>
-    <label class="field"><span>Houses</span>
-      <select id="hsys">
-        <option value="placidus">Placidus</option>
-        <option value="whole">Whole sign</option>
-        <option value="equal">Equal</option>
-        <option value="natural">Natural (Aries = 1st)</option>
-      </select>
-    </label>
     <div class="spacer"></div>
     <button type="button" id="now">Now</button>
+    <button type="button" id="copylink">Copy link</button>
+    <p class="urlnote" id="urlnote" role="status" hidden></p>
   </form>
 
   <div class="main">
     <div class="side">
     <div class="wheelbox">
+      <div class="wheelbar">
+        <span class="wheelbar-label" id="hsysLabel">Houses</span>
+        <div class="seg" role="radiogroup" aria-labelledby="hsysLabel">
+          <label><input type="radio" name="hsysPick" value="placidus"><span>Placidus</span></label>
+          <label><input type="radio" name="hsysPick" value="whole"><span>Whole sign</span></label>
+          <label><input type="radio" name="hsysPick" value="equal"><span>Equal</span></label>
+          <label><input type="radio" name="hsysPick" value="natural"><span>Natural</span></label>
+        </div>
+        <input type="hidden" id="hsys" value="placidus">
+      </div>
       <svg id="wheel" viewBox="-16 -16 672 672" role="img" aria-label="Chart wheel"></svg>
       <div class="legend">
         <span><i style="border-color:var(--fire)"></i>square / opposition</span>

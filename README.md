@@ -30,10 +30,31 @@ Pick a day, a time and a place and the sky comes back as a chart.
 | **☾ The day** | The Moon's phase, then everything that happens between midnight and midnight local time: New and Full Moons, quarters, sign changes, stations and exact aspects, each with its time to the minute. Click any of them to recast the wheel for that moment. |
 | **✶ Positions** | Degree, sign and minute for every body, with retrograde flags and the house each one falls in. |
 | **△ Balance and patterns** | Counts by element and mode, the chart ruler, and any Yod, T-square, Grand Trine or stellium. |
-| **⌂ Houses** | Placidus, Whole sign, Equal, or Natural (Aries on the 1st). |
+| **⌂ Houses** | Placidus, Whole sign, Equal, or Natural (Aries on the 1st), switched from the toggle above the wheel. |
 | **✧ Hover anything** | Every symbol has a tooltip. **Planets** show position to the arcsecond, house, daily motion, latitude, declination (flagged when out of bounds), dignity, the houses they rule, antiscia, and each aspect with its orb and whether it's applying or separating. **Signs** show element, mode, polarity, rulers, exaltation, detriment and fall, and which cusps and bodies fall in them. **Houses** show the cusp, size, the cusp ruler and where it sits, interceptions and the bodies inside. **Angles and aspect lines** have their own details. Hovering a planet lights up its aspects. Click or tap a symbol to pin its tooltip, and press Esc to close it. |
 
 Move through the days with **‹ ›** or the arrow keys. **Now** casts the chart for this minute in your own time zone, picked up from the browser.
+
+## ⚹ Link to any moment
+
+Add the date, time and place to the URL and the page opens on that chart. Once a link has parameters, the address keeps up with the form as you change it, and **Copy link** copies it for you.
+
+```
+?date=2026-11-09&time=02:02&place=new-york&houses=natural
+?date=2026-03-20&time=14:30&lat=44.49&lon=11.34&tz=Europe/Rome
+?place=bologna&time=now
+```
+
+| Parameter | Format | Notes |
+|---|---|---|
+| `date` | `YYYY-MM-DD` or `today` | |
+| `time` | `HH:MM`, `HHMM` or `now` | Local time at the place. `now` also sets today's date. |
+| `place` | a preset name | Any case, with or without accents, hyphens or spaces, e.g. `new-york`, `São Paulo`, `francavilla-al-mare` |
+| `lat`, `lon` | decimal degrees | For places not in the list. North and east are positive. |
+| `tz` | IANA zone, e.g. `Europe/Rome` | Used with `lat`/`lon`. Defaults to your browser's zone. |
+| `houses` | `placidus`, `whole`, `equal`, `natural` | |
+
+If part of a link can't be read, the page says which part and uses its default for that field.
 
 ## ✦ Start
 

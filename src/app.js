@@ -83,14 +83,81 @@
 
     const saved = store.get();
     sel.value = saved.place != null ? saved.place : '0';
-    $('hsys').value = saved.hsys || 'placidus';
+    $('hsys').value = ['placidus', 'whole', 'equal', 'natural'].includes(saved.hsys) ? saved.hsys : 'placidus';
     $('lat').value = saved.lat != null ? saved.lat : 38.72;
     $('lon').value = saved.lon != null ? saved.lon : -9.14;
     $('tz').value = saved.tz || 'Europe/Lisbon';
     if (saved.place == null) useBrowserPlace();
     setNow(false);
     $('time').value = '12:00';
+    applyQuery();
   }
+
+  // ---------- URL parameters ----------
+  // ?date=2026-11-09&time=02:02&place=new-york&houses=natural
+  // ?date=2026-11-09&time=14:30&lat=44.49&lon=11.34&tz=Europe/Rome
+  const slug = (x) => String(x).normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+  const HOUSE_ALIASES = { placidus: 'placidus', p: 'placidus', whole: 'whole', 'whole-sign': 'whole', wholesign: 'whole', w: 'whole', equal: 'equal', e: 'equal', natural: 'natural', n: 'natural' };
+  let urlSync = false;
+
+  function applyQuery() {
+    let q;
+    try { q = new URLSearchParams(window.location.search); } catch (e) { return; }
+    if (![...q.keys()].length) return;
+    urlSync = true;
+    const problems = [];
+
+    // place first: date/time are read in the place's time zone
+    const placeQ = q.get('place');
+    const lat = parseFloat(q.get('lat')), lon = parseFloat(q.get('lon'));
+    if (placeQ) {
+      const idx = PLACES.findIndex((p) => slug(p[0]) === slug(placeQ));
+      if (idx >= 0) $('place').value = String(idx);
+      else problems.push(`place "${placeQ}" is not in the list`);
+    } else if (isFinite(lat) && isFinite(lon)) {
+      if (Math.abs(lat) > 89 || Math.abs(lon) > 180) problems.push('lat/lon out of range');
+      else {
+        $('place').value = 'custom';
+        $('lat').value = lat; $('lon').value = lon;
+        const tz = q.get('tz') || browserTZ();
+        if ([...$('tz').options].some((o) => o.value === tz)) $('tz').value = tz;
+        else { problems.push(`time zone "${tz}" is not recognised`); $('tz').value = browserTZ(); }
+      }
+    } else if (q.has('lat') || q.has('lon')) problems.push('lat and lon must both be numbers');
+
+    const h = q.get('houses') || q.get('hsys');
+    if (h) { const v = HOUSE_ALIASES[slug(h)]; if (v) $('hsys').value = v; else problems.push(`house system "${h}" is not supported`); }
+
+    const tz = currentPlace().tz;
+    const dq = q.get('date');
+    if (dq) {
+      if (dq === 'today') $('date').value = localParts(new Date(), tz).date;
+      else if (/^\d{4}-\d{2}-\d{2}$/.test(dq) && !isNaN(Date.parse(dq + 'T00:00:00Z'))) $('date').value = dq;
+      else problems.push(`date "${dq}" should look like 2026-11-09`);
+    }
+    const tq = q.get('time');
+    if (tq) {
+      const m = /^(\d{1,2}):?(\d{2})$/.exec(tq);
+      if (tq === 'now') { const lp = localParts(new Date(), tz); $('time').value = lp.time; if (!dq) $('date').value = lp.date; }
+      else if (m && +m[1] < 24 && +m[2] < 60) $('time').value = `${pad(+m[1])}:${m[2]}`;
+      else problems.push(`time "${tq}" should look like 14:30`);
+    }
+    const note = $('urlnote');
+    if (problems.length) { note.textContent = `Couldn't use part of the link: ${problems.join('; ')}.`; note.hidden = false; }
+  }
+
+  function syncURL() {
+    if (!urlSync) return;
+    const q = new URLSearchParams();
+    q.set('date', $('date').value);
+    q.set('time', $('time').value || '12:00');
+    if ($('place').value === 'custom') { q.set('lat', $('lat').value); q.set('lon', $('lon').value); q.set('tz', $('tz').value); }
+    else q.set('place', slug(currentPlace().name));
+    q.set('houses', $('hsys').value);
+    const url = `${location.pathname}?${q.toString().replace(/%2F/g, '/').replace(/%3A/g, ':')}${location.hash}`;
+    try { history.replaceState(null, '', url); } catch (e) { /* sandboxed */ }
+  }
+  function shareURL() { urlSync = true; syncURL(); return location.href; }
 
   function currentPlace() {
     const v = $('place').value;
@@ -121,6 +188,7 @@
   }
 
   function shiftDay(n) {
+    urlSync = true;
     const [y, m, d] = $('date').value.split('-').map(Number);
     const dt = new Date(Date.UTC(y, m - 1, d + n));
     $('date').value = dt.toISOString().slice(0, 10);
@@ -472,8 +540,10 @@
 
   function render() {
     hideTip(true);
+    setTimeout(syncURL, 0);
     const place = currentPlace();
     const hsys = $('hsys').value;
+    document.querySelectorAll('input[name="hsysPick"]').forEach((r) => { r.checked = r.value === hsys; });
     $('customBox').hidden = $('place').value !== 'custom';
     store.set({ place: $('place').value, hsys, lat: $('lat').value, lon: $('lon').value, tz: $('tz').value });
     if (!$('date').value) return;
@@ -581,10 +651,21 @@
   // ---------- wire up ----------
   function boot() {
     initControls();
+    ['controls'].forEach((id) => $(id).addEventListener('change', () => { urlSync = true; $('urlnote').hidden = true; }, true));
+    $('copylink').addEventListener('click', () => {
+      const url = shareURL(), btn = $('copylink');
+      const done = (ok) => { btn.textContent = ok ? 'Link copied' : 'Copy failed'; setTimeout(() => { btn.textContent = 'Copy link'; }, 1600); };
+      if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(url).then(() => done(true), () => done(false));
+      else done(false);
+    });
     $('prev').addEventListener('click', () => shiftDay(-1));
     $('next').addEventListener('click', () => shiftDay(1));
-    $('now').addEventListener('click', () => { useBrowserPlace(); setNow(true); render(); });
-    ['date', 'time', 'place', 'hsys', 'lat', 'lon', 'tz'].forEach((id) => $(id).addEventListener('change', render));
+    $('now').addEventListener('click', () => { urlSync = true; useBrowserPlace(); setNow(true); render(); });
+    ['date', 'time', 'place', 'lat', 'lon', 'tz'].forEach((id) => $(id).addEventListener('change', render));
+    document.querySelectorAll('input[name="hsysPick"]').forEach((r) => r.addEventListener('change', () => {
+      if (!r.checked) return;
+      urlSync = true; $('hsys').value = r.value; render();
+    }));
     $('controls').addEventListener('submit', (e) => e.preventDefault());
     document.addEventListener('keydown', (e) => {
       if (e.target.matches('input, select, textarea')) return;
