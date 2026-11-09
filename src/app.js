@@ -25,6 +25,7 @@
     ['New York', 40.72, -74.00, 'America/New_York'],
     ['Mexico City', 19.43, -99.13, 'America/Mexico_City'],
     ['Mumbai', 19.08, 72.88, 'Asia/Kolkata'],
+    ['Varanasi', 25.32, 83.01, 'Asia/Kolkata'],
     ['Hanoi', 21.03, 105.85, 'Asia/Ho_Chi_Minh'],
     ['Sydney', -33.87, 151.21, 'Australia/Sydney'],
   ];
