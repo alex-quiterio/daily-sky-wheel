@@ -131,12 +131,18 @@
     const ang = (lon) => (180 + norm(lon) - left) * Math.PI / 180;
     const P = (lon, r) => [cx + r * Math.cos(ang(lon)), cy - r * Math.sin(ang(lon))];
 
-    el('circle', { cx, cy, r: R0, fill: 'var(--wheel-bg)', stroke: 'var(--ink)', 'stroke-width': 1.4 }, svg);
+    const defs = el('defs', {}, svg);
+    const grad = el('radialGradient', { id: 'coreGlow', cx: '50%', cy: '50%', r: '50%' }, defs);
+    el('stop', { offset: '0%', style: 'stop-color:var(--nebula-1);stop-opacity:0.55' }, grad);
+    el('stop', { offset: '100%', style: 'stop-color:var(--wheel-core);stop-opacity:1' }, grad);
+    el('circle', { cx, cy, r: R0 + 12, fill: 'none', stroke: 'var(--gold)', 'stroke-width': 1, 'stroke-dasharray': '1 6', 'stroke-linecap': 'round', 'stroke-opacity': 0.7 }, svg);
+    el('circle', { cx, cy, r: R0 + 5, fill: 'none', stroke: 'var(--gold)', 'stroke-width': 0.6, 'stroke-opacity': 0.5 }, svg);
+    el('circle', { cx, cy, r: R0, fill: 'var(--wheel-bg)', 'fill-opacity': 0.85, stroke: 'var(--gold)', 'stroke-width': 1.4 }, svg);
     // zodiac band segments
     for (let s = 0; s < 12; s++) {
       const a0 = s * 30, a1 = s * 30 + 30;
       const [x0, y0] = P(a0, R0), [x1, y1] = P(a1, R0), [x2, y2] = P(a1, R1), [x3, y3] = P(a0, R1);
-      el('path', { d: `M${x0} ${y0} A${R0} ${R0} 0 0 0 ${x1} ${y1} L${x2} ${y2} A${R1} ${R1} 0 0 1 ${x3} ${y3}Z`, fill: `var(${EL_VAR[s % 4]})`, 'fill-opacity': 0.09, stroke: 'var(--rule)', 'stroke-width': 1 }, svg);
+      el('path', { d: `M${x0} ${y0} A${R0} ${R0} 0 0 0 ${x1} ${y1} L${x2} ${y2} A${R1} ${R1} 0 0 1 ${x3} ${y3}Z`, fill: `var(${EL_VAR[s % 4]})`, 'fill-opacity': 0.13, stroke: 'var(--rule)', 'stroke-width': 1 }, svg);
       const [gx, gy] = P(a0 + 15, (R0 + R1) / 2);
       el('text', { x: gx, y: gy, 'text-anchor': 'middle', 'dominant-baseline': 'central', 'font-size': 19, fill: `var(${EL_VAR[s % 4]})`, 'font-family': 'var(--f-glyph)' }, svg, sg(s));
     }
@@ -146,15 +152,15 @@
       const [x0, y0] = P(d, R1), [x1, y1] = P(d, R1 - len);
       el('line', { x1: x0, y1: y0, x2: x1, y2: y1, stroke: 'var(--muted)', 'stroke-width': d % 10 === 0 ? 0.9 : 0.5 }, svg);
     }
-    el('circle', { cx, cy, r: R1, fill: 'none', stroke: 'var(--ink)', 'stroke-width': 1 }, svg);
+    el('circle', { cx, cy, r: R1, fill: 'none', stroke: 'var(--gold)', 'stroke-width': 1 }, svg);
     el('circle', { cx, cy, r: RH, fill: 'none', stroke: 'var(--rule)', 'stroke-width': 1 }, svg);
-    el('circle', { cx, cy, r: RC, fill: 'var(--wheel-core)', stroke: 'var(--ink)', 'stroke-width': 1 }, svg);
+    el('circle', { cx, cy, r: RC, fill: 'url(#coreGlow)', stroke: 'var(--gold)', 'stroke-width': 1 }, svg);
 
     // house cusps
     chart.cusps.forEach((c, i) => {
       const angle = i % 3 === 0;
       const [x0, y0] = P(c, R1 - 10), [x1, y1] = P(c, RC);
-      el('line', { x1: x0, y1: y0, x2: x1, y2: y1, stroke: angle ? 'var(--ink)' : 'var(--rule)', 'stroke-width': angle ? 1.4 : 1 }, svg);
+      el('line', { x1: x0, y1: y0, x2: x1, y2: y1, stroke: angle ? 'var(--gold)' : 'var(--rule)', 'stroke-width': angle ? 1.3 : 1 }, svg);
       const next = chart.cusps[(i + 1) % 12];
       const mid = c + norm(next - c) / 2;
       const [hx, hy] = P(mid, RC + 12);
@@ -163,7 +169,7 @@
     // angle markers ASC / MC (always drawn at their real positions)
     [['AC', chart.asc], ['MC', chart.mc], ['DC', chart.asc + 180], ['IC', chart.mc + 180]].forEach(([lab, lon]) => {
       const [x0, y0] = P(lon, R0), [x1, y1] = P(lon, R0 + 0.01);
-      const [tx, ty] = P(lon, R0 + 11);
+      const [tx, ty] = P(lon, R0 + 22);
       el('line', { x1: P(lon, R1)[0], y1: P(lon, R1)[1], x2: x0, y2: y0, stroke: 'var(--accent)', 'stroke-width': 2.2 }, svg);
       el('text', { x: tx, y: ty, 'text-anchor': 'middle', 'dominant-baseline': 'central', 'font-size': 10, 'font-weight': 600, fill: 'var(--accent)', 'font-family': 'var(--f-data)' }, svg, lab);
     });
@@ -204,7 +210,7 @@
     const gp = el('g', { class: 'planets' }, svg);
     items.forEach((p) => {
       const [tx0, ty0] = P(p.lon, R1), [tx1, ty1] = P(p.lon, R2);
-      el('line', { x1: tx0, y1: ty0, x2: tx1, y2: ty1, stroke: 'var(--ink)', 'stroke-width': 1.4 }, gp);
+      el('line', { x1: tx0, y1: ty0, x2: tx1, y2: ty1, stroke: 'var(--gold-bright)', 'stroke-width': 1.4 }, gp);
       const [lx0, ly0] = P(p.lon, R2), [lx1, ly1] = P(p.disp, RP + 13);
       el('line', { x1: lx0, y1: ly0, x2: lx1, y2: ly1, stroke: 'var(--muted)', 'stroke-width': 0.5, 'stroke-opacity': 0.7 }, gp);
       const pos = fmtPos(p.lon);
@@ -223,7 +229,7 @@
   function drawMoon(phase) {
     const svg = $('moonpic'); svg.innerHTML = '';
     const r = 24, c = 28;
-    el('circle', { cx: c, cy: c, r, fill: 'var(--wheel-core)', stroke: 'var(--rule)' }, svg);
+    el('circle', { cx: c, cy: c, r, fill: 'var(--wheel-core)', stroke: 'var(--gold)', 'stroke-opacity': 0.5 }, svg);
     const e = phase.elong * Math.PI / 180;
     const k = Math.cos(e); // terminator x-scale
     const waxing = phase.elong < 180;
@@ -232,7 +238,7 @@
     const rx = Math.abs(k) * r;
     const sweepInner = (k > 0) === waxing ? 0 : 1;
     const d = `M${c} ${c - r} A${r} ${r} 0 0 ${sweepOuter} ${c} ${c + r} A${rx} ${r} 0 0 ${sweepInner} ${c} ${c - r}Z`;
-    el('path', { d, fill: 'var(--ink)', 'fill-opacity': 0.85 }, svg);
+    el('path', { d, fill: 'var(--moonlit)', 'fill-opacity': 0.95 }, svg);
   }
 
   // ---------- render ----------
@@ -323,12 +329,12 @@
       const max = Math.max(...counts, 1);
       labels.forEach((lab, i) => {
         const row = document.createElement('div'); row.className = 'bar';
-        row.innerHTML = `<span>${lab}</span><span class="track"><span class="fill" style="display:block;width:${(counts[i] / max) * 100}%;background:${colors[i]}"></span></span><span class="n">${counts[i]}</span>`;
+        row.innerHTML = `<span>${lab}</span><span class="track"><span class="fill" style="display:block;width:${(counts[i] / max) * 100}%;background:${colors[i]};color:${colors[i]}"></span></span><span class="n">${counts[i]}</span>`;
         box.appendChild(row);
       });
     };
     bars('elements', E.ELEMENT, bal.el, EL_VAR.map((v) => `var(${v})`));
-    bars('modes', E.MODE, bal.md, ['var(--accent)', 'var(--accent)', 'var(--accent)']);
+    bars('modes', E.MODE, bal.md, ['var(--violet)', 'var(--violet)', 'var(--violet)']);
     const ascSign = Math.floor(chart.asc / 30);
     let ph = `<div style="margin-bottom:6px;font-size:13px">Strongest: <b>${bal.strongEl}</b>, <b>${bal.strongMd}</b> · Chart ruler: <b>${E.RULER[ascSign]}</b> (${E.SIGNS[ascSign]} rising) · <span class="note">counts Sun to Pluto plus the Ascendant</span></div>`;
     if (pats.length) {

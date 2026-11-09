@@ -1,48 +1,101 @@
-# Daily Sky Wheel
+<div align="center">
 
-A daily astrology chart that runs in the browser. Pick a day, a time and a place, and it draws the chart wheel. Alongside the wheel it shows the planet positions, houses, aspects and patterns, plus everything that happens in the sky that day.
+# ✦ Daily Sky Wheel ✦
 
-## What it shows
+**The astrology chart for any day and place, drawn live in your browser.**
 
-- **Wheel:** Sun to Pluto, Chiron, the true North Node, mean Lilith, Ceres, Pallas, Juno, Vesta and the Vertex. The Ascendant, MC, Descendant and IC are marked on the wheel, and aspect lines are drawn in the centre.
-- **The day:** Moon phase, then every lunation, sign change, station and exact aspect between local midnight and the next midnight. Click an event to recast the chart for that moment.
-- **Positions:** degree, sign, retrograde flag and house.
-- **Balance and patterns:** counts by element and mode, the chart ruler, and any Yod, T-square, Grand Trine or stellium.
-- **Houses:** Placidus, Whole sign, Equal or Natural (Aries on the 1st).
+♈ ♉ ♊ ♋ ♌ ♍ ♎ ♏ ♐ ♑ ♒ ♓
 
-Move through days with the ‹ › buttons or the arrow keys.
+[![Open the wheel](https://img.shields.io/badge/open_the_wheel-alex--quiterio.github.io-d8b46a?style=for-the-badge&labelColor=07061a)](https://alex-quiterio.github.io/daily-sky-wheel/)
+<br>
+[![tests](https://github.com/alex-quiterio/daily-sky-wheel/actions/workflows/test.yml/badge.svg)](https://github.com/alex-quiterio/daily-sky-wheel/actions/workflows/test.yml)
+![no build step](https://img.shields.io/badge/build_step-none-a58bff?labelColor=15112f)
+![dependencies](https://img.shields.io/badge/runtime_deps-1-a58bff?labelColor=15112f)
 
-## Run it
+<br>
 
-It is a static page with no build step.
+<a href="https://alex-quiterio.github.io/daily-sky-wheel/"><img src="docs/screenshot.png" alt="Daily Sky Wheel showing the Scorpio New Moon of 9 November 2026: the chart wheel with aspect lines, the day's events and the positions table" width="900"></a>
 
-```sh
-npm start          # serves the folder at http://localhost:3000
-```
+</div>
 
-Opening `index.html` directly in a browser also works.
+<br>
 
-## Test it
+## ☽ What it shows
 
-```sh
-npm install
-npm test
-```
+Pick a day, a time and a place and the sky comes back as a chart.
 
-The tests compare the calculations against a reference chart: the Scorpio New Moon of 9 Nov 2026 at 2:02 AM EST in New York. They check every body's position and retrograde flag, the angles, the Placidus cusps, the Yod to Mercury, the New Moon time and Mercury's retrograde station on 24 Oct 2026.
-
-## How it works
-
-| File | What it does |
+| | |
 |---|---|
-| `src/core.js` | Positions and houses. Planets come from [Astronomy Engine](https://github.com/cosinekitty/astronomy) (MIT). This file also computes the node, Lilith, Chiron and the asteroids, plus the Ascendant, MC, Vertex and house cusps. |
-| `src/events.js` | Aspects, patterns, element and mode balance, Moon phase, and the day's events. Events are found by hourly sampling, then bisected to within 30 seconds. |
-| `src/app.js` | Controls, time zones and the SVG wheel. |
-| `src/styles.css` | Light and dark themes. |
+| **☉ The wheel** | Sun to Pluto, Chiron, the North Node, Lilith, Ceres, Pallas, Juno, Vesta and the Vertex. The signs are coloured by element, and aspect lines run through the centre. Planets that sit close together are fanned out so their labels don't overlap. |
+| **☾ The day** | The Moon's phase, then everything that happens between midnight and midnight local time: New and Full Moons, quarters, sign changes, stations and exact aspects, each with its time to the minute. Click any of them to recast the wheel for that moment. |
+| **✶ Positions** | Degree, sign and minute for every body, with retrograde flags and the house each one falls in. |
+| **△ Balance and patterns** | Counts by element and mode, the chart ruler, and any Yod, T-square, Grand Trine or stellium. |
+| **⌂ Houses** | Placidus, Whole sign, Equal, or Natural (Aries on the 1st). |
 
-## Accuracy
+Move through the days with **‹ ›** or the arrow keys. **Now** casts the chart for this minute.
 
-- **Planets:** Astronomy Engine positions, to under an arcminute.
-- **Chiron, Ceres, Pallas, Juno, Vesta:** fixed orbital elements tuned to the reference chart, marked ≈ on the page. They are within a few arcminutes around 2024–2029 and drift further out. Accurate positions across centuries would need the Swiss Ephemeris.
-- **Placidus:** falls back to Equal houses above 66° latitude.
-- **Places:** there is no city search, because the page makes no network calls. Places outside the preset list go in as custom latitude, longitude and time zone.
+## ✦ Start
+
+It's a static page with no build step.
+
+```sh
+git clone https://github.com/alex-quiterio/daily-sky-wheel.git
+cd daily-sky-wheel
+npm start            # → http://localhost:3000
+```
+
+Opening `index.html` directly works too.
+
+## ☿ Proven against a real chart
+
+The calculations are checked against a reference chart cast in desktop astrology software: the **Scorpio New Moon of 9 November 2026, 2:02 AM EST, New York**.
+
+```sh
+npm install && npm test
+```
+
+All 22 checks pass:
+
+- every body's degree, sign and retrograde flag
+- the Ascendant, Midheaven and Vertex
+- the Placidus cusps
+- the **Yod to Mercury** in that chart
+- the New Moon time, to the minute
+- Mercury stationing retrograde on 24 October 2026
+
+GitHub Actions runs the tests on every push.
+
+## ♄ How it works
+
+```
+index.html         the page
+src/core.js        positions, houses, Ascendant / MC / Vertex
+src/events.js      aspects, patterns, element balance, Moon phase, the day's events
+src/app.js         controls, time zones, the SVG wheel
+src/stars.js       the twinkling sky behind it all
+src/styles.css     the night theme
+```
+
+- **Planets** come from [Astronomy Engine](https://github.com/cosinekitty/astronomy) (MIT), accurate to well under an arcminute.
+- **Houses and angles** are computed from sidereal time and the true obliquity of the ecliptic.
+- **The day's events** are found by sampling the sky every hour, then bisecting each crossing to within 30 seconds.
+- **Time zones** use the browser's own `Intl` database, so daylight-saving changes come out right.
+
+## ⚷ Accuracy
+
+| Bodies | Method | Accuracy |
+|---|---|---|
+| Sun to Pluto | Astronomy Engine (VSOP87, ELP) | < 1′ |
+| True Node, mean Lilith | Meeus' series | a few arcminutes |
+| Chiron, Ceres, Pallas, Juno, Vesta ≈ | Keplerian elements tuned to the reference chart | a few arcminutes over 2024–2029, drifting outside that |
+
+Placidus falls back to Equal houses above 66° latitude. There's no city search, because the page makes no network calls. A place outside the preset list goes in as custom latitude, longitude and time zone.
+
+<div align="center">
+<br>
+
+☉ ☽ ☿ ♀ ♂ ♃ ♄ ♅ ♆ ♇
+
+<sub>Made with Claude Code.</sub>
+
+</div>
