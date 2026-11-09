@@ -16,6 +16,7 @@
     ['Porto', 41.15, -8.61, 'Europe/Lisbon'],
     ['Faro', 37.02, -7.93, 'Europe/Lisbon'],
     ['Madrid', 40.42, -3.70, 'Europe/Madrid'],
+    ['Amsterdam', 52.37, 4.90, 'Europe/Amsterdam'],
     ['London', 51.51, -0.13, 'Europe/London'],
     ['Paris', 48.86, 2.35, 'Europe/Paris'],
     ['Berlin', 52.52, 13.40, 'Europe/Berlin'],
