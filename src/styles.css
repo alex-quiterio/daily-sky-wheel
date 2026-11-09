@@ -139,3 +139,76 @@ table.eph tr.approx td.nm::after { content: " ≈"; color: var(--muted); }
 .asplist .o { margin-left: auto; font-family: var(--f-data); font-size: 12px; color: var(--muted); }
 .note { color: var(--muted); font-size: 14px; font-style: italic; max-width: 75ch; }
 #patterns .note { font-size: 13px; }
+
+/* tooltips */
+.tipzone { cursor: help; }
+tr.tipzone:hover td, .asplist .tipzone:hover { background: rgba(216, 180, 106, 0.06); }
+tr.tipzone:focus-visible, .asplist .tipzone:focus-visible { outline: 1px solid var(--gold); outline-offset: -1px; }
+#wheel text.tipzone:focus { outline: none; }
+#wheel text.tipzone:focus-visible { fill: var(--gold-bright); }
+#wheel .asp { transition: stroke-opacity .15s, stroke-width .15s; }
+#wheel.focusing .asp { stroke-opacity: 0.1; }
+#wheel.focusing .asp.on { stroke-opacity: 1; stroke-width: 2.2; }
+#wheel .pglyph.on { fill: var(--gold-bright); }
+#tip {
+  position: fixed; z-index: 50; width: max-content; max-width: min(320px, calc(100vw - 16px));
+  padding: 12px 14px; border-radius: 12px; pointer-events: none;
+  background: rgba(16, 12, 40, 0.94); border: 1px solid var(--rule);
+  -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px);
+  box-shadow: 0 18px 50px -12px rgba(0, 0, 0, 0.85), 0 0 24px -12px var(--violet);
+  font-size: 14px; line-height: 1.45; color: var(--ink);
+}
+#tip.pinned { border-color: var(--gold); }
+#tip .th { font-family: var(--f-display); font-size: 15px; letter-spacing: .04em; color: var(--gold-bright); margin-bottom: 2px; }
+#tip .tpos { font-family: var(--f-data); font-size: 13px; margin-bottom: 6px; }
+#tip .tg { font-family: var(--f-glyph); }
+#tip .tr { display: flex; justify-content: space-between; gap: 16px; padding: 1px 0; }
+#tip .tr > span:first-child { color: var(--muted); }
+#tip .tr > span:last-child { text-align: right; font-variant-numeric: tabular-nums; }
+#tip .tsub { font-family: var(--f-display); font-size: 10.5px; letter-spacing: .18em; text-transform: uppercase; color: var(--gold); margin: 8px 0 2px; padding-top: 6px; border-top: 1px solid var(--rule); }
+#tip .muted { color: var(--muted); }
+#tip .tnote { font-size: 12.5px; font-style: italic; margin-top: 6px; }
+#tip .badge { font-family: var(--f-body); font-size: 11px; padding: 0 6px; border-radius: 99px; border: 1px solid var(--rule); color: var(--muted); }
+#tip .badge.warn { border-color: var(--fire); color: var(--fire); }
+
+/* background motion */
+body::before, body::after {
+  content: ""; position: fixed; inset: -20vmax; z-index: 0; pointer-events: none;
+  filter: blur(40px);
+}
+body::before {
+  background:
+    radial-gradient(30vmax 22vmax at 25% 30%, rgba(122, 72, 230, 0.22), transparent 70%),
+    radial-gradient(26vmax 20vmax at 75% 65%, rgba(40, 110, 220, 0.18), transparent 70%);
+}
+body::after {
+  background:
+    radial-gradient(24vmax 18vmax at 60% 25%, rgba(216, 120, 200, 0.12), transparent 70%),
+    radial-gradient(22vmax 16vmax at 30% 80%, rgba(216, 180, 106, 0.08), transparent 70%);
+  mix-blend-mode: screen;
+}
+.sky-ring {
+  position: fixed; z-index: 0; pointer-events: none;
+  width: 130vmax; height: 130vmax; left: 50%; top: 55%;
+  transform: translate(-50%, -50%);
+  color: var(--gold); opacity: 0.07;
+}
+.sky-ring svg { width: 100%; height: 100%; display: block; overflow: visible; }
+#wheel .halo { transform-origin: 320px 320px; }
+h1 { background-size: 220% 100%; }
+
+@media (prefers-reduced-motion: no-preference) {
+  body::before { animation: nebula-a 70s ease-in-out infinite alternate; }
+  body::after { animation: nebula-b 95s ease-in-out infinite alternate; }
+  .sky-ring { animation: ring-turn 480s linear infinite; }
+  #wheel .halo { animation: ring-spin 140s linear infinite; }
+  #wheel .halo.rev { animation-duration: 200s; animation-direction: reverse; }
+  h1 { animation: shimmer 14s ease-in-out infinite alternate; }
+  .moonpic { animation: moon-breathe 6s ease-in-out infinite alternate; }
+}
+@keyframes nebula-a { from { transform: translate(-3%, -2%) scale(1); opacity: .8; } to { transform: translate(4%, 3%) scale(1.12); opacity: 1; } }
+@keyframes nebula-b { from { transform: translate(3%, 2%) rotate(0deg); opacity: .7; } to { transform: translate(-4%, -3%) rotate(8deg); opacity: 1; } }
+@keyframes ring-turn { from { transform: translate(-50%, -50%) rotate(0deg); } to { transform: translate(-50%, -50%) rotate(360deg); } }
+@keyframes ring-spin { to { transform: rotate(360deg); } }
+@keyframes shimmer { from { background-position: 0% 50%; } to { background-position: 100% 50%; } }
+@keyframes moon-breathe { from { filter: drop-shadow(0 0 8px rgba(245, 236, 208, 0.22)); } to { filter: drop-shadow(0 0 18px rgba(245, 236, 208, 0.5)); } }

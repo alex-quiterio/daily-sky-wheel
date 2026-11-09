@@ -43,6 +43,23 @@
     return A.Ecliptic(g).elon;
   }
 
+  // ecliptic latitude (degrees); 0 for the calculated points
+  function latOf(name, date) {
+    if (name === 'Sun') return A.SunPosition(date).elat;
+    if (name === 'Moon') return A.EclipticGeoMoon(date).lat;
+    if (MAJOR.includes(name)) return A.Ecliptic(A.GeoVector(A.Body[name], date, true)).elat;
+    if (MINOR[name]) {
+      const t = A.MakeTime(date), p = helioMinor(MINOR[name], date), e = A.HelioVector(A.Body.Earth, t);
+      return A.Ecliptic(new A.Vector(p.x - e.x, p.y - e.y, p.z - e.z, t)).elat;
+    }
+    return 0;
+  }
+
+  function declination(lon, lat, eps) {
+    const l = lon * D2R, b = lat * D2R, e = eps * D2R;
+    return Math.asin(Math.sin(b) * Math.cos(e) + Math.cos(b) * Math.sin(e) * Math.sin(l)) * R2D;
+  }
+
   const MAJOR = ['Sun', 'Moon', 'Mercury', 'Venus', 'Mars', 'Jupiter', 'Saturn', 'Uranus', 'Neptune', 'Pluto'];
 
   function lonOf(name, date) {
@@ -124,12 +141,13 @@
   const BODIES = ['Sun', 'Moon', 'Mercury', 'Venus', 'Mars', 'Jupiter', 'Saturn', 'Uranus', 'Neptune', 'Pluto', 'Chiron', 'Node', 'Lilith', 'Ceres', 'Pallas', 'Juno', 'Vesta'];
 
   function chart(date, lat, lon, system) {
+    const eps = obliquity(date);
     const pts = BODIES.map((name) => {
       const l = lonOf(name, date);
-      const s = (name === 'Sun' || name === 'Moon') ? 1 : speed(name, date);
-      return { name, lon: l, speed: s, retro: s < 0 };
+      const s = speed(name, date);
+      const lat = latOf(name, date);
+      return { name, lon: l, lat, decl: declination(l, lat, eps), speed: s, retro: s < 0 };
     });
-    const eps = obliquity(date);
     const ramc = norm(A.SiderealTime(date) * 15 + lon);
     const asc = ascFrom(ramc, eps, lat), mc = mcFrom(ramc, eps);
     const vertex = ascFrom(norm(ramc + 180), eps, 90 - lat); // Ascendant of the co-latitude, from the IC
@@ -137,5 +155,5 @@
     return { date, lat, lon, system, pts, asc, mc, vertex, cusps, ramc, eps };
   }
 
-  root.AstroCore = { chart, lonOf, speed, MINOR, EPOCH, norm, BODIES, minorLon };
+  root.AstroCore = { chart, lonOf, latOf, declination, speed, MINOR, EPOCH, norm, BODIES, minorLon };
 })(typeof window !== 'undefined' ? window : globalThis);

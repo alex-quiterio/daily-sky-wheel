@@ -85,6 +85,7 @@
     $('lat').value = saved.lat != null ? saved.lat : 38.72;
     $('lon').value = saved.lon != null ? saved.lon : -9.14;
     $('tz').value = saved.tz || 'Europe/Lisbon';
+    if (saved.place == null) useBrowserPlace();
     setNow(false);
     $('time').value = '12:00';
   }
@@ -97,6 +98,17 @@
     }
     const p = PLACES[+v] || PLACES[0];
     return { name: p[0], lat: p[1], lon: p[2], tz: p[3] };
+  }
+
+  function browserTZ() { try { return Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC'; } catch (e) { return 'UTC'; } }
+  // Pick the place matching the browser's time zone (keeping the current place if it already matches).
+  function useBrowserPlace() {
+    const tz = browserTZ();
+    if (currentPlace().tz === tz) return;
+    const idx = PLACES.findIndex((p) => p[3] === tz);
+    if (idx >= 0) { $('place').value = String(idx); return; }
+    $('place').value = 'custom';
+    if ([...$('tz').options].some((o) => o.value === tz)) $('tz').value = tz;
   }
 
   function setNow(withTime) {
@@ -135,22 +147,23 @@
     const grad = el('radialGradient', { id: 'coreGlow', cx: '50%', cy: '50%', r: '50%' }, defs);
     el('stop', { offset: '0%', style: 'stop-color:var(--nebula-1);stop-opacity:0.55' }, grad);
     el('stop', { offset: '100%', style: 'stop-color:var(--wheel-core);stop-opacity:1' }, grad);
-    el('circle', { cx, cy, r: R0 + 12, fill: 'none', stroke: 'var(--gold)', 'stroke-width': 1, 'stroke-dasharray': '1 6', 'stroke-linecap': 'round', 'stroke-opacity': 0.7 }, svg);
+    el('circle', { cx, cy, r: R0 + 12, fill: 'none', stroke: 'var(--gold)', 'stroke-width': 1, 'stroke-dasharray': '1 6', 'stroke-linecap': 'round', 'stroke-opacity': 0.7, class: 'halo' }, svg);
     el('circle', { cx, cy, r: R0 + 5, fill: 'none', stroke: 'var(--gold)', 'stroke-width': 0.6, 'stroke-opacity': 0.5 }, svg);
+    el('circle', { cx, cy, r: R0 + 18, fill: 'none', stroke: 'var(--violet)', 'stroke-width': 0.8, 'stroke-dasharray': '2 14 1 9', 'stroke-linecap': 'round', 'stroke-opacity': 0.45, class: 'halo rev' }, svg);
     el('circle', { cx, cy, r: R0, fill: 'var(--wheel-bg)', 'fill-opacity': 0.85, stroke: 'var(--gold)', 'stroke-width': 1.4 }, svg);
     // zodiac band segments
     for (let s = 0; s < 12; s++) {
       const a0 = s * 30, a1 = s * 30 + 30;
       const [x0, y0] = P(a0, R0), [x1, y1] = P(a1, R0), [x2, y2] = P(a1, R1), [x3, y3] = P(a0, R1);
-      el('path', { d: `M${x0} ${y0} A${R0} ${R0} 0 0 0 ${x1} ${y1} L${x2} ${y2} A${R1} ${R1} 0 0 1 ${x3} ${y3}Z`, fill: `var(${EL_VAR[s % 4]})`, 'fill-opacity': 0.13, stroke: 'var(--rule)', 'stroke-width': 1 }, svg);
+      el('path', { d: `M${x0} ${y0} A${R0} ${R0} 0 0 0 ${x1} ${y1} L${x2} ${y2} A${R1} ${R1} 0 0 1 ${x3} ${y3}Z`, fill: `var(${EL_VAR[s % 4]})`, 'fill-opacity': 0.13, stroke: 'var(--rule)', 'stroke-width': 1, 'data-tip': `sign:${s}`, class: 'tipzone' }, svg);
       const [gx, gy] = P(a0 + 15, (R0 + R1) / 2);
-      el('text', { x: gx, y: gy, 'text-anchor': 'middle', 'dominant-baseline': 'central', 'font-size': 19, fill: `var(${EL_VAR[s % 4]})`, 'font-family': 'var(--f-glyph)' }, svg, sg(s));
+      el('text', { x: gx, y: gy, 'text-anchor': 'middle', 'dominant-baseline': 'central', 'font-size': 19, fill: `var(${EL_VAR[s % 4]})`, 'font-family': 'var(--f-glyph)', 'data-tip': `sign:${s}`, class: 'tipzone', tabindex: 0, 'aria-label': `${E.SIGNS[s]} details` }, svg, sg(s));
     }
     // degree ticks
     for (let d = 0; d < 360; d += 1) {
       const len = d % 10 === 0 ? 9 : d % 5 === 0 ? 6 : 3;
       const [x0, y0] = P(d, R1), [x1, y1] = P(d, R1 - len);
-      el('line', { x1: x0, y1: y0, x2: x1, y2: y1, stroke: 'var(--muted)', 'stroke-width': d % 10 === 0 ? 0.9 : 0.5 }, svg);
+      el('line', { x1: x0, y1: y0, x2: x1, y2: y1, stroke: 'var(--muted)', 'stroke-width': d % 10 === 0 ? 0.9 : 0.5, 'pointer-events': 'none' }, svg);
     }
     el('circle', { cx, cy, r: R1, fill: 'none', stroke: 'var(--gold)', 'stroke-width': 1 }, svg);
     el('circle', { cx, cy, r: RH, fill: 'none', stroke: 'var(--rule)', 'stroke-width': 1 }, svg);
@@ -164,22 +177,25 @@
       const next = chart.cusps[(i + 1) % 12];
       const mid = c + norm(next - c) / 2;
       const [hx, hy] = P(mid, RC + 12);
-      el('text', { x: hx, y: hy, 'text-anchor': 'middle', 'dominant-baseline': 'central', 'font-size': 10, fill: 'var(--muted)', 'font-family': 'var(--f-data)' }, svg, String(i + 1));
+      el('circle', { cx: hx, cy: hy, r: 9, fill: 'rgba(0,0,0,0)', 'data-tip': `house:${i}`, class: 'tipzone' }, svg);
+      el('text', { x: hx, y: hy, 'text-anchor': 'middle', 'dominant-baseline': 'central', 'font-size': 10, fill: 'var(--muted)', 'font-family': 'var(--f-data)', 'data-tip': `house:${i}`, class: 'tipzone', tabindex: 0, 'aria-label': `House ${i + 1} details` }, svg, String(i + 1));
     });
     // angle markers ASC / MC (always drawn at their real positions)
     [['AC', chart.asc], ['MC', chart.mc], ['DC', chart.asc + 180], ['IC', chart.mc + 180]].forEach(([lab, lon]) => {
       const [x0, y0] = P(lon, R0), [x1, y1] = P(lon, R0 + 0.01);
       const [tx, ty] = P(lon, R0 + 22);
       el('line', { x1: P(lon, R1)[0], y1: P(lon, R1)[1], x2: x0, y2: y0, stroke: 'var(--accent)', 'stroke-width': 2.2 }, svg);
-      el('text', { x: tx, y: ty, 'text-anchor': 'middle', 'dominant-baseline': 'central', 'font-size': 10, 'font-weight': 600, fill: 'var(--accent)', 'font-family': 'var(--f-data)' }, svg, lab);
+      el('text', { x: tx, y: ty, 'text-anchor': 'middle', 'dominant-baseline': 'central', 'font-size': 10, 'font-weight': 600, fill: 'var(--accent)', 'font-family': 'var(--f-data)', 'data-tip': `angle:${lab}`, class: 'tipzone', tabindex: 0, 'aria-label': `${lab} details` }, svg, lab);
     });
 
     // aspect lines
     const byName = Object.fromEntries(chart.pts.map((p) => [p.name, p]));
-    asps.forEach((a) => {
+    const ag = el('g', { class: 'asps' }, svg);
+    asps.forEach((a, i) => {
       if (a.type.key === 'conj') return;
       const [x0, y0] = P(byName[a.a].lon, RC - 2), [x1, y1] = P(byName[a.b].lon, RC - 2);
-      el('line', { x1: x0, y1: y0, x2: x1, y2: y1, stroke: ASPECT_COLOR[a.type.key], 'stroke-width': a.orb < 2 ? 1.6 : 0.9, 'stroke-opacity': a.orb < 2 ? 0.95 : 0.6, 'stroke-dasharray': a.type.key === 'qx' ? '4 3' : null }, svg);
+      el('line', { x1: x0, y1: y0, x2: x1, y2: y1, stroke: ASPECT_COLOR[a.type.key], 'stroke-width': a.orb < 2 ? 1.6 : 0.9, 'stroke-opacity': a.orb < 2 ? 0.95 : 0.6, 'stroke-dasharray': a.type.key === 'qx' ? '4 3' : null, class: 'asp', 'data-a': a.a, 'data-b': a.b, 'pointer-events': 'none' }, ag);
+      el('line', { x1: x0, y1: y0, x2: x1, y2: y1, stroke: 'rgba(0,0,0,0)', 'stroke-width': 9, 'pointer-events': 'stroke', 'data-tip': `aspect:${i}`, class: 'tipzone' }, ag);
     });
 
     // planets with collision spreading
@@ -217,8 +233,9 @@
       const color = `var(${EL_VAR[pos.sign % 4]})`;
       const [gx, gy] = P(p.disp, RP);
       const isText = (GLYPH[p.name] || '').length > 1;
-      const t = el('text', { x: gx, y: gy, 'text-anchor': 'middle', 'dominant-baseline': 'central', 'font-size': isText ? 12 : 21, fill: 'var(--ink)', 'font-family': isText ? 'var(--f-data)' : 'var(--f-glyph)', 'font-weight': isText ? 600 : 400 }, gp, g(p.name));
-      el('title', {}, t, `${LABEL[p.name] || p.name} ${pos.text}${p.retro ? ' retrograde' : ''}`);
+      const key = p.name === 'Vertex' ? 'angle:Vx' : `planet:${p.name}`;
+      el('circle', { cx: gx, cy: gy, r: 13, fill: 'rgba(0,0,0,0)', 'data-tip': key, class: 'tipzone' }, gp);
+      el('text', { x: gx, y: gy, 'text-anchor': 'middle', 'dominant-baseline': 'central', 'font-size': isText ? 12 : 21, fill: 'var(--ink)', 'font-family': isText ? 'var(--f-data)' : 'var(--f-glyph)', 'font-weight': isText ? 600 : 400, 'data-tip': key, class: 'tipzone pglyph', tabindex: 0, 'aria-label': `${LABEL[p.name] || p.name} details` }, gp, g(p.name));
       const [dx, dy] = P(p.disp, RD);
       el('text', { x: dx, y: dy, 'text-anchor': 'middle', 'dominant-baseline': 'central', 'font-size': 11.5, fill: color, 'font-family': 'var(--f-data)' }, gp, `${pos.deg}°${p.retro ? 'ʀ' : ''}`);
       const [mx, my] = P(p.disp, RD - 15);
@@ -241,9 +258,218 @@
     el('path', { d, fill: 'var(--moonlit)', 'fill-opacity': 0.95 }, svg);
   }
 
+
+  // ---------- tooltips ----------
+  let ctx = null;
+  function houseOfCusps(cusps, lon) {
+    for (let i = 0; i < 12; i++) {
+      const a = cusps[i], b = cusps[(i + 1) % 12];
+      if (norm(lon - a) < norm(b - a)) return i + 1;
+    }
+    return 1;
+  }
+  function dms(l, withSign = true) {
+    l = norm(l); const s = Math.floor(l / 30); let x = l - s * 30;
+    let d = Math.floor(x), m = Math.floor((x - d) * 60), sec = Math.round(((x - d) * 60 - m) * 60);
+    if (sec === 60) { sec = 0; m += 1; } if (m === 60) { m = 0; d += 1; }
+    return `${d}°${pad(m)}′${pad(sec)}″${withSign ? ` <span class="tg">${sg(s)}</span> ${E.SIGNS[s]}` : ''}`;
+  }
+  const dm = (x) => { const a = Math.abs(x); const d = Math.floor(a); const m = Math.round((a - d) * 60); return `${d}°${pad(m === 60 ? 0 : m)}′`; };
+  const row = (k, v) => `<div class="tr"><span>${k}</span><span>${v}</span></div>`;
+  const pn = (n) => `<span class="tg">${g(n)}</span> ${LABEL[n] || n}`;
+
+  function rulersOf(sign) { const i = E.signInfo(sign); return i.trad === i.modern ? i.trad : `${i.modern} (modern), ${i.trad} (traditional)`; }
+  function whereIs(name) {
+    const p = ctx.byName[name]; if (!p) return '';
+    return `${fmtPos(p.lon).text}, H${ctx.houseOf(p.lon)}${p.retro ? ', R' : ''}`;
+  }
+
+  function tipPlanet(name) {
+    const { chart, asps, byName, houseOf } = ctx;
+    const p = byName[name]; if (!p) return '';
+    const sign = Math.floor(p.lon / 30);
+    let h = `<div class="th">${pn(name)}${APPROX.includes(name) ? ' <span class="badge">≈ approx.</span>' : ''}</div>`;
+    h += `<div class="tpos">${dms(p.lon)}</div>`;
+    h += row('House', `H${houseOf(p.lon)}`);
+    const motion = Math.abs(p.speed) < 0.003 ? 'Stationary' : p.retro ? 'Retrograde' : 'Direct';
+    h += row('Motion', `${motion} · ${p.speed >= 0 ? '+' : '−'}${dm(p.speed)}/day`);
+    if (name !== 'Node' && name !== 'Lilith') h += row('Latitude', `${p.lat >= 0 ? '+' : '−'}${dm(p.lat)}`);
+    const oob = Math.abs(p.decl) > chart.eps;
+    h += row('Declination', `${dm(p.decl)} ${p.decl >= 0 ? 'N' : 'S'}${oob ? ' <span class="badge warn">out of bounds</span>' : ''}`);
+    const dig = E.dignity(name, sign);
+    if (dig) h += row('Dignity', dig);
+    const rules = [];
+    chart.cusps.forEach((c, i) => { const inf = E.signInfo(Math.floor(c / 30)); if (inf.modern === name || inf.trad === name) rules.push(`H${i + 1}${inf.modern !== name ? '*' : ''}`); });
+    if (rules.length) h += row('Rules', rules.join(', ') + (rules.some((r) => r.endsWith('*')) ? ' <span class="muted">(*traditional)</span>' : ''));
+    if (name === 'Node') h += row('South Node', fmtPos(p.lon + 180).text);
+    h += row('Antiscion', fmtPos(180 - p.lon).text);
+    h += row('Contra-antiscion', fmtPos(360 - p.lon).text);
+    const mine = asps.filter((a) => a.a === name || a.b === name);
+    if (mine.length) {
+      h += `<div class="tsub">Aspects</div>`;
+      h += mine.map((a) => {
+        const other = a.a === name ? a.b : a.a;
+        return `<div class="tr"><span><span class="tg" style="color:${ASPECT_COLOR[a.type.key]}">${ASPECT_GLYPH[a.type.key]}${VS}</span> ${pn(other)}</span><span>${a.orb.toFixed(2)}° ${a.applying ? 'app.' : 'sep.'}</span></div>`;
+      }).join('');
+    }
+    if (name === 'Lilith') h += `<div class="muted tnote">Mean Black Moon Lilith (lunar apogee)</div>`;
+    if (name === 'Node') h += `<div class="muted tnote">True node</div>`;
+    return h;
+  }
+
+  function tipSign(s) {
+    const { chart, houseOf } = ctx;
+    const inf = E.signInfo(s);
+    let h = `<div class="th"><span class="tg" style="color:var(${EL_VAR[s % 4]})">${sg(s)}</span> ${inf.name}</div>`;
+    h += `<div class="muted">${inf.element} · ${inf.mode} · ${inf.polarity}</div>`;
+    h += row('Ruler', inf.trad === inf.modern ? inf.trad : `${inf.modern} · trad. ${inf.trad}`);
+    h += row('Exaltation', inf.exalted || '—');
+    h += row('Detriment', inf.detriment.join(', ') || '—');
+    h += row('Fall', inf.fall.join(', ') || '—');
+    const cusps = chart.cusps.map((c, i) => [c, i]).filter(([c]) => Math.floor(c / 30) === s).map(([, i]) => `H${i + 1}`);
+    h += row('House cusps', cusps.join(', ') || '— (intercepted or none)');
+    const inside = ctx.chart.pts.filter((p) => Math.floor(p.lon / 30) === s).sort((a, b) => a.lon - b.lon);
+    if (inside.length) {
+      h += `<div class="tsub">Bodies in ${inf.name}</div>`;
+      h += inside.map((p) => row(pn(p.name), `${fmtPos(p.lon).deg}°${pad(fmtPos(p.lon).min)}′${p.retro ? ' R' : ''} · H${houseOf(p.lon)}`)).join('');
+    }
+    return h;
+  }
+
+  function tipHouse(i) {
+    const { chart, houseOf } = ctx;
+    const c = chart.cusps[i], next = chart.cusps[(i + 1) % 12];
+    const sign = Math.floor(c / 30);
+    const size = norm(next - c);
+    let h = `<div class="th">House ${i + 1}</div>`;
+    h += `<div class="tpos">Cusp ${dms(c)}</div>`;
+    h += row('Size', `${dm(size)}`);
+    const inf = E.signInfo(sign);
+    h += row('Cusp ruler', inf.trad === inf.modern ? `${inf.trad} in ${whereIs(inf.trad)}` : `${inf.modern} in ${whereIs(inf.modern)}`);
+    if (inf.trad !== inf.modern) h += row('Trad. ruler', `${inf.trad} in ${whereIs(inf.trad)}`);
+    const intercepted = [];
+    for (let s = 0; s < 12; s++) if (norm(s * 30 - c) < size && norm(s * 30 + 30 - c) <= size && norm(s * 30 - c) > 0) intercepted.push(E.SIGNS[s]);
+    if (intercepted.length) h += row('Intercepted', intercepted.join(', '));
+    const inside = chart.pts.filter((p) => houseOf(p.lon) === i + 1).sort((a, b) => norm(a.lon - c) - norm(b.lon - c));
+    if (inside.length) {
+      h += `<div class="tsub">Bodies in house ${i + 1}</div>`;
+      h += inside.map((p) => row(pn(p.name), `${fmtPos(p.lon).text}${p.retro ? ' R' : ''}`)).join('');
+    } else h += `<div class="muted tnote">Empty house</div>`;
+    if (chart.system === 'natural' || chart.system === 'whole' || chart.system === 'equal') h += `<div class="muted tnote">${{ natural: 'Natural houses', whole: 'Whole sign houses', equal: 'Equal houses' }[chart.system]}</div>`;
+    return h;
+  }
+
+  function tipAngle(lab) {
+    const { chart, houseOf } = ctx;
+    const map = { AC: ['Ascendant', chart.asc], DC: ['Descendant', chart.asc + 180], MC: ['Midheaven', chart.mc], IC: ['Imum Coeli', chart.mc + 180], Vx: ['Vertex', chart.vertex] };
+    const [name, lon] = map[lab];
+    const sign = Math.floor(norm(lon) / 30);
+    let h = `<div class="th">${name}</div><div class="tpos">${dms(lon)}</div>`;
+    const inf = E.signInfo(sign);
+    h += row(lab === 'AC' ? 'Chart ruler' : 'Ruler', `${inf.modern} in ${whereIs(inf.modern)}`);
+    if (inf.trad !== inf.modern) h += row('Trad. ruler', `${inf.trad} in ${whereIs(inf.trad)}`);
+    if (lab === 'Vx') h += row('Anti-vertex', fmtPos(lon + 180).text) + row('House', `H${houseOf(lon)}`);
+    if (lab === 'AC' || lab === 'MC') h += row('RAMC', `${chart.ramc.toFixed(2)}°`);
+    if (lab === 'AC' || lab === 'DC' || lab === 'MC' || lab === 'IC') {
+      const near = chart.pts.map((p) => ({ p, orb: E.sep(p.lon, lon) })).filter((x) => x.orb <= 5).sort((a, b) => a.orb - b.orb);
+      if (near.length) { h += `<div class="tsub">Conjunct (≤5°)</div>` + near.map((x) => row(pn(x.p.name), `${x.orb.toFixed(2)}°`)).join(''); }
+    }
+    h += row('Obliquity', `${chart.eps.toFixed(4)}°`);
+    return h;
+  }
+
+  function tipAspect(i) {
+    const a = ctx.asps[i]; if (!a) return '';
+    const pa = ctx.byName[a.a], pb = ctx.byName[a.b];
+    let h = `<div class="th">${pn(a.a)} <span class="tg" style="color:${ASPECT_COLOR[a.type.key]}">${ASPECT_GLYPH[a.type.key]}${VS}</span> ${pn(a.b)}</div>`;
+    h += `<div class="muted">${a.type.name} (${a.type.angle}°) · orb allowed ${a.type.orb}°</div>`;
+    h += row('Orb', `${a.orb.toFixed(2)}° · ${a.applying ? 'applying' : 'separating'}`);
+    h += row('Separation', `${E.sep(pa.lon, pb.lon).toFixed(2)}°`);
+    h += row(LABEL[a.a] || a.a, `${fmtPos(pa.lon).text}${pa.retro ? ' R' : ''}`);
+    h += row(LABEL[a.b] || a.b, `${fmtPos(pb.lon).text}${pb.retro ? ' R' : ''}`);
+    return h;
+  }
+
+  const tip = document.createElement('div');
+  tip.id = 'tip'; tip.setAttribute('role', 'tooltip'); tip.hidden = true;
+  document.body.appendChild(tip);
+  let pinned = null, current = null;
+
+  function tipHTML(key) {
+    const [kind, v] = key.split(':');
+    if (!ctx) return '';
+    if (kind === 'planet') return tipPlanet(v);
+    if (kind === 'sign') return tipSign(+v);
+    if (kind === 'house') return tipHouse(+v);
+    if (kind === 'angle') return tipAngle(v);
+    if (kind === 'aspect') return tipAspect(+v);
+    return '';
+  }
+  function focusWheel(key) {
+    const svg = $('wheel');
+    svg.querySelectorAll('.asp.on').forEach((l) => l.classList.remove('on'));
+    svg.querySelectorAll('.pglyph.on').forEach((l) => l.classList.remove('on'));
+    svg.classList.remove('focusing');
+    if (!key) return;
+    const [kind, v] = key.split(':');
+    if (kind === 'planet') {
+      svg.classList.add('focusing');
+      svg.querySelectorAll(`.asp[data-a="${v}"], .asp[data-b="${v}"]`).forEach((l) => l.classList.add('on'));
+      svg.querySelectorAll(`.pglyph[data-tip="${key}"]`).forEach((l) => l.classList.add('on'));
+    } else if (kind === 'aspect') {
+      const a = ctx.asps[+v]; if (!a) return;
+      svg.classList.add('focusing');
+      svg.querySelectorAll(`.asp[data-a="${a.a}"][data-b="${a.b}"]`).forEach((l) => l.classList.add('on'));
+      svg.querySelectorAll(`.pglyph[data-tip="planet:${a.a}"], .pglyph[data-tip="planet:${a.b}"]`).forEach((l) => l.classList.add('on'));
+    }
+  }
+  function showTip(target, x, y) {
+    const key = target.getAttribute('data-tip');
+    const html = tipHTML(key);
+    if (!html) return hideTip(true);
+    current = key;
+    tip.innerHTML = html;
+    tip.classList.toggle('pinned', !!pinned);
+    tip.hidden = false;
+    focusWheel(key);
+    const r = target.getBoundingClientRect();
+    const ax = x != null ? x : r.left + r.width / 2, ay = y != null ? y : r.bottom;
+    const tw = tip.offsetWidth, th = tip.offsetHeight, vw = window.innerWidth, vh = window.innerHeight;
+    let left = ax + 14, top = ay + 14;
+    if (left + tw > vw - 8) left = Math.max(8, ax - tw - 14);
+    if (top + th > vh - 8) top = Math.max(8, ay - th - 14);
+    tip.style.left = left + 'px'; tip.style.top = top + 'px';
+  }
+  function hideTip(force) {
+    if (pinned && !force) return;
+    pinned = null; current = null; tip.hidden = true; focusWheel(null);
+  }
+  const zoneOf = (e) => e.target.closest && e.target.closest('[data-tip]');
+  document.addEventListener('pointermove', (e) => {
+    if (pinned || e.pointerType === 'touch') return;
+    const z = zoneOf(e);
+    if (z) showTip(z, e.clientX, e.clientY); else if (current) hideTip();
+  });
+  document.addEventListener('click', (e) => {
+    const z = zoneOf(e);
+    if (z) {
+      if (pinned === z.getAttribute('data-tip')) { hideTip(true); return; }
+      pinned = z.getAttribute('data-tip');
+      showTip(z, e.clientX, e.clientY);
+    } else if (pinned && !tip.contains(e.target)) hideTip(true);
+  });
+  document.addEventListener('focusin', (e) => { const z = zoneOf(e); if (z && !pinned) showTip(z); });
+  document.addEventListener('focusout', (e) => { if (zoneOf(e) && !pinned) hideTip(); });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') hideTip(true);
+    if ((e.key === 'Enter' || e.key === ' ') && zoneOf(e) && e.target.tagName !== 'BUTTON') { e.preventDefault(); pinned = zoneOf(e).getAttribute('data-tip'); showTip(zoneOf(e)); }
+  });
+  window.addEventListener('scroll', () => { if (!pinned) hideTip(); }, { passive: true });
+
   // ---------- render ----------
 
   function render() {
+    hideTip(true);
     const place = currentPlace();
     const hsys = $('hsys').value;
     $('customBox').hidden = $('place').value !== 'custom';
@@ -276,6 +502,7 @@
       $('big3').appendChild(div);
     });
 
+    ctx = { chart, asps, byName, place, houseOf: (lon) => houseOfCusps(chart.cusps, lon) };
     drawWheel(chart, asps);
 
     // today card
@@ -297,13 +524,7 @@
     });
 
     // ephemeris table
-    const houseOf = (lon) => {
-      for (let i = 0; i < 12; i++) {
-        const a = chart.cusps[i], b = chart.cusps[(i + 1) % 12];
-        if (norm(lon - a) < norm(b - a)) return i + 1;
-      }
-      return 1;
-    };
+    const houseOf = ctx.houseOf;
     const rows = chart.pts.map((p) => ({ ...p })).concat([
       { name: 'Asc', lon: chart.asc }, { name: 'MC', lon: chart.mc }, { name: 'Vertex', lon: chart.vertex },
     ]);
@@ -311,7 +532,10 @@
     rows.forEach((p) => {
       const pos = fmtPos(p.lon);
       const tr = document.createElement('tr');
-      if (APPROX.includes(p.name)) tr.className = 'approx';
+      tr.dataset.tip = p.name === 'Asc' ? 'angle:AC' : p.name === 'MC' ? 'angle:MC' : p.name === 'Vertex' ? 'angle:Vx' : `planet:${p.name}`;
+      tr.tabIndex = 0;
+      tr.classList.add('tipzone');
+      if (APPROX.includes(p.name)) tr.classList.add('approx');
       const color = `var(${EL_VAR[pos.sign % 4]})`;
       const isAngle = ['Asc', 'MC', 'Vertex'].includes(p.name);
       tr.innerHTML = `<td class="g" style="${isAngle ? 'font-family:var(--f-data);font-size:11px;font-weight:600' : ''}">${g(p.name)}</td>
@@ -344,9 +568,10 @@
 
     // aspects list
     const al = $('asplist'); al.innerHTML = '';
-    asps.forEach((a) => {
+    asps.forEach((a, i) => {
       const div = document.createElement('div');
-      div.innerHTML = `<span class="gl">${g(a.a)}</span><span class="gl" style="color:${ASPECT_COLOR[a.type.key]}">${ASPECT_GLYPH[a.type.key]}${VS}</span><span class="gl">${g(a.b)}</span><span>${a.a} ${a.type.name.toLowerCase()} ${a.b}</span><span class="o">${a.orb.toFixed(1)}°</span>`;
+      div.dataset.tip = `aspect:${i}`; div.tabIndex = 0; div.className = 'tipzone';
+      div.innerHTML = `<span class="gl">${g(a.a)}</span><span class="gl" style="color:${ASPECT_COLOR[a.type.key]}">${ASPECT_GLYPH[a.type.key]}${VS}</span><span class="gl">${g(a.b)}</span><span>${a.a} ${a.type.name.toLowerCase()} ${a.b}</span><span class="o">${a.applying ? 'a' : 's'} ${a.orb.toFixed(1)}°</span>`;
       al.appendChild(div);
     });
   }
@@ -356,7 +581,7 @@
     initControls();
     $('prev').addEventListener('click', () => shiftDay(-1));
     $('next').addEventListener('click', () => shiftDay(1));
-    $('now').addEventListener('click', () => { setNow(true); render(); });
+    $('now').addEventListener('click', () => { useBrowserPlace(); setNow(true); render(); });
     ['date', 'time', 'place', 'hsys', 'lat', 'lon', 'tz'].forEach((id) => $(id).addEventListener('change', render));
     $('controls').addEventListener('submit', (e) => e.preventDefault());
     document.addEventListener('keydown', (e) => {

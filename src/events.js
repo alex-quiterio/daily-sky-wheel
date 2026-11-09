@@ -24,7 +24,13 @@
       const s = sep(list[i].lon, list[j].lon);
       for (const a of ASPECTS) {
         const orb = Math.abs(s - a.angle);
-        if (orb <= a.orb) { out.push({ a: list[i].name, b: list[j].name, type: a, orb }); break; }
+        if (orb <= a.orb) {
+          // applying when the orb shrinks a moment later
+          const dt = 0.01, la = list[i].lon + (list[i].speed || 0) * dt, lb = list[j].lon + (list[j].speed || 0) * dt;
+          const applying = Math.abs(sep(la, lb) - a.angle) < orb;
+          out.push({ a: list[i].name, b: list[j].name, type: a, orb, applying });
+          break;
+        }
       }
     }
     return out.sort((x, y) => x.orb - y.orb);
@@ -63,6 +69,29 @@
     const strongEl = ELEMENT[el.indexOf(Math.max(...el))];
     const strongMd = MODE[md.indexOf(Math.max(...md))];
     return { el, md, strongEl, strongMd };
+  }
+
+  // Essential dignities (domicile incl. modern rulers; traditional exaltations)
+  const DOMICILE = { Sun: [4], Moon: [3], Mercury: [2, 5], Venus: [1, 6], Mars: [0, 7], Jupiter: [8, 11], Saturn: [9, 10], Uranus: [10], Neptune: [11], Pluto: [7] };
+  const EXALT = { Sun: 0, Moon: 1, Mercury: 5, Venus: 11, Mars: 9, Jupiter: 3, Saturn: 6 };
+  function dignity(name, sign) {
+    const dom = DOMICILE[name];
+    if (!dom) return null;
+    if (dom.includes(sign)) return 'Domicile';
+    if (EXALT[name] === sign) return 'Exaltation';
+    if (dom.some((d) => (d + 6) % 12 === sign)) return 'Detriment';
+    if (EXALT[name] != null && (EXALT[name] + 6) % 12 === sign) return 'Fall';
+    return 'Peregrine';
+  }
+  const TRAD_RULER = ['Mars', 'Venus', 'Mercury', 'Moon', 'Sun', 'Mercury', 'Venus', 'Mars', 'Jupiter', 'Saturn', 'Saturn', 'Jupiter'];
+  function signInfo(sign) {
+    const exalted = Object.keys(EXALT).find((p) => EXALT[p] === sign) || null;
+    return {
+      name: SIGNS[sign], element: ELEMENT[sign % 4], mode: MODE[sign % 3], polarity: sign % 2 === 0 ? 'Masculine (yang)' : 'Feminine (yin)',
+      trad: TRAD_RULER[sign], modern: RULER[sign], exalted,
+      detriment: Object.keys(DOMICILE).filter((p) => DOMICILE[p].some((d) => (d + 6) % 12 === sign)),
+      fall: Object.keys(EXALT).filter((p) => (EXALT[p] + 6) % 12 === sign),
+    };
   }
 
   const PHASES = ['New Moon', 'Waxing Crescent', 'First Quarter', 'Waxing Gibbous', 'Full Moon', 'Waning Gibbous', 'Last Quarter', 'Waning Crescent'];
@@ -141,5 +170,5 @@
     return ev.sort((x, y) => x.t - y.t);
   }
 
-  root.AstroEvents = { SIGNS, ELEMENT, MODE, RULER, ASPECTS, aspects, patterns, balance, moonPhase, dayEvents, sep };
+  root.AstroEvents = { dignity, signInfo, SIGNS, ELEMENT, MODE, RULER, ASPECTS, aspects, patterns, balance, moonPhase, dayEvents, sep };
 })(typeof window !== 'undefined' ? window : globalThis);
