@@ -416,13 +416,34 @@
     return h;
   }
 
+  // What each house covers, in plain words, plus its traditional (Latin) name.
+  const HOUSE_MEANING = [
+    ['Vita', 'Self, body and appearance', 'How you meet the world: your body, temperament, first impressions and the way you start things.'],
+    ['Lucrum', 'Money and possessions', 'What you own and earn, your resources, and what you value, including your sense of self-worth.'],
+    ['Fratres', 'Communication and surroundings', 'Siblings, neighbours, short trips, everyday talk and writing, and early learning.'],
+    ['Genitor', 'Home and roots', 'Family, ancestry, a parent, your home and private life, and how matters end.'],
+    ['Nati', 'Creativity and pleasure', 'Children, romance, play, art, hobbies and whatever you do for joy.'],
+    ['Valetudo', 'Work and health', 'Daily routines and duties, the work you do, health and illness, service, and pets.'],
+    ['Uxor', 'Partners', 'One-to-one relationships: marriage, close partnerships, contracts and open rivals.'],
+    ['Mors', 'Shared resources and transformation', "Other people's money, debts, inheritance, intimacy, crisis, death and rebirth."],
+    ['Iter', 'Beliefs and long journeys', 'Travel abroad, higher education, philosophy, religion, law and publishing.'],
+    ['Regnum', 'Career and reputation', 'Your public role, vocation, ambition, achievements and standing in the world. Also a parent.'],
+    ['Benefacta', 'Friends and community', 'Friends, groups and networks, allies and patrons, and your hopes for the future.'],
+    ['Carcer', 'The hidden and solitude', 'Retreat and solitude, secrets, hidden enemies, hospitals and other institutions, the unconscious, and self-undoing.'],
+  ];
+  const HOUSE_KIND = ['Angular', 'Succedent', 'Cadent'];
+
   function tipHouse(i) {
     const { chart, houseOf } = ctx;
     const c = chart.cusps[i], next = chart.cusps[(i + 1) % 12];
     const sign = Math.floor(c / 30);
     const size = norm(next - c);
-    let h = `<div class="th">House ${i + 1}</div>`;
+    const [latin, topic, plain] = HOUSE_MEANING[i];
+    let h = `<div class="th">House ${i + 1} · ${topic}</div>`;
+    h += `<div class="tplain">${plain}</div>`;
     h += `<div class="tpos">Cusp ${dms(c)}</div>`;
+    h += row('Type', `${HOUSE_KIND[i % 3]} · natural sign ${E.SIGNS[i]}`);
+    h += row('Traditional name', `<i>${latin}</i>`);
     h += row('Size', `${dm(size)}`);
     const inf = E.signInfo(sign);
     h += row('Cusp ruler', inf.trad === inf.modern ? `${inf.trad} in ${whereIs(inf.trad)}` : `${inf.modern} in ${whereIs(inf.modern)}`);
@@ -624,7 +645,7 @@
         <td class="nm">${LABEL[p.name] || p.name}</td>
         <td class="pos">${pos.deg}° <span style="color:${color};font-family:var(--f-glyph)">${sg(pos.sign)}</span> ${pad(pos.min)}′</td>
         <td class="r">${p.retro ? 'R' : ''}</td>
-        <td class="h">${isAngle ? '' : 'H' + houseOf(p.lon)}</td>`;
+        <td class="h">${isAngle ? '' : `<span class="tipzone hcell" data-tip="house:${houseOf(p.lon) - 1}" tabindex="0">H${houseOf(p.lon)}</span>`}</td>`;
       tbl.appendChild(tr);
     });
 

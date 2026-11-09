@@ -1,6 +1,8 @@
 <div align="center">
 
-# ✦ Daily Sky Wheel ✦
+<img src="assets/logo.svg" alt="Daily Sky Wheel logo: a crescent moon and an eight-pointed star inside a ring of zodiac ticks" width="132">
+
+# Daily Sky Wheel
 
 **The astrology chart for any day and place, drawn live in your browser.**
 
@@ -31,7 +33,7 @@ Pick a day, a time and a place and the sky comes back as a chart.
 | **✶ Positions** | Degree, sign and minute for every body, with retrograde flags and the house each one falls in. |
 | **△ Balance and patterns** | Counts by element and mode, the chart ruler, and any Yod, T-square, Grand Trine or stellium. |
 | **⌂ Houses** | Placidus, Whole sign, Equal, or Natural (Aries on the 1st), switched from the toggle above the wheel. |
-| **✧ Hover anything** | Every symbol has a tooltip. **Planets** show position to the arcsecond, house, daily motion, latitude, declination (flagged when out of bounds), dignity, the houses they rule, antiscia, and each aspect with its orb and whether it's applying or separating. **Signs** show element, mode, polarity, rulers, exaltation, detriment and fall, and which cusps and bodies fall in them. **Houses** show the cusp, size, the cusp ruler and where it sits, interceptions and the bodies inside. **Angles and aspect lines** have their own details. Hovering a planet lights up its aspects. Click or tap a symbol to pin its tooltip, and press Esc to close it. |
+| **✧ Hover anything** | Every symbol has a tooltip. **Houses** open with a plain-language line on what that house covers, for anyone new to astrology. **Planets** show position to the arcsecond, house, daily motion, latitude, declination (flagged when out of bounds), dignity, the houses they rule, antiscia, and each aspect with its orb and whether it's applying or separating. **Signs** show element, mode, polarity, rulers, exaltation, detriment and fall, and which cusps and bodies fall in them. **Houses** show the cusp, size, the cusp ruler and where it sits, interceptions and the bodies inside. **Angles and aspect lines** have their own details. Hovering a planet lights up its aspects. Click or tap a symbol to pin its tooltip, and press Esc to close it. |
 
 Move through the days with **‹ ›** or the arrow keys. **Now** casts the chart for this minute in your own time zone, picked up from the browser.
 
@@ -96,6 +98,7 @@ src/events.js      aspects, patterns, element balance, Moon phase, the day's eve
 src/app.js         controls, time zones, the SVG wheel
 src/stars.js       the twinkling sky behind it all
 src/styles.css     the night theme
+assets/logo.svg    the logo, also the browser tab icon
 ```
 
 - **Planets** come from [Astronomy Engine](https://github.com/cosinekitty/astronomy) (MIT), accurate to well under an arcminute.
