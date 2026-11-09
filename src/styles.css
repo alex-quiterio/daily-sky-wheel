@@ -138,6 +138,17 @@ table.eph tr.approx td.nm::after { content: " ≈"; color: var(--muted); }
 .asplist .gl { font-family: var(--f-glyph); }
 .asplist .o { margin-left: auto; font-family: var(--f-data); font-size: 12px; color: var(--muted); }
 .note { color: var(--muted); font-size: 14px; font-style: italic; max-width: 75ch; }
+.method { padding: 6px 2px 0; }
+.method h2 {
+  font-family: var(--f-display); font-weight: 600; font-size: 13px; letter-spacing: .24em; text-transform: uppercase;
+  color: var(--gold); margin: 0 0 12px; display: flex; align-items: center; gap: 10px;
+}
+.method h2::after { content: ""; flex: 1; height: 1px; background: linear-gradient(90deg, var(--rule), transparent); }
+.method dl { margin: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 14px 26px; }
+.method dl > div { min-width: 0; }
+.method dt { font-family: var(--f-display); font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink); margin-bottom: 2px; }
+.method dd { margin: 0; font-size: 16px; line-height: 1.55; color: #cdc5ea; }
+.method .approx-mark { color: var(--gold); letter-spacing: 0; }
 #patterns .note { font-size: 13px; }
 
 /* tooltips */

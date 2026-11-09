@@ -93,7 +93,16 @@
     </div>
   </div>
 
-  <p class="note">Positions are geocentric and tropical, using the true node and mean Lilith. Planets come from Astronomy Engine and are good to under an arcminute. Chiron, Ceres, Pallas, Juno and Vesta (marked ≈) use fixed orbital elements tuned to a reference chart for 9 Nov 2026. They are within a few arcminutes around 2024–2029 and drift further out. Placidus falls back to Equal houses above 66° latitude. Event times are shown in the place's local time.</p>
+  <footer class="method">
+    <h2>Method</h2>
+    <dl>
+      <div><dt>Zodiac</dt><dd>Tropical, geocentric. True node, mean Lilith.</dd></div>
+      <div><dt>Planets</dt><dd>Astronomy Engine, accurate to under 1′.</dd></div>
+      <div><dt>Chiron &amp; asteroids <span class="approx-mark">≈</span></dt><dd>Fixed orbital elements tuned to a reference chart (9 Nov 2026). Within a few arcminutes for 2024–2029, less accurate outside that.</dd></div>
+      <div><dt>Houses</dt><dd>Placidus falls back to Equal above 66° latitude.</dd></div>
+      <div><dt>Times</dt><dd>Shown in the selected place's local time.</dd></div>
+    </dl>
+  </footer>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/astronomy-engine@2.1.19/astronomy.browser.min.js"></script>
