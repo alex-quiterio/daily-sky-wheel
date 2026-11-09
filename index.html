@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Daily Sky Wheel</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Noto+Sans+Symbols:wght@400;600&family=Noto+Sans+Symbols+2&display=swap">
+<link rel="stylesheet" href="src/styles.css">
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div>
+      <h1 id="title">Daily Sky Wheel</h1>
+      <div class="sub" id="subtitle"></div>
+    </div>
+    <div class="big3" id="big3"></div>
+  </header>
+
+  <form class="controls" id="controls" autocomplete="off">
+    <label class="field"><span>Day</span>
+      <div class="daynav">
+        <button type="button" id="prev" aria-label="Previous day">‹</button>
+        <input type="date" id="date">
+        <button type="button" id="next" aria-label="Next day">›</button>
+      </div>
+    </label>
+    <label class="field"><span>Time</span><input type="time" id="time" step="60"></label>
+    <label class="field"><span>Place</span><select id="place"></select></label>
+    <div class="custom" id="customBox" hidden>
+      <label class="field"><span>Latitude</span><input id="lat" type="number" step="0.01" min="-89" max="89"></label>
+      <label class="field"><span>Longitude</span><input id="lon" type="number" step="0.01" min="-180" max="180"></label>
+      <label class="field"><span>Time zone</span><select id="tz"></select></label>
+    </div>
+    <label class="field"><span>Houses</span>
+      <select id="hsys">
+        <option value="placidus">Placidus</option>
+        <option value="whole">Whole sign</option>
+        <option value="equal">Equal</option>
+        <option value="natural">Natural (Aries = 1st)</option>
+      </select>
+    </label>
+    <div class="spacer"></div>
+    <button type="button" id="now">Now</button>
+    <button type="button" id="example">Example: Scorpio New Moon 2026</button>
+  </form>
+
+  <div class="main">
+    <div class="side">
+    <div class="wheelbox">
+      <svg id="wheel" viewBox="0 0 640 640" role="img" aria-label="Chart wheel"></svg>
+      <div class="legend">
+        <span><i style="border-color:var(--fire)"></i>square / opposition</span>
+        <span><i style="border-color:var(--water)"></i>trine / sextile</span>
+        <span><i class="dash" style="border-color:var(--air)"></i>quincunx</span>
+        <span><i style="border-color:var(--muted)"></i>conjunction</span>
+      </div>
+    </div>
+      <section class="card">
+      <h2>Balance and patterns</h2>
+      <div class="grid2">
+        <div><div class="bars" id="elements"></div></div>
+        <div><div class="bars" id="modes"></div></div>
+      </div>
+      <div id="patterns" style="margin-top:10px"></div>
+    </section>
+    </div>
+
+    <div class="side">
+      <section class="card" id="todayCard">
+        <h2>The day</h2>
+        <div class="today-head">
+          <svg class="moonpic" id="moonpic" width="56" height="56" viewBox="0 0 56 56" aria-hidden="true"></svg>
+          <div><div class="ph" id="phase"></div><div class="meta" id="phasemeta"></div></div>
+        </div>
+        <ul class="events" id="events"></ul>
+      </section>
+
+      <section class="card">
+        <h2>Positions</h2>
+        <table class="eph" id="eph"></table>
+      </section>
+      <section class="card">
+      <h2>Aspects</h2>
+      <div class="asplist" id="asplist"></div>
+    </section>
+    </div>
+  </div>
+
+  <p class="note">Positions are geocentric and tropical, using the true node and mean Lilith. Planets come from Astronomy Engine and are good to under an arcminute. Chiron, Ceres, Pallas, Juno and Vesta (marked ≈) use fixed orbital elements tuned to a reference chart for 9 Nov 2026. They are within a few arcminutes around 2024–2029 and drift further out. Placidus falls back to Equal houses above 66° latitude. Event times are shown in the place's local time.</p>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/astronomy-engine@2.1.19/astronomy.browser.min.js"></script>
+<script src="src/core.js"></script>
+<script src="src/events.js"></script>
+<script src="src/app.js"></script>
+</body>
+</html>

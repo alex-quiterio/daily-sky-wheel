@@ -1,0 +1,13 @@
+{
+  "name": "daily-sky-wheel",
+  "version": "0.1.0",
+  "private": true,
+  "description": "A daily astrology chart wheel in the browser: positions, houses, aspects, patterns and the day's sky events.",
+  "scripts": {
+    "start": "npx --yes serve@14.2.4 .",
+    "test": "node --test"
+  },
+  "devDependencies": {
+    "astronomy-engine": "2.1.19"
+  }
+}
