@@ -141,6 +141,27 @@
     const warm = Math.random();
     petals.push({ x: Math.random() * w, y: anywhere ? Math.random() * h : -20, vy: 12 + Math.random() * 18, vx: (Math.random() - 0.5) * 10, rot: Math.random() * Math.PI, vr: (Math.random() - 0.5) * 1.6, s: 3 + Math.random() * 4, ph: Math.random() * 6, c: warm < 0.55 ? '255,150,30' : warm < 0.85 ? '255,196,60' : '235,70,60' });
   }
+  // Islamic theme: a geometric rosette ringed by the twelve Hijri months
+  (function rosetteRing() {
+    const ring = document.createElement('div');
+    ring.className = 'sky-ring sky-ring-islamic';
+    ring.setAttribute('aria-hidden', 'true');
+    const months = ['محرم', 'صفر', 'ربيع الأول', 'ربيع الآخر', 'جمادى الأولى', 'جمادى الآخرة', 'رجب', 'شعبان', 'رمضان', 'شوال', 'ذو القعدة', 'ذو الحجة'];
+    let svg = '<svg viewBox="-500 -500 1000 1000" xmlns="http://www.w3.org/2000/svg">';
+    svg += '<circle r="475" fill="none" stroke="currentColor" stroke-width="1.2"/><circle r="395" fill="none" stroke="currentColor" stroke-width="0.7"/>';
+    for (let i = 0; i < 12; i++) {
+      const a = (i * 30 - 90) * Math.PI / 180;
+      svg += `<text x="${435 * Math.cos(a)}" y="${435 * Math.sin(a)}" font-size="34" text-anchor="middle" dominant-baseline="central" fill="currentColor" font-family="Amiri, serif" transform="rotate(${i * 30} ${435 * Math.cos(a)} ${435 * Math.sin(a)})">${months[i]}</text>`;
+    }
+    // sixteen-fold rosette of interlaced squares
+    for (let k = 0; k < 4; k++) svg += `<rect x="-250" y="-250" width="500" height="500" fill="none" stroke="currentColor" stroke-width="1" transform="rotate(${k * 22.5})"/>`;
+    for (let k = 0; k < 4; k++) svg += `<rect x="-150" y="-150" width="300" height="300" fill="none" stroke="currentColor" stroke-width="1" transform="rotate(${k * 22.5 + 11.25})"/>`;
+    svg += '<circle r="355" fill="none" stroke="currentColor" stroke-width="0.6" stroke-dasharray="2 8"/><circle r="90" fill="none" stroke="currentColor" stroke-width="1.2"/></svg>';
+    ring.innerHTML = svg;
+    document.body.insertBefore(ring, canvas.nextSibling);
+  })();
+  const isIslamic = () => document.documentElement.classList.contains('theme-islamic');
+  let glints = [];
   const isMaya = () => document.documentElement.classList.contains('theme-maya');
   let flies = [];
   function spawnFly() {
@@ -235,6 +256,20 @@
         ctx.restore();
       }
     } else if (petals.length) petals = [];
+    const islNow = isIslamic();
+    if (islNow) {
+      const want = Math.round((w * h) / 30000);
+      while (glints.length < want) glints.push({ x: Math.random() * w, y: Math.random() * h, s: 2 + Math.random() * 4, ph: Math.random() * 6.3, rate: 0.3 + Math.random() * 0.7 });
+      for (const g of glints) {
+        const a = still ? 0.5 : Math.max(0, Math.sin(g.ph + (t / 1000) * g.rate)) ** 4;
+        if (a < 0.03) { if (!still && Math.random() < 0.002) { g.x = Math.random() * w; g.y = Math.random() * h; } continue; }
+        ctx.save(); ctx.translate(g.x, g.y); ctx.rotate(Math.PI / 4 * (g.ph > 3 ? 1 : 0));
+        ctx.fillStyle = `rgba(246,220,142,${(0.85 * a).toFixed(3)})`;
+        const L = g.s * 2.2, W = g.s * 0.35;
+        ctx.beginPath(); ctx.moveTo(0, -L); ctx.lineTo(W, -W); ctx.lineTo(L, 0); ctx.lineTo(W, W); ctx.lineTo(0, L); ctx.lineTo(-W, W); ctx.lineTo(-L, 0); ctx.lineTo(-W, -W); ctx.closePath(); ctx.fill();
+        ctx.restore();
+      }
+    } else if (glints.length) glints = [];
     const mayaNow = isMaya();
     if (mayaNow) {
       const want = Math.round((w * h) / 26000);
@@ -273,7 +308,7 @@
       }
     } else if (lanterns.length) lanterns = [];
     if (!still) {
-      if (!cnNow && !mayaNow && !kabNow && !vedNow && t > nextMeteor) { if (nextMeteor) spawnMeteor(); nextMeteor = t + 4000 + Math.random() * 9000; }
+      if (!cnNow && !mayaNow && !kabNow && !vedNow && !islNow && t > nextMeteor) { if (nextMeteor) spawnMeteor(); nextMeteor = t + 4000 + Math.random() * 9000; }
       meteors = meteors.filter((m) => m.life < m.max);
       for (const m of meteors) {
         m.life += dt; m.x += m.vx * dt; m.y += m.vy * dt;

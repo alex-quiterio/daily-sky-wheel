@@ -19,6 +19,7 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&display=swap&text=%E4%B8%81%E4%B8%83%E4%B8%91%E4%B8%99%E4%B8%AD%E4%B9%99%E4%BA%8C%E4%BA%94%E4%BA%A5%E5%81%8F%E5%82%B7%E5%86%AC%E5%88%86%E5%8A%AB%E5%8D%81%E5%8D%88%E5%8D%AF%E5%8D%B0%E5%9B%9B%E5%9C%9F%E5%A3%AC%E5%A4%8F%E5%A4%A7%E5%AD%90%E5%AE%98%E5%AF%85%E5%AF%92%E5%B0%8F%E5%B7%B1%E5%B7%B3%E5%B9%B4%E5%BA%9A%E6%88%8A%E6%88%8C%E6%97%A5%E6%98%8E%E6%98%A5%E6%99%82%E6%9A%91%E6%9B%86%E6%9C%88%E6%9C%A8%E6%9C%AA%E6%9F%B1%E6%AD%A3%E6%AE%BA%E6%AF%94%E6%B0%B4%E6%B8%85%E6%BB%BF%E7%81%AB%E7%94%9F%E7%94%B2%E7%94%B3%E7%99%B8%E7%99%BD%E7%A5%9E%E7%A7%8B%E7%A8%AE%E7%A9%80%E7%AB%8B%E8%82%96%E8%82%A9%E8%87%B3%E8%8A%92%E8%99%95%E8%9F%84%E8%A1%8C%E8%B2%A1%E8%BE%9B%E8%BE%B0%E8%BE%B2%E9%85%89%E9%87%91%E9%99%8D%E9%9B%A8%E9%9B%AA%E9%9C%9C%E9%9C%B2%E9%A3%9F%E9%A9%9A">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@500;700&display=swap&text=%D7%90%D7%91%D7%92%D7%93%D7%94%D7%95%D7%96%D7%97%D7%98%D7%99%D7%9B%D7%9C%D7%9D%D7%9E%D7%9F%D7%A0%D7%A1%D7%A2%D7%A4%D7%A5%D7%A6%D7%A7%D7%A8%D7%A9%D7%AA%D7%B3%D7%B4">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Tiro+Devanagari+Sanskrit&display=swap&text=%E0%A4%82%E0%A4%95%E0%A4%97%E0%A4%99%E0%A4%9A%E0%A4%9E%E0%A4%A4%E0%A4%A5%E0%A4%A6%E0%A4%A7%E0%A4%A8%E0%A4%AA%E0%A4%AC%E0%A4%AD%E0%A4%AE%E0%A4%AF%E0%A4%B0%E0%A4%B2%E0%A4%B5%E0%A4%B6%E0%A4%B7%E0%A4%B8%E0%A4%B9%E0%A4%BE%E0%A4%BF%E0%A5%80%E0%A5%81%E0%A5%82%E0%A5%83%E0%A5%87%E0%A5%8D%E0%A5%90">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap&text=%D8%A1%D8%A2%D8%A3%D8%A5%D8%A7%D8%A8%D8%A9%D8%AA%D8%AB%D8%AC%D8%AD%D8%AE%D8%AF%D8%B0%D8%B1%D8%B3%D8%B4%D8%B5%D8%B6%D8%B8%D8%B9%D8%BA%D9%80%D9%81%D9%82%D9%84%D9%85%D9%86%D9%87%D9%88%D9%89%D9%8A%D9%8E%D9%8F%D9%90%D9%91%D9%92%D9%A0%D9%A1%D9%A2%D9%A3%D9%A4%D9%A5%D9%A6%D9%A7%D9%A8%D9%A9">
 <link rel="stylesheet" href="src/styles.css?v=dev">
 </head>
 <body>
@@ -31,6 +32,7 @@
       <div class="emblem" id="emblem" aria-hidden="true"><span id="emblemNum"></span></div>
       <div class="kb-emblem" id="kbEmblem" aria-hidden="true"><span id="kbEmblemLetter">נ</span></div>
       <div class="vd-emblem" aria-hidden="true"><span>ॐ</span></div>
+      <div class="is-emblem" aria-hidden="true"><span id="isEmblemDay">١</span></div>
       <svg class="logo" viewBox="0 0 120 120" aria-hidden="true" focusable="false">
         <defs>
           <linearGradient id="pgold" x1="0" y1="0" x2="1" y2="1">
@@ -90,12 +92,13 @@
     <p class="urlnote" id="urlnote" role="status" hidden></p>
   </form>
 
-  <div class="tabs" role="tablist" aria-label="Astrology system">
-    <button type="button" role="tab" id="tabWestern" aria-controls="viewWestern" aria-selected="true">Western</button>
-    <button type="button" role="tab" id="tabChinese" aria-controls="viewChinese" aria-selected="false" tabindex="-1">Chinese <span class="zh">中</span></button>
-    <button type="button" role="tab" id="tabMaya" aria-controls="viewMaya" aria-selected="false" tabindex="-1">Maya</button>
-    <button type="button" role="tab" id="tabKabbalah" aria-controls="viewKabbalah" aria-selected="false" tabindex="-1">Kabbalah <span class="he">א</span></button>
-    <button type="button" role="tab" id="tabVedic" aria-controls="viewVedic" aria-selected="false" tabindex="-1">Vedic <span class="dev">ॐ</span></button>
+  <div class="tabs" role="tablist" aria-label="Astrology system, in order of earliest documented practice">
+    <button type="button" role="tab" id="tabWestern" aria-controls="viewWestern" aria-selected="true" title="Babylonian celestial omens, c. 1600 BCE; Hellenistic horoscopes from the 2nd century BCE">Western</button>
+    <button type="button" role="tab" id="tabChinese" aria-controls="viewChinese" aria-selected="false" tabindex="-1" title="Stem-and-branch day counts on Shang oracle bones, c. 1250 BCE">Chinese <span class="zh">中</span></button>
+    <button type="button" role="tab" id="tabVedic" aria-controls="viewVedic" aria-selected="false" tabindex="-1" title="Nakshatras in the Vedic texts, c. 1200–1000 BCE">Vedic <span class="dev">ॐ</span></button>
+    <button type="button" role="tab" id="tabMaya" aria-controls="viewMaya" aria-selected="false" tabindex="-1" title="The Mesoamerican 260-day count, c. 600–300 BCE">Maya</button>
+    <button type="button" role="tab" id="tabKabbalah" aria-controls="viewKabbalah" aria-selected="false" tabindex="-1" title="Sefer Yetzirah, c. 2nd–6th century CE">Kabbalah <span class="he">א</span></button>
+    <button type="button" role="tab" id="tabIslamic" aria-controls="viewIslamic" aria-selected="false" tabindex="-1" title="The Hijri calendar, instituted 638 CE">Islamic <span class="ar">هـ</span></button>
   </div>
 
   <div class="main" id="viewWestern" role="tabpanel" aria-labelledby="tabWestern">
@@ -273,6 +276,41 @@
     </div>
   </div>
 
+  <div class="main" id="viewIslamic" role="tabpanel" aria-labelledby="tabIslamic" hidden>
+    <div class="side">
+      <section class="card">
+        <h2>Hijri date <span class="ar">التقويم الهجري</span></h2>
+        <div id="isDate"></div>
+      </section>
+      <section class="card">
+        <h2>Prayer times <span class="ar">مواقيت الصلاة</span></h2>
+        <div class="is-opts">
+          <label class="field"><span>Method</span><select id="isMethod"></select></label>
+          <div class="seg" role="radiogroup" aria-label="Asr">
+            <label><input type="radio" name="isAsr" value="1"><span>Asr: Shafi'i</span></label>
+            <label><input type="radio" name="isAsr" value="2"><span>Hanafi</span></label>
+          </div>
+        </div>
+        <div id="isPrayers"></div>
+      </section>
+      <section class="card">
+        <h2>Dates ahead</h2>
+        <div id="isComing"></div>
+      </section>
+    </div>
+    <div class="side">
+      <section class="card">
+        <h2>Qibla <span class="ar">القبلة</span></h2>
+        <svg id="isQibla" viewBox="0 0 300 300" role="img" aria-label="Compass with the direction of the Qibla"></svg>
+        <div id="isQiblaText" class="is-qtext"></div>
+      </section>
+      <section class="card">
+        <h2>The Moon <span class="ar">القمر</span></h2>
+        <div id="isMoon"></div>
+      </section>
+    </div>
+  </div>
+
   <footer class="method">
     <h2>Method</h2>
     <dl>
@@ -284,6 +322,7 @@
       <div><dt>Maya</dt><dd>GMT correlation (584283): 21 Dec 2012 = 13.0.0.0.0 4 Ajaw 3 K'ank'in. The day turns at local midnight.</dd></div>
       <div><dt>Kabbalah</dt><dd>Hebrew calendar by the fixed arithmetic rules; the day turns at local sunset. Candle lighting 18 minutes before sunset; Havdalah when the Sun is 8.5° below the horizon. Month correspondences after Sefer Yetzirah.</dd></div>
       <div><dt>Vedic</dt><dd>Sidereal zodiac with the Lahiri ayanamsa, mean Rahu and Ketu, whole-sign houses from the Lagna, and amanta lunar months. The weekday (vara) turns at sunrise.</dd></div>
+      <div><dt>Islamic</dt><dd>Hijri months by the Umm al-Qura rule at Mecca; local moon sighting may differ by a day. The day turns at Maghrib. Prayer times by the chosen method, with an angle-based fallback at high latitudes.</dd></div>
       <div><dt>Times</dt><dd>Shown in the selected place's local time.</dd></div>
     </dl>
   </footer>
@@ -297,6 +336,7 @@
 <script src="src/maya.js?v=dev"></script>
 <script src="src/hebrew.js?v=dev"></script>
 <script src="src/vedic.js?v=dev"></script>
+<script src="src/islamic.js?v=dev"></script>
 <script src="src/app.js?v=dev"></script>
 </body>
 </html>

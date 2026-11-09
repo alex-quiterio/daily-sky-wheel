@@ -596,6 +596,11 @@
     if (kind === 'vd-nak') return tipNakshatra(+v);
     if (kind === 'vd-rashi') return tipRashi(+v);
     if (kind === 'vd-graha') return tipGraha(v);
+    if (kind === 'vd-dig') return {
+      Exalted: '<div class="th">Exalted · uchcha</div><div class="tplain">The graha is in the sign where it is strongest and gives its best results, like the Sun in Mesha or the Moon in Vrishabha.</div>',
+      Debilitated: '<div class="th">Debilitated · neecha</div><div class="tplain">The graha is in the sign opposite its exaltation, where it is weakest and struggles to express itself, like the Sun in Tula or Venus in Kanya. Astrologers also check for neecha bhanga, the conditions that cancel the weakness.</div>',
+      'Own sign': '<div class="th">Own sign · swakshetra</div><div class="tplain">The graha is in a sign it rules, at home and comfortable, like Mars in Mesha or Saturn in Makara.</div>',
+    }[v] || '';
     if (kind === 'cn-branch') return tipCnBranch(+v);
     return '';
   }
@@ -729,7 +734,8 @@
   let view = 'western';
   let cn = null; // last computed Chinese chart
 
-  const VIEWS = [['western', 'Western', '#07061a', ''], ['chinese', 'Chinese', '#0d0506', 'theme-cn'], ['maya', 'Maya', '#03110d', 'theme-maya'], ['kabbalah', 'Kabbalah', '#050a24', 'theme-kab'], ['vedic', 'Vedic', '#1a0712', 'theme-vedic']];
+  // in order of earliest documented practice
+  const VIEWS = [['western', 'Western', '#07061a', ''], ['chinese', 'Chinese', '#0d0506', 'theme-cn'], ['vedic', 'Vedic', '#1a0712', 'theme-vedic'], ['maya', 'Maya', '#03110d', 'theme-maya'], ['kabbalah', 'Kabbalah', '#050a24', 'theme-kab'], ['islamic', 'Islamic', '#031319', 'theme-islamic']];
   function setView(v, fromUser) {
     view = VIEWS.some(([k]) => k === v) ? v : 'western';
     VIEWS.forEach(([k, label, color, theme]) => {
@@ -1200,7 +1206,7 @@
     $('vdGrahas').innerHTML = `<tr class="vd-lagna"><td class="g">La</td><td>Lagna</td><td class="pos">${dm(lagna % 30)} ${VD.RASHIS[lagnaSign][1]}</td><td>${VD.NAKSHATRAS[VD.nakshatraOf(lagna).i][0]} ${VD.nakshatraOf(lagna).pada}</td><td class="h">H1</td></tr>`
       + g.list.map((x) => {
         const [, skt, dev] = VD.GRAHAS.find((q) => q[0] === x.key);
-        return `<tr><td class="g dev">${dev}</td><td>${skt}${x.retro && x.key !== 'Rahu' && x.key !== 'Ketu' ? ' <span class="r">R</span>' : ''}${x.dignity ? ` <span class="vd-dig ${x.dignity === 'Debilitated' ? 'down' : 'up'}">${x.dignity}</span>` : ''}</td><td class="pos">${dm(x.deg)} ${VD.RASHIS[x.sign][1]}</td><td><span class="tipzone" data-tip="vd-nak:${x.nak.i}" tabindex="0">${VD.NAKSHATRAS[x.nak.i][0]}</span> ${x.nak.pada}</td><td class="h">H${house(x.sign)}</td></tr>`;
+        return `<tr><td class="g dev">${dev}</td><td>${skt}${x.retro && x.key !== 'Rahu' && x.key !== 'Ketu' ? ' <span class="r">R</span>' : ''}${x.dignity ? ` <span class="vd-dig ${x.dignity === 'Debilitated' ? 'down' : 'up'} tipzone" data-tip="vd-dig:${x.dignity}" tabindex="0">${x.dignity}</span>` : ''}</td><td class="pos">${dm(x.deg)} ${VD.RASHIS[x.sign][1]}</td><td><span class="tipzone" data-tip="vd-nak:${x.nak.i}" tabindex="0">${VD.NAKSHATRAS[x.nak.i][0]}</span> ${x.nak.pada}</td><td class="h">H${house(x.sign)}</td></tr>`;
       }).join('');
 
     document.querySelectorAll('input[name="vdStyle"]').forEach((r) => { r.checked = r.value === vdStyle; });
@@ -1271,6 +1277,110 @@
     return `<div class="th"><span class="dev">${dev}</span> ${skt} · ${key}</div>${row('Position', `${Math.floor(x.deg)}°${pad(Math.floor((x.deg % 1) * 60))}′ ${VD.RASHIS[x.sign][1]}`)}${row('Nakshatra', `${VD.NAKSHATRAS[x.nak.i][0]} · pada ${x.nak.pada}`)}${row('House', `H${((x.sign - vdLast.lagnaSign + 12) % 12) + 1}`)}${x.dignity ? row('Dignity', x.dignity) : ''}${x.retro && key !== 'Rahu' && key !== 'Ketu' ? row('Motion', 'Retrograde (vakri)') : ''}`;
   }
 
+
+  // ---------- Islamic tab ----------
+  const IS = window.Islamic;
+  const isPrefs = (() => { try { return JSON.parse(localStorage.getItem('skywheel-islamic') || '{}'); } catch (e) { return {}; } })();
+  let isMethod = isPrefs.method || 'mwl', isAsr = isPrefs.asr || 1;
+  let isTimer = 0;
+
+  function renderIslamic(when, local, place, byName) {
+    const dayStart = localToUTC(local.y, local.m, local.d, 0, 0, place.tz);
+    const pt = IS.prayerTimes(dayStart, place.lat, place.lon, isMethod, isAsr);
+    const after = pt.maghrib ? when >= pt.maghrib : false;
+    const h = IS.hijriDate(local.y, local.m, local.d, after);
+    const [mEn, mAr] = IS.MONTHS[h.month - 1];
+    const [wEn, wAr] = IS.WEEKDAYS[h.weekday];
+    const t = (d) => (d ? localParts(d, place.tz).time : '—');
+    const occ = IS.OCCASIONS.filter((o) => o[0] === h.month && o[1] === h.day).map((o) => o[2]);
+    if (h.day >= 13 && h.day <= 15) occ.push('Ayyam al-Bid, the white days');
+    if (h.weekday === 5) occ.push("Jumu'ah");
+
+    $('isDate').innerHTML = `
+      <div class="is-hero">
+        <div class="is-ar" lang="ar" dir="rtl">${IS.indic(h.day)} ${mAr} ${IS.indic(h.year)} هـ</div>
+        <div class="kb-en">${h.day} ${mEn} ${h.year} AH</div>
+        <div class="muted">${wEn} <span class="ar" lang="ar">${wAr}</span>${after ? ' · began at Maghrib' : ''}</div>
+      </div>
+      ${occ.length ? `<div class="kb-hol">${occ.join(' · ')}</div>` : ''}
+      ${row('Month', `day ${h.day} of ${h.length}`)}
+      <p class="cn-note">Months begin by the Umm al-Qura rule at Mecca. Where the new crescent is sighted locally, the date can differ by a day.</p>`;
+
+    // prayer times with the current one highlighted
+    const names = [['fajr', 'Fajr', 'الفجر'], ['sunrise', 'Sunrise', 'الشروق'], ['dhuhr', 'Dhuhr', 'الظهر'], ['asr', 'Asr', 'العصر'], ['maghrib', 'Maghrib', 'المغرب'], ['isha', 'Isha', 'العشاء']];
+    let current = null, next = null;
+    names.forEach(([k]) => { if (pt[k] && pt[k] <= when) current = k; });
+    next = names.find(([k]) => pt[k] && pt[k] > when);
+    $('isPrayers').innerHTML = names.map(([k, en, ar]) => `<div class="tr is-pr${k === current ? ' now' : ''}${k === 'sunrise' ? ' minor' : ''}"><span>${en} <span class="ar" lang="ar">${ar}</span>${k === current ? ' <b class="vd-now">now</b>' : ''}</span><span>${t(pt[k])}</span></div>`).join('')
+      + `<p class="cn-note">${pt.method}${isMethod === 'uqa' ? ' (Isha 90 minutes after Maghrib)' : ''}.${pt.adjusted ? ' The Sun does not reach the usual angle here tonight, so Fajr and Isha use the high-latitude share of the night.' : ''}${next ? ` <span id="isCountdown" data-t="${pt[next[0]].toISOString()}" data-n="${next[1]}"></span>` : ''}</p>`;
+    tickCountdown();
+
+    // dates ahead
+    const dayNum = Math.floor(Date.UTC(local.y, local.m - 1, local.d) / 86400000);
+    const up = IS.upcoming(dayNum + 1, 8);
+    $('isComing').innerHTML = up.map((o) => {
+      const label = new Intl.DateTimeFormat('en-GB', { timeZone: 'UTC', weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' }).format(o.date);
+      return `<button type="button" class="kb-coming" data-date="${o.date.toISOString().slice(0, 10)}"><span class="kb-c-d">${label}</span><span>${o.name}<small>${o.day} ${IS.MONTHS[o.month - 1][0]} ${o.year}${o.note ? ` · ${o.note}` : ''} · in ${o.inDays + 1} d</small></span></button>`;
+    }).join('');
+
+    // Qibla
+    const q = IS.qibla(place.lat, place.lon);
+    drawQibla(q.bearing);
+    const card = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'][Math.round(q.bearing / 45) % 8];
+    $('isQiblaText').innerHTML = `<b>${q.bearing.toFixed(1)}°</b> from true north (${card}) · ${Math.round(q.km).toLocaleString('en')} km to the Kaaba`;
+
+    // Moon
+    const cr = IS.crescent(pt.maghrib, place.lat, place.lon);
+    const phase = E.moonPhase(byName.Sun.lon, byName.Moon.lon);
+    const mz = IS.manzil(byName.Moon.lon), [mzName, mzMeaning] = IS.MANAZIL[mz];
+    $('isMoon').innerHTML = `
+      ${row('Phase', `${phase.name} · ${Math.round(phase.illum * 100)}% lit`)}
+      ${cr && cr.ageH != null ? row('Age at Maghrib', `${cr.ageH < 48 ? `${cr.ageH.toFixed(1)} hours` : `${(cr.ageH / 24).toFixed(1)} days`}`) : ''}
+      ${cr ? row('Altitude at Maghrib', `${cr.altitude.toFixed(1)}° · ${cr.elong.toFixed(1)}° from the Sun`) : ''}
+      ${cr && cr.verdict ? `<div class="kb-hol">Crescent tonight: ${cr.verdict}</div>` : ''}
+      ${row('Lunar mansion', `${mz + 1}. ${mzName} <span class="muted">(${mzMeaning})</span>`)}
+      <p class="cn-note">The 28 lunar mansions (manāzil al-qamar) come from pre-Islamic Arab sky-lore and later Arabic astronomy, where they marked seasons and rains (anwāʾ). They are shown here as heritage, not religious practice.</p>`;
+
+    $('isEmblemDay').textContent = IS.indic(h.day);
+    $('title').textContent = `${h.day} ${mEn} ${h.year}`;
+    $('big3').innerHTML = `<div><b>${wEn}</b></div><div>Next: <b>${next ? `${next[1]} ${t(pt[next[0]])}` : 'Fajr tomorrow'}</b></div><div>Qibla <b>${q.bearing.toFixed(0)}°</b></div>`;
+  }
+
+  function tickCountdown() {
+    clearInterval(isTimer);
+    const elc = document.getElementById('isCountdown');
+    if (!elc) return;
+    const up = () => {
+      const ms = new Date(elc.dataset.t) - Date.now();
+      if (ms <= 0 || ms > 86400000) { elc.textContent = ''; return; }
+      const hh = Math.floor(ms / 3600000), mm = Math.floor((ms % 3600000) / 60000);
+      elc.textContent = `${elc.dataset.n} in ${hh ? `${hh} h ` : ''}${mm} min.`;
+    };
+    up(); isTimer = setInterval(up, 30000);
+  }
+
+  function drawQibla(bearing) {
+    const svg = $('isQibla'); svg.innerHTML = '';
+    const c = 150, R = 128;
+    el('circle', { cx: c, cy: c, r: R, fill: 'var(--wheel-bg)', 'fill-opacity': 0.7, stroke: 'var(--gold)', 'stroke-width': 1.4 }, svg);
+    el('circle', { cx: c, cy: c, r: R - 22, fill: 'none', stroke: 'var(--rule)' }, svg);
+    // eight-pointed star rosette at the centre
+    for (const rot of [0, 45]) el('rect', { x: c - 34, y: c - 34, width: 68, height: 68, fill: 'none', stroke: 'var(--gold)', 'stroke-opacity': 0.55, transform: `rotate(${rot} ${c} ${c})` }, svg);
+    for (let d = 0; d < 360; d += 10) {
+      const a = (d - 90) * Math.PI / 180, len = d % 90 === 0 ? 14 : d % 30 === 0 ? 9 : 5;
+      el('line', { x1: c + R * Math.cos(a), y1: c + R * Math.sin(a), x2: c + (R - len) * Math.cos(a), y2: c + (R - len) * Math.sin(a), stroke: 'var(--muted)', 'stroke-width': d % 90 === 0 ? 1.6 : 0.8 }, svg);
+    }
+    [['N', 0], ['E', 90], ['S', 180], ['W', 270]].forEach(([l, d]) => {
+      const a = (d - 90) * Math.PI / 180;
+      el('text', { x: c + (R - 30) * Math.cos(a), y: c + (R - 30) * Math.sin(a), 'text-anchor': 'middle', 'dominant-baseline': 'central', 'font-size': 14, fill: l === 'N' ? 'var(--gold-bright)' : 'var(--muted)', 'font-family': 'var(--f-display)' }, svg, l);
+    });
+    const g = el('g', { class: 'qibla-needle', style: `transform-origin:${c}px ${c}px; transform: rotate(${bearing}deg)` }, svg);
+    el('path', { d: `M${c} ${c - R + 18} L${c + 9} ${c} L${c} ${c + 14} L${c - 9} ${c} Z`, fill: 'var(--gold-bright)', stroke: 'var(--gold)', filter: 'drop-shadow(0 0 6px rgba(246,220,142,0.6))' }, g);
+    el('rect', { x: c - 9, y: c - R - 2, width: 18, height: 18, rx: 2, fill: '#101418', stroke: 'var(--gold-bright)', 'stroke-width': 1.5 }, g);
+    el('rect', { x: c - 9, y: c - R + 2, width: 18, height: 3, fill: 'var(--gold-bright)' }, g);
+    el('circle', { cx: c, cy: c, r: 4, fill: 'var(--wheel-core)', stroke: 'var(--gold-bright)' }, svg);
+  }
+
   // ---------- render ----------
 
   function render() {
@@ -1317,6 +1427,7 @@
     if (view === 'maya') renderMaya({ y, m, d }, place);
     if (view === 'kabbalah') renderKabbalah(when, { y, m, d }, place);
     if (view === 'vedic') renderVedic(when, { y, m, d }, place, chart);
+    if (view === 'islamic') renderIslamic(when, { y, m, d }, place, byName);
 
     // today card
     drawMoon(phase);
@@ -1438,6 +1549,13 @@
     render();
     if (document.fonts && document.fonts.ready) document.fonts.ready.then(render);
     document.querySelectorAll('input[name="vdStyle"]').forEach((r) => r.addEventListener('change', () => { if (!r.checked) return; vdStyle = r.value; try { localStorage.setItem('skywheel-vedic-style', vdStyle); } catch (e) { /* ignore */ } drawRashi(); }));
+    Object.entries(window.Islamic.METHODS).forEach(([k, v]) => { const o = document.createElement('option'); o.value = k; o.textContent = v.name; $('isMethod').appendChild(o); });
+    $('isMethod').value = isMethod;
+    document.querySelectorAll('input[name="isAsr"]').forEach((r) => { r.checked = +r.value === isAsr; });
+    const saveIs = () => { try { localStorage.setItem('skywheel-islamic', JSON.stringify({ method: isMethod, asr: isAsr })); } catch (e) { /* ignore */ } };
+    $('isMethod').addEventListener('change', (e) => { e.stopPropagation(); isMethod = $('isMethod').value; saveIs(); render(); });
+    document.querySelectorAll('input[name="isAsr"]').forEach((r) => r.addEventListener('change', () => { if (r.checked) { isAsr = +r.value; saveIs(); render(); } }));
+    $('isComing').addEventListener('click', (e) => { const b = e.target.closest('.kb-coming'); if (b) { $('date').value = b.dataset.date; urlSync = true; render(); } });
     $('kbComing').addEventListener('click', (e) => { const b = e.target.closest('.kb-coming'); if (b) { $('date').value = b.dataset.date; urlSync = true; render(); } });
     $('myNext').addEventListener('click', (e) => { const b = e.target.closest('.my-day'); if (b) { $('date').value = b.dataset.date; urlSync = true; render(); } });
     $('yearlist').addEventListener('click', (e) => { const b = e.target.closest('.yitem'); if (b) jumpTo(b.dataset.t); });

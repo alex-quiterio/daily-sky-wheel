@@ -167,3 +167,31 @@ test('Vedic panchang at the new moon', () => {
   const before = V.panchang(new Date(when.getTime() - 60000), 28.61, 77.21);
   assert.strictEqual(before.tithi.name, 'Amavasya');
 });
+
+require('../src/islamic.js');
+const I = globalThis.Islamic;
+const isoDay = (d) => d.toISOString().slice(0, 10);
+
+test('Hijri months by the Umm al-Qura rule', () => {
+  assert.strictEqual(isoDay(I.civilOf(1445, 9, 1)), '2024-03-11', 'Ramadan 1445');
+  assert.strictEqual(isoDay(I.civilOf(1446, 9, 1)), '2025-03-01', 'Ramadan 1446');
+  assert.strictEqual(isoDay(I.civilOf(1446, 10, 1)), '2025-03-30', 'Eid al-Fitr 1446');
+  assert.strictEqual(isoDay(I.civilOf(1447, 9, 1)), '2026-02-18', 'Ramadan 1447');
+  assert.strictEqual(isoDay(I.civilOf(1447, 10, 1)), '2026-03-20', 'Eid al-Fitr 1447');
+  assert.strictEqual(isoDay(I.civilOf(1447, 12, 10)), '2026-05-27', 'Eid al-Adha 1447');
+  assert.strictEqual(isoDay(I.civilOf(1448, 1, 1)), '2026-06-16', 'New Year 1448');
+  const h = I.hijriDate(2026, 3, 19, true); // evening before Eid: already 1 Shawwal
+  assert.deepStrictEqual([h.month, h.day], [10, 1]);
+});
+
+test('Prayer times and Qibla', () => {
+  const q = I.qibla(52.37, 4.90);
+  assert.ok(Math.abs(q.bearing - 125.6) < 0.5 && Math.abs(q.km - 4554) < 20, 'Qibla from Amsterdam');
+  const p = I.prayerTimes(new Date(Date.UTC(2026, 10, 8, 23)), 52.37, 4.90, 'mwl', 1);
+  const order = ['fajr', 'sunrise', 'dhuhr', 'asr', 'maghrib', 'isha'].map((k) => p[k].getTime());
+  assert.ok(order.every((t, i) => i === 0 || t > order[i - 1]), 'prayers in order');
+  const hanafi = I.prayerTimes(new Date(Date.UTC(2026, 10, 8, 23)), 52.37, 4.90, 'mwl', 2);
+  assert.ok(hanafi.asr > p.asr, 'Hanafi Asr is later');
+  const june = I.prayerTimes(new Date(Date.UTC(2026, 5, 20, 22)), 52.37, 4.90, 'mwl', 1);
+  assert.ok(june.fajr && june.isha && june.adjusted, 'high-latitude fallback in June');
+});

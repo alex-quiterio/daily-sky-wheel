@@ -24,6 +24,8 @@
 
 ## ☽ What it shows
 
+Six traditions, in tabs ordered by when each was first documented: **Western** (Babylonian omens, c. 1600 BCE), **Chinese** (Shang oracle bones, c. 1250 BCE), **Vedic** (nakshatras in the Vedas, c. 1200–1000 BCE), **Maya** (the 260-day count, c. 600–300 BCE), **Kabbalah** (Sefer Yetzirah, 2nd–6th century CE) and **Islamic** (the Hijri calendar, 638 CE).
+
 Pick a day, a time and a place and the sky comes back as a chart.
 
 | | |
@@ -35,6 +37,7 @@ Pick a day, a time and a place and the sky comes back as a chart.
 | **◎ Maya tab** | The Tzolk'in day (number and day sign with meaning, direction and colour), the trecena, the day of the 260-day count, the Lord of the Night, the Long Count in bar-and-dot numerals, the Haab' date and year bearer, the next 20 days, and the 13 and 20 calendar gears turning to the selected day. GMT correlation. Its theme is jungle jade and turquoise, with a carved jade emblem, a pyramid skyline and fireflies. Open with `view=maya`. |
 | **א Kabbalah tab** | The Hebrew date in Hebrew letters, with the day turning at local sunset; holy days; sunset, nightfall, and Shabbat candle-lighting and Havdalah times for the place; the month's letter, sign, tribe and sense from Sefer Yetzirah; the coming holy days; the sefira and planet of the weekday; the Counting of the Omer in season; and the Tree of Life with the day's sefirot lit. Its theme is sapphire and white-gold light, with Hebrew letters and rising sparks. Open with `view=kabbalah`. |
 | **ॐ Vedic tab** | Jyotish with the Lahiri ayanamsa. The Panchang shows tithi, vara, nakshatra, yoga and karana, each with the time it ends, plus the amanta month with adhika months. It also shows sunrise and sunset, Rahu Kaal, Yamaganda, Gulika and Abhijit muhurta; a North or South Indian rashi chart (whole-sign houses from the Lagna); the grahas with nakshatra, pada, house and dignity; and the Vimshottari dasha for someone born at that moment. Its theme is saffron and marigold, with a lotus and a nakshatra ring, falling petals and Devanagari lettering. Open with `view=vedic`. |
+| **هـ Islamic tab** | The Hijri date in Arabic, with months by the Umm al-Qura rule and the day turning at Maghrib. Prayer times for the place: five methods, a Shafi'i or Hanafi Asr, the current prayer and a countdown to the next, and a high-latitude fallback. Also the Qibla compass and distance, Islamic dates ahead, and the Moon's age with tonight's crescent visibility. The Arab lunar mansions are shown as heritage sky-lore. Its theme is night teal and gold, with an eight-pointed star tiling, arched panels and Amiri lettering. Open with `view=islamic`. |
 | **✶ Positions** | Degree, sign and minute for every body, with retrograde flags and the house each one falls in. |
 | **△ Balance and patterns** | Counts by element and mode, the chart ruler, and any Yod, T-square, Grand Trine or stellium. |
 | **⌂ Houses** | Placidus, Whole sign, Equal, or Natural (Aries on the 1st), switched from the toggle above the wheel. |
@@ -66,7 +69,7 @@ Add the date, time and place to the URL and the page opens on that chart. Once a
 | `lat`, `lon` | decimal degrees | For places not in the list. North and east are positive. |
 | `tz` | IANA zone, e.g. `Europe/Rome` | Used with `lat`/`lon`. Defaults to your browser's zone. |
 | `houses` | `placidus`, `whole`, `equal`, `natural` | |
-| `view` | `western`, `chinese`, `maya`, `kabbalah` or `vedic` | Which tab opens |
+| `view` | `western`, `chinese`, `vedic`, `maya`, `kabbalah` or `islamic` | Which tab opens |
 
 If part of a link can't be read, the page says which part and uses its default for that field.
 
@@ -102,6 +105,7 @@ All checks pass:
 - Chinese New Year from 2020 to 2034 (including the tricky 2033), the 2020, 2023 and 2025 leap months, and Four Pillars for 1 Jan 2000
 - Rosh Hashanah 5785–5787, Pesach, Chanukah and Purim (including a leap-year Adar II), Tisha B'Av, the sunset turnover and Lag BaOmer as day 33 of the Omer, Hod she'b'Hod
 - the Lahiri ayanamsa (24°13′ in 2026), the 2026 Adhika Jyeshtha month, Diwali closing amanta Ashvina, and the tithi turning from Amavasya to Shukla Pratipada at the New Moon
+- Ramadan 1445–1447, both Eids, the 1448 New Year, the evening turnover, the Qibla from Amsterdam, the Hanafi Asr and the high-latitude fallback
 - the Maya date of 21 Dec 2012: 13.0.0.0.0 4 Ajaw 3 K'ank'in, Lord of the Night G9
 
 GitHub Actions runs the tests on every push.
@@ -116,6 +120,7 @@ src/chinese.js     Four Pillars, solar terms, Chinese lunar calendar
 src/maya.js        Long Count, Tzolk'in, Haab', Lords of the Night
 src/hebrew.js      Hebrew calendar, holy days, Omer, Sefer Yetzirah correspondences
 src/vedic.js       Lahiri sidereal positions, nakshatras, Panchang, Rahu Kaal, lunar month, dasha
+src/islamic.js     Hijri calendar (Umm al-Qura rule), prayer times, Qibla, crescent, lunar mansions
 src/app.js         controls, time zones, the SVG wheel
 src/stars.js       the twinkling sky behind it all
 src/styles.css     the night theme
