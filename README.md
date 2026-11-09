@@ -49,7 +49,7 @@ Add the date, time and place to the URL and the page opens on that chart. Once a
 |---|---|---|
 | `date` | `YYYY-MM-DD` or `today` | |
 | `time` | `HH:MM`, `HHMM` or `now` | Local time at the place. `now` also sets today's date. |
-| `place` | a preset name | Any case, with or without accents, hyphens or spaces, e.g. `new-york`, `São Paulo`, `francavilla-al-mare` |
+| `place` | a preset name | Any case, with or without accents, hyphens or spaces, e.g. `new-york`, `Francavilla al Mare`, `francavilla-al-mare` |
 | `lat`, `lon` | decimal degrees | For places not in the list. North and east are positive. |
 | `tz` | IANA zone, e.g. `Europe/Rome` | Used with `lat`/`lon`. Defaults to your browser's zone. |
 | `houses` | `placidus`, `whole`, `equal`, `natural` | |

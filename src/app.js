@@ -24,8 +24,8 @@
     ['Francavilla al Mare', 42.42, 14.29, 'Europe/Rome'],
     ['New York', 40.72, -74.00, 'America/New_York'],
     ['Mexico City', 19.43, -99.13, 'America/Mexico_City'],
-    ['São Paulo', -23.55, -46.63, 'America/Sao_Paulo'],
     ['Mumbai', 19.08, 72.88, 'Asia/Kolkata'],
+    ['Hanoi', 21.03, 105.85, 'Asia/Ho_Chi_Minh'],
     ['Sydney', -33.87, 151.21, 'Australia/Sydney'],
   ];
 
