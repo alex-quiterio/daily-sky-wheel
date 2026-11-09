@@ -57,6 +57,38 @@
     ring.innerHTML = svg;
     document.body.insertBefore(ring, canvas.nextSibling);
   })();
+  // Maya theme: a ring of the twenty day signs around the thirteen numbers
+  (function mayaRing() {
+    const ring = document.createElement('div');
+    ring.className = 'sky-ring sky-ring-maya';
+    ring.setAttribute('aria-hidden', 'true');
+    const signs = ["Imix'", "Ik'", "Ak'b'al", "K'an", 'Chikchan', 'Kimi', "Manik'", 'Lamat', 'Muluk', 'Ok', 'Chuwen', "Eb'", "B'en", 'Ix', 'Men', "Kib'", "Kab'an", "Etz'nab'", 'Kawak', 'Ajaw'];
+    let svg = '<svg viewBox="-500 -500 1000 1000" xmlns="http://www.w3.org/2000/svg">';
+    svg += '<circle r="470" fill="none" stroke="currentColor" stroke-width="1.2"/><circle r="380" fill="none" stroke="currentColor" stroke-width="0.8"/>';
+    svg += '<circle r="300" fill="none" stroke="currentColor" stroke-width="0.6" stroke-dasharray="1 7"/><circle r="200" fill="none" stroke="currentColor" stroke-width="0.8"/>';
+    for (let i = 0; i < 20; i++) {
+      const a = (i * 18 - 90) * Math.PI / 180, m = (i * 18 - 81) * Math.PI / 180;
+      svg += `<line x1="${380 * Math.cos(m)}" y1="${380 * Math.sin(m)}" x2="${470 * Math.cos(m)}" y2="${470 * Math.sin(m)}" stroke="currentColor" stroke-width="0.8"/>`;
+      svg += `<text x="${425 * Math.cos(a)}" y="${425 * Math.sin(a)}" font-size="26" text-anchor="middle" dominant-baseline="central" fill="currentColor" font-family="Cinzel, serif" transform="rotate(${i * 18} ${425 * Math.cos(a)} ${425 * Math.sin(a)})">${signs[i]}</text>`;
+    }
+    for (let j = 0; j < 13; j++) {
+      const a = (j * 360 / 13 - 90) * Math.PI / 180, x = 250 * Math.cos(a), y = 250 * Math.sin(a);
+      const n = j + 1, bars = Math.floor(n / 5), dots = n % 5;
+      let g = `<g transform="translate(${x} ${y}) rotate(${j * 360 / 13})">`;
+      for (let d = 0; d < dots; d++) g += `<circle cx="${(d - (dots - 1) / 2) * 12}" cy="${-8 - bars * 5}" r="4" fill="currentColor"/>`;
+      for (let b = 0; b < bars; b++) g += `<rect x="-22" y="${-2 + b * 10 - bars * 5}" width="44" height="6" rx="3" fill="currentColor"/>`;
+      svg += g + '</g>';
+    }
+    svg += '<path d="M0 -120 L120 0 L0 120 L-120 0 Z" fill="none" stroke="currentColor" stroke-width="1.2"/><circle r="40" fill="none" stroke="currentColor" stroke-width="1.5"/>';
+    svg += '</svg>';
+    ring.innerHTML = svg;
+    document.body.insertBefore(ring, canvas.nextSibling);
+  })();
+  const isMaya = () => document.documentElement.classList.contains('theme-maya');
+  let flies = [];
+  function spawnFly() {
+    flies.push({ x: Math.random() * w, y: Math.random() * h, vx: (Math.random() - 0.5) * 18, vy: (Math.random() - 0.5) * 18, ph: Math.random() * Math.PI * 2, rate: 0.6 + Math.random() * 1.2, r: 1.4 + Math.random() * 1.6 });
+  }
   const isCN = () => document.documentElement.classList.contains('theme-cn');
   let lanterns = [];
   function spawnLantern(anywhere) {
@@ -105,7 +137,7 @@
       if (!still) { s.x -= s.vx * dt; if (s.x < -4) { s.x = w + 4; s.y = Math.random() * h; } }
       const a = still ? s.a : s.a * (0.55 + 0.45 * Math.sin(s.ph + (t / 1000) * s.tw));
       ctx.beginPath();
-      ctx.fillStyle = `rgba(${cnStars ? '255,226,180' : s.c},${a.toFixed(3)})`;
+      ctx.fillStyle = `rgba(${cnStars ? '255,226,180' : isMaya() ? '210,240,220' : s.c},${a.toFixed(3)})`;
       ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
       ctx.fill();
       if (s.r > 1.1) {
@@ -113,6 +145,25 @@
         ctx.beginPath(); ctx.arc(s.x, s.y, s.r * 4, 0, Math.PI * 2); ctx.fill();
       }
     }
+    const mayaNow = isMaya();
+    if (mayaNow) {
+      const want = Math.round((w * h) / 26000);
+      while (flies.length < want) spawnFly();
+      for (const f of flies) {
+        if (!still) {
+          f.vx += (Math.random() - 0.5) * 30 * dt; f.vy += (Math.random() - 0.5) * 30 * dt;
+          f.vx = Math.max(-22, Math.min(22, f.vx)); f.vy = Math.max(-22, Math.min(22, f.vy));
+          f.x = (f.x + f.vx * dt + w) % w; f.y = (f.y + f.vy * dt + h) % h;
+        }
+        const glow = still ? 0.6 : Math.max(0, Math.sin(f.ph + (t / 1000) * f.rate)) ** 3;
+        if (glow < 0.02) continue;
+        const gr = ctx.createRadialGradient(f.x, f.y, 0, f.x, f.y, f.r * 7);
+        gr.addColorStop(0, `rgba(230,255,150,${(0.9 * glow).toFixed(3)})`);
+        gr.addColorStop(0.3, `rgba(150,230,120,${(0.35 * glow).toFixed(3)})`);
+        gr.addColorStop(1, 'rgba(80,200,120,0)');
+        ctx.fillStyle = gr; ctx.beginPath(); ctx.arc(f.x, f.y, f.r * 7, 0, Math.PI * 2); ctx.fill();
+      }
+    } else if (flies.length) flies = [];
     const cnNow = isCN();
     if (cnNow) {
       if (!lanterns.length) for (let k = 0; k < Math.round(w / 90); k++) spawnLantern(true);
@@ -132,7 +183,7 @@
       }
     } else if (lanterns.length) lanterns = [];
     if (!still) {
-      if (!cnNow && t > nextMeteor) { if (nextMeteor) spawnMeteor(); nextMeteor = t + 4000 + Math.random() * 9000; }
+      if (!cnNow && !mayaNow && t > nextMeteor) { if (nextMeteor) spawnMeteor(); nextMeteor = t + 4000 + Math.random() * 9000; }
       meteors = meteors.filter((m) => m.life < m.max);
       for (const m of meteors) {
         m.life += dt; m.x += m.vx * dt; m.y += m.vy * dt;

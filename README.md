@@ -32,6 +32,7 @@ Pick a day, a time and a place and the sky comes back as a chart.
 | **☾ The day** | The Moon's phase, then everything that happens between midnight and midnight local time: New and Full Moons, quarters, sign changes, stations and exact aspects, each with its time to the minute. Click any of them to recast the wheel for that moment. |
 | **✦ Year ahead** | The next 12 months from today: solar and lunar eclipses, retrograde and direct stations, sign changes of Jupiter through Pluto, Chiron and the North Node, exact aspects between the outer planets, Venus star points, and the equinoxes and solstices. Filter by kind, and click any entry to cast the chart for that moment. |
 | **中 Chinese tab** | Four Pillars (BaZi) for the moment: stems, branches, hidden stems and Ten Gods around the Day Master; the Five Elements balance; the Chinese lunar date with leap months; the year's animal (turning at Chinese New Year); the current and next solar term; the day's clash; and a wheel of the twelve animals marking the year, month, day and hour. Add `view=chinese` to a link to open on it. The tab has its own theme: black lacquer, cinnabar and jade, brush-calligraphy characters, a seal of the year's animal, drifting lanterns and a turning ring of the branches and trigrams. |
+| **◎ Maya tab** | The Tzolk'in day (number and day sign with meaning, direction and colour), the trecena, the day of the 260-day count, the Lord of the Night, the Long Count in bar-and-dot numerals, the Haab' date and year bearer, the next 20 days, and the 13 and 20 calendar gears turning to the selected day. GMT correlation. Its theme is jungle jade and turquoise, with a carved jade emblem, a pyramid skyline and fireflies. Open with `view=maya`. |
 | **✶ Positions** | Degree, sign and minute for every body, with retrograde flags and the house each one falls in. |
 | **△ Balance and patterns** | Counts by element and mode, the chart ruler, and any Yod, T-square, Grand Trine or stellium. |
 | **⌂ Houses** | Placidus, Whole sign, Equal, or Natural (Aries on the 1st), switched from the toggle above the wheel. |
@@ -63,7 +64,7 @@ Add the date, time and place to the URL and the page opens on that chart. Once a
 | `lat`, `lon` | decimal degrees | For places not in the list. North and east are positive. |
 | `tz` | IANA zone, e.g. `Europe/Rome` | Used with `lat`/`lon`. Defaults to your browser's zone. |
 | `houses` | `placidus`, `whole`, `equal`, `natural` | |
-| `view` | `western` or `chinese` | Which tab opens |
+| `view` | `western`, `chinese` or `maya` | Which tab opens |
 
 If part of a link can't be read, the page says which part and uses its default for that field.
 
@@ -97,6 +98,7 @@ All checks pass:
 - Mercury stationing retrograde on 24 October 2026
 - the 2027 eclipses, stations and ingresses in the year ahead
 - Chinese New Year from 2020 to 2034 (including the tricky 2033), the 2020, 2023 and 2025 leap months, and Four Pillars for 1 Jan 2000
+- the Maya date of 21 Dec 2012: 13.0.0.0.0 4 Ajaw 3 K'ank'in, Lord of the Night G9
 
 GitHub Actions runs the tests on every push.
 
@@ -107,6 +109,7 @@ index.html         the page
 src/core.js        positions, houses, Ascendant / MC / Vertex
 src/events.js      aspects, patterns, element balance, Moon phase, the day's events, the year ahead
 src/chinese.js     Four Pillars, solar terms, Chinese lunar calendar
+src/maya.js        Long Count, Tzolk'in, Haab', Lords of the Night
 src/app.js         controls, time zones, the SVG wheel
 src/stars.js       the twinkling sky behind it all
 src/styles.css     the night theme

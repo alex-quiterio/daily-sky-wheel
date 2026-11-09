@@ -163,7 +163,7 @@
       }
     } else if (q.has('lat') || q.has('lon')) problems.push('lat and lon must both be numbers');
 
-    if (q.get('view')) setView(slug(q.get('view')) === 'chinese' ? 'chinese' : 'western');
+    if (q.get('view')) setView(slug(q.get('view')));
     const h = q.get('houses') || q.get('hsys');
     if (h) { const v = HOUSE_ALIASES[slug(h)]; if (v) $('hsys').value = v; else problems.push(`house system "${h}" is not supported`); }
 
@@ -193,7 +193,7 @@
     if ($('place').value === 'custom') { q.set('lat', $('lat').value); q.set('lon', $('lon').value); q.set('tz', $('tz').value); }
     else q.set('place', slug(currentPlace().name));
     q.set('houses', $('hsys').value);
-    if (view === 'chinese') q.set('view', 'chinese');
+    if (view !== 'western') q.set('view', view);
     const url = `${location.pathname}?${q.toString().replace(/%2F/g, '/').replace(/%3A/g, ':')}${location.hash}`;
     try { history.replaceState(null, '', url); } catch (e) { /* sandboxed */ }
   }
@@ -591,6 +591,7 @@
     if (kind === 'hsys') return tipSystem(v);
     if (kind === 'houses') return tipAllHouses();
     if (kind === 'cn-stem') return tipCnStem(+v);
+    if (kind === 'my-sign') return tipMayaSign(+v);
     if (kind === 'cn-branch') return tipCnBranch(+v);
     return '';
   }
@@ -724,16 +725,15 @@
   let view = 'western';
   let cn = null; // last computed Chinese chart
 
+  const VIEWS = [['western', 'Western', '#07061a', ''], ['chinese', 'Chinese', '#0d0506', 'theme-cn'], ['maya', 'Maya', '#03110d', 'theme-maya']];
   function setView(v, fromUser) {
-    view = v === 'chinese' ? 'chinese' : 'western';
-    $('viewWestern').hidden = view !== 'western';
-    $('viewChinese').hidden = view !== 'chinese';
-    [['tabWestern', 'western'], ['tabChinese', 'chinese']].forEach(([id, val]) => {
-      const on = view === val; $(id).setAttribute('aria-selected', String(on)); $(id).tabIndex = on ? 0 : -1;
+    view = VIEWS.some(([k]) => k === v) ? v : 'western';
+    VIEWS.forEach(([k, label, color, theme]) => {
+      const on = view === k, tab = $('tab' + label), panel = $('view' + label);
+      panel.hidden = !on; tab.setAttribute('aria-selected', String(on)); tab.tabIndex = on ? 0 : -1;
+      if (theme) document.documentElement.classList.toggle(theme, on);
+      if (on) { const meta = document.querySelector('meta[name="theme-color"]'); if (meta) meta.setAttribute('content', color); }
     });
-    document.documentElement.classList.toggle('theme-cn', view === 'chinese');
-    const meta = document.querySelector('meta[name="theme-color"]');
-    if (meta) meta.setAttribute('content', view === 'chinese' ? '#0d0506' : '#07061a');
     window.dispatchEvent(new Event('skywheel-theme'));
     try { localStorage.setItem('skywheel-view', view); } catch (e) { /* ignore */ }
     if (fromUser) { urlSync = true; render(); }
@@ -876,6 +876,146 @@
     return h;
   }
 
+
+  // ---------- Maya tab ----------
+  const M = window.Maya;
+  const DIR_COLOR = { Red: '#e8604a', White: '#f2ead6', Black: '#8e9c95', Yellow: '#f2c54e' }; // black shown as obsidian grey so it reads on dark
+  let gearAngles = null; // cumulative rotation so the gears always turn the short way
+
+  // Maya bar-and-dot numeral (0–19) as SVG; 0 is the shell.
+  function barDot(n, w = 44) {
+    const h = w * 1.25, cx = w / 2;
+    let out = `<svg class="bardot" viewBox="0 0 ${w} ${h}" width="${w}" height="${h}" aria-label="${n}">`;
+    if (n === 0) {
+      out += `<ellipse cx="${cx}" cy="${h / 2}" rx="${w * 0.38}" ry="${h * 0.2}" fill="none" stroke="currentColor" stroke-width="2.2"/><path d="M${cx - w * 0.24} ${h / 2 - 2} q${w * 0.24} ${h * 0.12} ${w * 0.48} 0" fill="none" stroke="currentColor" stroke-width="1.8"/>`;
+      return out + '</svg>';
+    }
+    const bars = Math.floor(n / 5), dots = n % 5, bh = h * 0.11, gap = h * 0.06;
+    const total = bars * (bh + gap) + (dots ? bh * 1.2 + gap : 0);
+    let y = (h - total) / 2;
+    if (dots) {
+      const r = bh * 0.6, span = w * 0.8, step = span / 4;
+      const x0 = cx - (step * (dots - 1)) / 2;
+      for (let i = 0; i < dots; i++) out += `<circle cx="${x0 + i * step}" cy="${y + r}" r="${r}" fill="currentColor"/>`;
+      y += bh * 1.2 + gap;
+    }
+    for (let i = 0; i < bars; i++) { out += `<rect x="${w * 0.08}" y="${y}" width="${w * 0.84}" height="${bh}" rx="${bh / 2}" fill="currentColor"/>`; y += bh + gap; }
+    return out + '</svg>';
+  }
+  function cartouche(sign, size = '') {
+    const [name, eng] = M.SIGNS[sign];
+    const [, color] = M.DIRECTIONS[sign % 4];
+    return `<span class="cartouche ${size}" style="--dir:${DIR_COLOR[color]}"><b>${name}</b><small>${eng}</small></span>`;
+  }
+
+  function renderMaya(local, place) {
+    const r = M.mayaDate(local.y, local.m, local.d);
+    const [name, eng, meaning] = M.SIGNS[r.tz.sign];
+    const [dir, color] = r.direction;
+    const posInTrecena = r.tz.number;
+    $('myDay').innerHTML = `
+      <div class="my-hero tipzone" data-tip="my-sign:${r.tz.sign}" tabindex="0">
+        <span class="my-num" style="color:${DIR_COLOR[color]}">${barDot(r.tz.number, 56)}</span>
+        ${cartouche(r.tz.sign, 'big')}
+        <div class="my-hero-text"><div class="my-title">${r.tz.number} ${name}</div><div class="muted">${eng} · ${dir}, ${color.toLowerCase()}</div></div>
+      </div>
+      <div class="tplain my-meaning">${meaning}</div>
+      ${row('Day of the count', `${r.kin} of 260`)}
+      ${row('Trecena', `began on 1 ${M.SIGNS[r.trecena][0]} (${M.SIGNS[r.trecena][1]}) · day ${posInTrecena} of 13`)}
+      ${row('Lord of the Night', `G${r.lord} of 9`)}
+      ${row('Calendar Round', `${r.tz.number} ${name} ${r.hb.day} ${M.HAAB[r.hb.month]}`)}`;
+
+    $('myLong').innerHTML = M.LC_UNITS.map(([unit, n], i) => `<div class="lc-col"><span class="lc-num">${barDot(r.longCount[i], 40)}</span><b>${r.longCount[i]}</b><small>${unit}</small><small class="muted">${n.toLocaleString('en')} d</small></div>`).join('');
+    $('myRound').textContent = `${r.longCount.join('.')} · ${r.days.toLocaleString('en')} days since the Maya creation date, 11 August 3114 BCE.`;
+
+    // Haab'
+    const months = M.HAAB.map((mn, i) => `<span class="hb-m${i === r.hb.month ? ' on' : ''}${i === 18 ? ' wayeb' : ''}" title="${mn}">${mn}</span>`).join('');
+    const ny = new Date(Date.UTC(local.y, local.m - 1, local.d + r.daysToNewYear));
+    const bearerSign = M.SIGNS[r.bearer.sign][0];
+    $('myHaab').innerHTML = `
+      <div class="hb-now"><span class="my-num">${barDot(r.hb.day, 44)}</span><div><div class="my-title">${r.hb.day} ${M.HAAB[r.hb.month]}</div><div class="muted">${r.hb.month === 18 ? "Wayeb' · the five nameless days" : `Month ${r.hb.month + 1} of 18 · day ${r.hb.day} of 20`}</div></div></div>
+      <div class="hb-strip">${months}</div>
+      ${row('Year bearer', `${r.bearer.number} ${bearerSign} <span class="muted">(${M.SIGNS[r.bearer.sign][1]})</span>`)}
+      ${row('Next 0 Pop', `${new Intl.DateTimeFormat('en-GB', { timeZone: 'UTC', day: 'numeric', month: 'short', year: 'numeric' }).format(ny)} · in ${r.daysToNewYear} days`)}`;
+
+    // next 20 days
+    let nx = '';
+    for (let k = 1; k <= 20; k++) {
+      const dt = new Date(Date.UTC(local.y, local.m - 1, local.d + k));
+      const t = M.tzolkin(r.days + k);
+      nx += `<button type="button" class="my-day" data-date="${dt.toISOString().slice(0, 10)}" style="--dir:${DIR_COLOR[M.DIRECTIONS[t.sign % 4][1]]}">
+        <span class="my-day-n">${t.number}</span><span class="my-day-s">${M.SIGNS[t.sign][0]}</span><small>${new Intl.DateTimeFormat('en-GB', { timeZone: 'UTC', day: 'numeric', month: 'short' }).format(dt)}</small></button>`;
+    }
+    $('myNext').innerHTML = nx;
+
+    drawGears(r);
+    $('emblemNum').innerHTML = barDot(r.tz.number, 34);
+    $('emblem').title = `${r.tz.number} ${name}`;
+    $('title').textContent = `${r.tz.number} ${name} · ${r.hb.day} ${M.HAAB[r.hb.month]}`;
+    $('big3').innerHTML = `<div><b>${r.longCount.join('.')}</b></div><div><b>${eng}</b> day · ${dir}</div><div>Lord of the Night <b>G${r.lord}</b></div>`;
+  }
+
+  function gearPath(cx, cy, r, teeth, depth) {
+    let d = '';
+    const step = (Math.PI * 2) / teeth;
+    for (let i = 0; i < teeth; i++) {
+      const a = i * step - step / 2;
+      const pts = [[a, r - depth], [a + step * 0.18, r], [a + step * 0.5, r], [a + step * 0.68, r - depth]];
+      pts.forEach(([ang, rad], k) => { const x = cx + rad * Math.cos(ang), y = cy + rad * Math.sin(ang); d += (i === 0 && k === 0 ? 'M' : 'L') + x.toFixed(2) + ' ' + y.toFixed(2); });
+    }
+    return d + 'Z';
+  }
+
+  function drawGears(r) {
+    const svg = $('myGears');
+    const g20 = { cx: 290, cy: 150, r: 132 }, g13 = { cx: 88, cy: 150, r: 74 };
+    if (!svg.querySelector('.gear20')) {
+      svg.innerHTML = '';
+      // 20 day-sign gear
+      const a = el('g', { class: 'gear gear20', style: `transform-origin:${g20.cx}px ${g20.cy}px` }, svg);
+      el('path', { d: gearPath(g20.cx, g20.cy, g20.r, 20, 12), fill: 'var(--gear-a)', stroke: 'var(--gold)', 'stroke-width': 1.2 }, a);
+      el('circle', { cx: g20.cx, cy: g20.cy, r: g20.r - 66, fill: 'var(--wheel-core)', stroke: 'var(--rule)' }, a);
+      for (let i = 0; i < 20; i++) {
+        const ang = (i * 18) * Math.PI / 180;
+        const x = g20.cx + (g20.r - 34) * Math.cos(ang), y = g20.cy + (g20.r - 34) * Math.sin(ang);
+        const col = DIR_COLOR[M.DIRECTIONS[i % 4][1]];
+        el('text', { x, y, 'text-anchor': 'middle', 'dominant-baseline': 'central', 'font-size': 12.5, fill: col, 'font-family': 'var(--f-body)', transform: `rotate(${i * 18} ${x} ${y})`, 'data-tip': `my-sign:${i}`, class: 'tipzone' }, a, M.SIGNS[i][0]);
+      }
+      el('text', { x: g20.cx, y: g20.cy - 8, 'text-anchor': 'middle', 'font-size': 13, fill: 'var(--muted)', 'font-family': 'var(--f-display)', 'letter-spacing': '0.15em' }, svg, '20 SIGNS');
+      // 13 number gear
+      const b = el('g', { class: 'gear gear13', style: `transform-origin:${g13.cx}px ${g13.cy}px` }, svg);
+      el('path', { d: gearPath(g13.cx, g13.cy, g13.r, 13, 10), fill: 'var(--gear-b)', stroke: 'var(--gold)', 'stroke-width': 1.2 }, b);
+      el('circle', { cx: g13.cx, cy: g13.cy, r: g13.r - 40, fill: 'var(--wheel-core)', stroke: 'var(--rule)' }, b);
+      for (let j = 0; j < 13; j++) {
+        const ang = (j * 360 / 13) * Math.PI / 180;
+        const x = g13.cx + (g13.r - 24) * Math.cos(ang), y = g13.cy + (g13.r - 24) * Math.sin(ang);
+        el('text', { x, y, 'text-anchor': 'middle', 'dominant-baseline': 'central', 'font-size': 14, 'font-weight': 600, fill: 'var(--gold-bright)', 'font-family': 'var(--f-data)', transform: `rotate(${j * 360 / 13 + 90} ${x} ${y})` }, b, String(j + 1));
+      }
+      el('text', { x: g13.cx, y: g13.cy + 4, 'text-anchor': 'middle', 'font-size': 11, fill: 'var(--muted)', 'font-family': 'var(--f-display)', 'letter-spacing': '0.12em' }, svg, '13');
+      // the meeting point
+      const mx = (g13.cx + g13.r + g20.cx - g20.r) / 2;
+      el('path', { d: `M${mx} 18 l-8 -12 h16 Z`, fill: 'var(--gold-bright)' }, svg);
+      el('line', { x1: mx, y1: 20, x2: mx, y2: 282, stroke: 'var(--gold)', 'stroke-dasharray': '2 5', 'stroke-opacity': 0.6 }, svg);
+      el('text', { x: mx, y: 296, 'text-anchor': 'middle', 'font-size': 12, fill: 'var(--gold-bright)', 'font-family': 'var(--f-body)', class: 'gear-label' }, svg, '');
+    }
+    // turn: the current sign sits at 180° on the 20-gear, the current number at 0° on the 13-gear
+    const t20 = 180 - r.tz.sign * 18, t13 = -(r.tz.number - 1) * 360 / 13;
+    const near = (prev, target) => prev + ((((target - prev) % 360) + 540) % 360 - 180);
+    gearAngles = gearAngles ? { a20: near(gearAngles.a20, t20), a13: near(gearAngles.a13, t13) } : { a20: t20, a13: t13 };
+    svg.querySelector('.gear20').style.transform = `rotate(${gearAngles.a20}deg)`;
+    svg.querySelector('.gear13').style.transform = `rotate(${gearAngles.a13}deg)`;
+    svg.querySelector('.gear-label').textContent = `${r.tz.number} ${M.SIGNS[r.tz.sign][0]}`;
+  }
+
+  function tipMayaSign(i) {
+    const [name, eng, meaning] = M.SIGNS[i];
+    const [dir, color] = M.DIRECTIONS[i % 4];
+    let h = `<div class="th">${name} · ${eng}</div><div class="tplain">${meaning}</div>`;
+    h += row('Direction', `${dir}, ${color.toLowerCase()}`);
+    h += row('Position', `${i + 1} of 20`);
+    return h;
+  }
+
   // ---------- render ----------
 
   function render() {
@@ -919,6 +1059,7 @@
     renderYear(place, when);
     drawWheel(chart, asps);
     if (view === 'chinese') renderChinese(when, { y, m, d, hh, mm }, place);
+    if (view === 'maya') renderMaya({ y, m, d }, place);
 
     // today card
     drawMoon(phase);
@@ -1002,13 +1143,13 @@
       else done(false);
     });
     $('locate').addEventListener('click', locate);
-    $('tabWestern').addEventListener('click', () => setView('western', true));
-    $('tabChinese').addEventListener('click', () => setView('chinese', true));
+    VIEWS.forEach(([k, label]) => $('tab' + label).addEventListener('click', () => setView(k, true)));
     document.querySelector('.tabs').addEventListener('keydown', (e) => {
       if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
       e.preventDefault(); e.stopPropagation();
-      const next = view === 'western' ? 'chinese' : 'western';
-      setView(next, true); $(next === 'chinese' ? 'tabChinese' : 'tabWestern').focus();
+      const i = VIEWS.findIndex(([k]) => k === view), n = VIEWS.length;
+      const [next, label] = VIEWS[(i + (e.key === 'ArrowRight' ? 1 : n - 1)) % n];
+      setView(next, true); $('tab' + label).focus();
     });
     // redraw the wheel when crossing the phone/desktop width (e.g. rotating a phone)
     let wasCompact = isCompact(), rt = 0;
@@ -1039,6 +1180,7 @@
     });
     render();
     if (document.fonts && document.fonts.ready) document.fonts.ready.then(render);
+    $('myNext').addEventListener('click', (e) => { const b = e.target.closest('.my-day'); if (b) { $('date').value = b.dataset.date; urlSync = true; render(); } });
     $('yearlist').addEventListener('click', (e) => { const b = e.target.closest('.yitem'); if (b) jumpTo(b.dataset.t); });
     setTimeout(() => {
       const d = new Date(); const start = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()));

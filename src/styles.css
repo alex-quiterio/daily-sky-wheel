@@ -427,7 +427,9 @@ section.card h2 .zh { font-size: 15px; color: var(--muted); font-weight: 500; }
 
 /* backgrounds: swap the zodiac ring for branches and trigrams */
 .sky-ring-cn { display: none; color: #ff8a5c; }
-.theme-cn .sky-ring { display: none; }
+.sky-ring-maya { display: none; color: #7fe0b8; }
+.theme-cn .sky-ring, .theme-maya .sky-ring { display: none; }
+.theme-maya .sky-ring-maya { display: block; opacity: 0.075; }
 .theme-cn .sky-ring-cn { display: block; opacity: 0.075; }
 .theme-cn body::before {
   background:
@@ -469,3 +471,124 @@ section.card h2 .zh { font-size: 15px; color: var(--muted); font-weight: 500; }
   .theme-cn .seal { animation: seal-in .6s cubic-bezier(.2, 1.4, .4, 1) both; }
 }
 @keyframes seal-in { from { transform: rotate(-14deg) scale(1.35); opacity: 0; } to { transform: rotate(-4deg) scale(1); opacity: 1; } }
+
+/* ---------- Maya theme: jungle night, jade, turquoise, terracotta, limestone ---------- */
+:root { --gear-a: rgba(216, 180, 106, 0.1); --gear-b: rgba(165, 139, 255, 0.12); }
+:root.theme-maya {
+  --void: #03110d;
+  --nebula-1: #0c4a3a;
+  --nebula-2: #0b3a4a;
+  --nebula-3: #4a2a12;
+  --sheet: rgba(8, 34, 28, 0.7);
+  --sheet-solid: #0a231c;
+  --ink: #efe9d8;
+  --muted: #a9bfae;
+  --rule: rgba(110, 210, 170, 0.22);
+  --gold: #e0b45c;
+  --gold-bright: #ffd98a;
+  --violet: #4fd1c5;
+  --title-end: #e57a45;
+  --glow: rgba(120, 230, 170, 0.45);
+  --wheel-bg: #082119;
+  --wheel-core: #04140f;
+  --gear-a: rgba(79, 209, 197, 0.12);
+  --gear-b: rgba(229, 122, 69, 0.16);
+}
+.theme-maya body::before {
+  background:
+    radial-gradient(32vmax 24vmax at 18% 25%, rgba(20, 140, 100, 0.3), transparent 70%),
+    radial-gradient(28vmax 22vmax at 82% 68%, rgba(20, 120, 150, 0.22), transparent 70%);
+}
+.theme-maya body::after {
+  background:
+    radial-gradient(24vmax 18vmax at 62% 20%, rgba(229, 122, 69, 0.13), transparent 70%),
+    radial-gradient(22vmax 16vmax at 30% 85%, rgba(224, 180, 92, 0.1), transparent 70%);
+}
+.theme-maya section.card, .theme-maya .controls, .theme-maya .wheelbox, .theme-maya .tabs {
+  background: linear-gradient(160deg, rgba(10, 46, 37, 0.74), rgba(4, 22, 17, 0.8));
+  border-color: rgba(110, 210, 170, 0.28);
+}
+/* stepped-fret border on Maya panels */
+.theme-maya #viewMaya section.card { position: relative; }
+.theme-maya #viewMaya section.card::after {
+  content: ""; position: absolute; left: 14px; right: 14px; bottom: 5px; height: 10px; opacity: 0.55; pointer-events: none;
+  background: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2224%22%20height%3D%2210%22%20viewBox%3D%220%200%2024%2010%22%3E%3Cpath%20d%3D%22M0%209%20H4%20V5%20H8%20V1%20H16%20V5%20H12%20V9%20H24%22%20fill%3D%22none%22%20stroke%3D%22%23e0b45c%22%20stroke-width%3D%221.4%22/%3E%3C/svg%3E") repeat-x left center / 24px 10px;
+  -webkit-mask: linear-gradient(90deg, transparent, #000 15%, #000 85%, transparent); mask: linear-gradient(90deg, transparent, #000 15%, #000 85%, transparent);
+}
+.theme-maya .tabs button[aria-selected="true"] { color: #062019; background: linear-gradient(180deg, #5fe0c4, #2a9d84); box-shadow: 0 0 0 1px #b9ffe9 inset, 0 0 18px -4px rgba(79, 209, 197, 0.7); }
+.theme-maya .eyebrow { color: #4fd1c5; }
+.theme-maya h1 { text-shadow: 0 0 40px rgba(79, 209, 197, 0.2); }
+.theme-maya .logo { filter: hue-rotate(110deg) saturate(1.2) drop-shadow(0 0 18px rgba(79, 209, 197, 0.4)); }
+
+/* Maya panel pieces */
+.bardot { display: block; }
+.my-hero { display: grid; grid-template-columns: auto auto minmax(0, 1fr); gap: 14px; align-items: center; padding: 4px; border-radius: 12px; }
+.my-num { display: grid; place-items: center; color: var(--gold-bright); filter: drop-shadow(0 0 10px rgba(255, 217, 138, 0.35)); }
+.cartouche {
+  display: inline-grid; place-items: center; text-align: center; padding: 8px 12px; border-radius: 16px;
+  border: 2px solid var(--dir); background: radial-gradient(circle at 50% 30%, color-mix(in srgb, var(--dir) 22%, transparent), transparent 75%);
+  box-shadow: 0 0 18px -8px var(--dir), inset 0 0 0 3px rgba(0, 0, 0, 0.25);
+}
+.cartouche b { font-family: var(--f-display); font-size: 15px; letter-spacing: .04em; }
+.cartouche small { font-size: 12px; color: var(--muted); }
+.cartouche.big { min-width: 108px; min-height: 84px; border-radius: 22px; }
+.cartouche.big b { font-size: 20px; }
+.my-title { font-family: var(--f-display); font-size: 22px; letter-spacing: .03em; }
+.my-meaning { margin-top: 10px; }
+#myDay .tr, #myHaab .tr { display: flex; justify-content: space-between; gap: 16px; padding: 5px 0; border-top: 1px solid var(--rule); }
+#myDay .tr > span:first-child, #myHaab .tr > span:first-child { color: var(--muted); flex: none; }
+#myDay .tr > span:last-child, #myHaab .tr > span:last-child { text-align: right; }
+.muted { color: var(--muted); }
+.lc { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; text-align: center; }
+.lc-col { display: grid; justify-items: center; gap: 2px; padding: 8px 2px; border-radius: 10px; border: 1px solid var(--rule); background: rgba(255, 255, 255, 0.02); }
+.lc-num { color: var(--gold-bright); min-height: 50px; display: grid; place-items: center; }
+.lc-col b { font-family: var(--f-data); font-size: 16px; }
+.lc-col small { font-size: 12px; }
+.hb-now { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 14px; align-items: center; margin-bottom: 10px; }
+.hb-strip { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 8px; }
+.hb-m { font-size: 12.5px; padding: 2px 7px; border-radius: 6px; border: 1px solid var(--rule); color: var(--muted); }
+.hb-m.on { color: var(--gold-bright); border-color: var(--gold); background: rgba(224, 180, 92, 0.16); }
+.hb-m.wayeb { border-style: dashed; }
+.my-next { display: grid; grid-template-columns: repeat(auto-fill, minmax(78px, 1fr)); gap: 6px; }
+.my-day { all: unset; cursor: pointer; display: grid; justify-items: center; gap: 1px; padding: 6px 4px; border-radius: 10px; border: 1px solid var(--rule); border-top: 3px solid var(--dir); background: rgba(255, 255, 255, 0.02); text-align: center; }
+.my-day:hover, .my-day:focus-visible { background: rgba(224, 180, 92, 0.1); outline: none; }
+.my-day-n { font-family: var(--f-data); font-size: 16px; color: var(--gold-bright); }
+.my-day-s { font-size: 14px; }
+.my-day small { font-size: 11px; color: var(--muted); }
+#myGears { display: block; width: 100%; height: auto; max-width: 520px; margin: 0 auto; overflow: visible; }
+#myGears .gear { transition: transform 1.1s cubic-bezier(.3, .8, .3, 1); }
+@media (prefers-reduced-motion: reduce) { #myGears .gear { transition: none; } }
+@media (max-width: 599px) {
+  .lc { gap: 4px; }
+  .lc-col small.muted { display: none; }
+  .my-hero { grid-template-columns: auto auto; }
+  .my-hero-text { grid-column: 1 / -1; }
+}
+
+/* Maya extras: carved jade emblem, pyramid skyline */
+.emblem { display: none; }
+.theme-maya .logo { display: none; }
+.theme-maya .emblem {
+  display: grid; place-items: center; flex: none; width: clamp(60px, 8vw, 84px); aspect-ratio: 1;
+  clip-path: polygon(12% 0, 88% 0, 100% 12%, 100% 88%, 88% 100%, 12% 100%, 0 88%, 0 12%);
+  background: radial-gradient(circle at 30% 25%, #6fe3bf, #1f8a6c 55%, #0d4a3a);
+  box-shadow: inset 0 0 0 3px rgba(224, 180, 92, 0.85);
+  color: #fff7e0; filter: drop-shadow(0 0 16px rgba(79, 209, 197, 0.45));
+}
+.theme-maya .emblem .bardot { filter: drop-shadow(0 1px 0 rgba(0, 0, 0, 0.35)); }
+.skyline { display: none; }
+.theme-maya .skyline {
+  display: block; position: fixed; left: 0; right: 0; bottom: 0; height: min(30vh, 260px); z-index: 0; pointer-events: none;
+  background: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%201600%20260%22%20preserveAspectRatio%3D%22xMidYMax%20slice%22%3E%0A%3Cpath%20d%3D%22M0%20200%20Q120%20150%20260%20175%20T520%20160%20T800%20170%20T1080%20150%20T1360%20168%20T1600%20155%20V260%20H0Z%22%20fill%3D%22%230b2e24%22%20fill-opacity%3D%220.75%22/%3E%0A%3Cg%20fill%3D%22%2306201a%22%3E%0A%3Cpath%20d%3D%22M610%20260%20V214%20H640%20V196%20H668%20V178%20H696%20V160%20H724%20V142%20H752%20V124%20H770%20V96%20H830%20V124%20H848%20V142%20H876%20V160%20H904%20V178%20H932%20V196%20H960%20V214%20H990%20V260Z%22/%3E%0A%3Cpath%20d%3D%22M786%2096%20V84%20H814%20V96Z%22/%3E%0A%3Crect%20x%3D%22792%22%20y%3D%22124%22%20width%3D%2216%22%20height%3D%22136%22%20fill%3D%22%230d3a2e%22/%3E%0A%3C/g%3E%0A%3Cg%20fill%3D%22%23041611%22%3E%0A%3Cpath%20d%3D%22M0%20260%20V222%20Q40%20196%2080%20214%20Q110%20188%20150%20208%20Q190%20182%20230%20206%20Q270%20190%20300%20214%20Q340%20196%20380%20220%20Q420%20204%20460%20226%20Q500%20210%20540%20230%20L560%20260Z%22/%3E%0A%3Cpath%20d%3D%22M1040%20260%20L1060%20232%20Q1100%20208%201140%20226%20Q1180%20200%201220%20218%20Q1260%20190%201300%20210%20Q1340%20196%201380%20214%20Q1420%20186%201460%20206%20Q1500%20192%201540%20212%20Q1570%20200%201600%20210%20V260Z%22/%3E%0A%3Cpath%20d%3D%22M0%20260%20V246%20H1600%20V260Z%22/%3E%0A%3C/g%3E%0A%3C/svg%3E") no-repeat center bottom / cover; opacity: 0.85;
+  -webkit-mask: linear-gradient(transparent, #000 35%); mask: linear-gradient(transparent, #000 35%);
+}
+.theme-maya body { background:
+    radial-gradient(70vw 30vh at 50% 100%, rgba(229, 140, 69, 0.22), transparent 70%),
+    radial-gradient(60vw 50vh at 12% 8%, color-mix(in srgb, var(--nebula-1) 70%, transparent), transparent 70%),
+    radial-gradient(55vw 55vh at 92% 30%, color-mix(in srgb, var(--nebula-2) 75%, transparent), transparent 70%),
+    var(--void); background-attachment: fixed; }
+.theme-maya .my-title, .theme-maya .cartouche b { text-shadow: 0 0 18px rgba(79, 209, 197, 0.25); }
+@media (prefers-reduced-motion: no-preference) {
+  .theme-maya .sky-ring-maya { animation: ring-turn 520s linear infinite; }
+  .theme-maya .emblem { animation: seal-in .6s cubic-bezier(.2, 1.4, .4, 1) both; }
+}

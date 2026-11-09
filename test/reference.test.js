@@ -99,3 +99,20 @@ test('Four Pillars', () => {
   const b = Z.fourPillars(when, { y: 2026, m: 11, d: 9, hh: 2, mm: 2 });
   assert.deepStrictEqual([sb(b.year), sb(b.month), sb(b.day), sb(b.hour)], ['丙午', '己亥', '丁亥', '辛丑']);
 });
+
+require('../src/maya.js');
+const M = globalThis.Maya;
+const mayaText = (r) => `${r.longCount.join('.')} ${r.tz.number} ${M.SIGNS[r.tz.sign][0]} ${r.hb.day} ${M.HAAB[r.hb.month]} G${r.lord}`;
+
+test('Maya calendar: 21 Dec 2012 is 13.0.0.0.0 4 Ajaw 3 K\'ank\'in', () => {
+  assert.strictEqual(mayaText(M.mayaDate(2012, 12, 21)), "13.0.0.0.0 4 Ajaw 3 K'ank'in G9");
+});
+
+test('Maya calendar: neighbouring days and the 260-day count', () => {
+  assert.strictEqual(mayaText(M.mayaDate(2012, 12, 22)), "13.0.0.0.1 5 Imix' 4 K'ank'in G1");
+  const a = M.mayaDate(2026, 11, 9), b = M.mayaDate(2027, 7, 27); // 260 days later
+  assert.strictEqual(b.days - a.days, 260);
+  assert.deepStrictEqual([b.tz.number, b.tz.sign, b.kin], [a.tz.number, a.tz.sign, a.kin]);
+  const c = M.mayaDate(2027, 11, 9); // 365 days later: same Haab' date
+  assert.deepStrictEqual([c.hb.month, c.hb.day], [a.hb.month, a.hb.day]);
+});

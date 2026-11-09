@@ -21,10 +21,12 @@
 </head>
 <body>
 <canvas id="stars" aria-hidden="true"></canvas>
+<div class="skyline" aria-hidden="true"></div>
 <div class="wrap">
   <header class="top">
     <div class="brand">
       <div class="seal" id="seal" aria-hidden="true"><span id="sealChar">午</span></div>
+      <div class="emblem" id="emblem" aria-hidden="true"><span id="emblemNum"></span></div>
       <svg class="logo" viewBox="0 0 120 120" aria-hidden="true" focusable="false">
         <defs>
           <linearGradient id="pgold" x1="0" y1="0" x2="1" y2="1">
@@ -87,6 +89,7 @@
   <div class="tabs" role="tablist" aria-label="Astrology system">
     <button type="button" role="tab" id="tabWestern" aria-controls="viewWestern" aria-selected="true">Western</button>
     <button type="button" role="tab" id="tabChinese" aria-controls="viewChinese" aria-selected="false" tabindex="-1">Chinese <span class="zh">中</span></button>
+    <button type="button" role="tab" id="tabMaya" aria-controls="viewMaya" aria-selected="false" tabindex="-1">Maya</button>
   </div>
 
   <div class="main" id="viewWestern" role="tabpanel" aria-labelledby="tabWestern">
@@ -174,6 +177,35 @@
     </div>
   </div>
 
+  <div class="main" id="viewMaya" role="tabpanel" aria-labelledby="tabMaya" hidden>
+    <div class="side">
+      <section class="card">
+        <h2>Tzolk'in · day sign</h2>
+        <div id="myDay"></div>
+      </section>
+      <section class="card">
+        <h2>Long Count</h2>
+        <div class="lc" id="myLong"></div>
+        <p class="cn-note" id="myRound"></p>
+      </section>
+      <section class="card">
+        <h2>The next 20 days</h2>
+        <div class="my-next" id="myNext"></div>
+      </section>
+    </div>
+    <div class="side">
+      <section class="card">
+        <h2>Calendar gears</h2>
+        <svg id="myGears" viewBox="0 0 460 300" role="img" aria-label="The 13-number and 20-sign gears of the Tzolk'in, turned to this day"></svg>
+        <p class="cn-note">The 13 numbers and 20 day signs turn together, so the same pair returns every 260 days. Where the gears meet is this day.</p>
+      </section>
+      <section class="card">
+        <h2>Haab' · the 365-day year</h2>
+        <div id="myHaab"></div>
+      </section>
+    </div>
+  </div>
+
   <footer class="method">
     <h2>Method</h2>
     <dl>
@@ -182,6 +214,7 @@
       <div><dt>Chiron &amp; asteroids <span class="approx-mark">≈</span></dt><dd>Fixed orbital elements tuned to a reference chart (9 Nov 2026). Within a few arcminutes for 2024–2029, less accurate outside that.</dd></div>
       <div><dt>Houses</dt><dd>Placidus falls back to Equal above 66° latitude.</dd></div>
       <div><dt>Chinese</dt><dd>Lunar months and New Year follow China Standard Time. The month pillar turns at each solar term and the day pillar at local midnight, with no true-solar-time correction.</dd></div>
+      <div><dt>Maya</dt><dd>GMT correlation (584283): 21 Dec 2012 = 13.0.0.0.0 4 Ajaw 3 K'ank'in. The day turns at local midnight.</dd></div>
       <div><dt>Times</dt><dd>Shown in the selected place's local time.</dd></div>
     </dl>
   </footer>
@@ -192,6 +225,7 @@
 <script src="src/core.js?v=dev"></script>
 <script src="src/events.js?v=dev"></script>
 <script src="src/chinese.js?v=dev"></script>
+<script src="src/maya.js?v=dev"></script>
 <script src="src/app.js?v=dev"></script>
 </body>
 </html>
