@@ -26,6 +26,8 @@
   --f-display: "Cinzel", "Trajan Pro", Georgia, serif;
   --f-body: "EB Garamond", Garamond, Georgia, serif;
   --f-data: "IBM Plex Mono", ui-monospace, monospace;
+  --f-brush: "Ma Shan Zheng", "Noto Serif SC", "STKaiti", "KaiTi", serif;
+  --title-end: var(--violet);
   --f-zh: "Noto Serif SC", "Songti SC", "STSong", "SimSun", serif;
   --wood: #84dba8;
   --earth-el: #e0a868;
@@ -57,7 +59,7 @@ header.top { display: flex; flex-wrap: wrap; align-items: end; justify-content: 
 h1 {
   font-family: var(--f-display); font-weight: 600; font-size: clamp(28px, 4.6vw, 46px); line-height: 1.08; margin: 0;
   letter-spacing: .03em; text-wrap: balance;
-  background: linear-gradient(100deg, var(--gold-bright) 0%, var(--gold) 45%, var(--violet) 100%);
+  background: linear-gradient(100deg, var(--gold-bright) 0%, var(--gold) 45%, var(--title-end) 100%);
   -webkit-background-clip: text; background-clip: text; color: transparent;
   text-shadow: 0 0 40px rgba(216, 180, 106, 0.18);
 }
@@ -385,3 +387,85 @@ section.card h2 .zh { font-size: 15px; color: var(--muted); font-weight: 500; }
   .pc-el, .pc-god { font-size: 11px; }
   .tabs button { padding: 6px 16px; }
 }
+
+/* ---------- Chinese theme: black lacquer, cinnabar, jade and gold ---------- */
+:root.theme-cn {
+  --void: #0c0405;
+  --nebula-1: #6a1016;
+  --nebula-2: #0d3d33;
+  --nebula-3: #4a2208;
+  --sheet: rgba(34, 10, 12, 0.7);
+  --sheet-solid: #1f0a0c;
+  --ink: #f7ead3;
+  --muted: #c9a98c;
+  --rule: rgba(224, 176, 79, 0.24);
+  --gold: #e3b14f;
+  --gold-bright: #ffdc8f;
+  --violet: #62c7a8;
+  --title-end: #ff6a48;
+  --glow: rgba(255, 128, 80, 0.5);
+  --wheel-bg: #1c0708;
+  --wheel-core: #120304;
+  --fire: #ff7b5c;
+  --wood: #6fd3a8;
+  --metal: #f1e6d0;
+  --water-el: #7fb2ff;
+  --earth-el: #e9b26a;
+}
+.seal { display: none; }
+.theme-cn .logo { display: none; }
+.theme-cn .seal {
+  display: grid; place-items: center; flex: none;
+  width: clamp(60px, 8vw, 84px); aspect-ratio: 1; border-radius: 10px;
+  background: radial-gradient(circle at 30% 25%, #e0473a, #a8161a 70%);
+  box-shadow: 0 0 0 3px rgba(168, 22, 26, 0.35), 0 0 30px -6px rgba(255, 80, 60, 0.6), inset 0 0 0 3px rgba(255, 220, 190, 0.85), inset 0 0 0 5px #b81c1f;
+  transform: rotate(-4deg);
+}
+.theme-cn .seal span { font-family: var(--f-brush); font-size: clamp(40px, 5.6vw, 58px); line-height: 1; color: #fff3e0; text-shadow: 0 1px 0 rgba(0, 0, 0, 0.25); }
+.theme-cn .eyebrow { color: #ff8a66; }
+.theme-cn h1 { text-shadow: 0 0 40px rgba(255, 106, 72, 0.22); }
+
+/* backgrounds: swap the zodiac ring for branches and trigrams */
+.sky-ring-cn { display: none; color: #ff8a5c; }
+.theme-cn .sky-ring { display: none; }
+.theme-cn .sky-ring-cn { display: block; opacity: 0.075; }
+.theme-cn body::before {
+  background:
+    radial-gradient(32vmax 24vmax at 20% 28%, rgba(190, 30, 36, 0.32), transparent 70%),
+    radial-gradient(28vmax 22vmax at 80% 70%, rgba(20, 120, 96, 0.2), transparent 70%);
+}
+.theme-cn body::after {
+  background:
+    radial-gradient(24vmax 18vmax at 65% 22%, rgba(255, 150, 60, 0.12), transparent 70%),
+    radial-gradient(22vmax 16vmax at 30% 85%, rgba(227, 177, 79, 0.1), transparent 70%);
+}
+
+/* lacquer panels with lattice corners */
+.theme-cn section.card, .theme-cn .controls, .theme-cn .wheelbox, .theme-cn .tabs {
+  background: linear-gradient(160deg, rgba(58, 14, 16, 0.72), rgba(22, 6, 8, 0.78));
+  border-color: rgba(227, 177, 79, 0.32);
+}
+.theme-cn #viewChinese section.card { position: relative; }
+.theme-cn #viewChinese section.card::before, .theme-cn #viewChinese section.card::after {
+  content: ""; position: absolute; width: 14px; height: 14px; pointer-events: none;
+  border: 2px solid var(--gold); opacity: 0.7;
+}
+.theme-cn #viewChinese section.card::before { top: 5px; left: 5px; border-right: 0; border-bottom: 0; border-top-left-radius: 4px; box-shadow: inset 4px 4px 0 -2px rgba(227, 177, 79, 0.35); }
+.theme-cn #viewChinese section.card::after { bottom: 5px; right: 5px; border-left: 0; border-top: 0; border-bottom-right-radius: 4px; box-shadow: inset -4px -4px 0 -2px rgba(227, 177, 79, 0.35); }
+.theme-cn section.card h2 { color: var(--gold); }
+.theme-cn section.card h2::after { background: linear-gradient(90deg, rgba(227, 177, 79, 0.5), transparent); }
+
+/* brush characters */
+.theme-cn .pc-ch, .theme-cn .cn-year-ch { font-family: var(--f-brush); font-weight: 400; }
+.theme-cn .pc-ch { font-size: clamp(40px, 5vw, 54px); }
+.theme-cn .cn-year-ch { font-size: 54px; color: #ff7b5c; text-shadow: 0 0 24px rgba(255, 106, 72, 0.45); }
+.theme-cn .pcol { background: rgba(255, 240, 220, 0.025); }
+.theme-cn .pcol-dm { border-color: #ff7b5c; box-shadow: 0 0 24px -10px #ff6a48; background: rgba(255, 106, 72, 0.07); }
+.theme-cn .pcol-dm .pc-god { color: #ff9a7a; }
+.theme-cn .tabs button[aria-selected="true"] { color: #fff1dc; background: linear-gradient(180deg, #c62a24, #8e1418); box-shadow: 0 0 0 1px #ffb38a inset, 0 0 18px -4px rgba(255, 80, 60, 0.7); }
+.theme-cn .chips button[aria-pressed="true"], .theme-cn .seg input:checked + span { color: var(--gold-bright); }
+@media (prefers-reduced-motion: no-preference) {
+  .theme-cn .sky-ring-cn { animation: ring-turn 600s linear infinite reverse; }
+  .theme-cn .seal { animation: seal-in .6s cubic-bezier(.2, 1.4, .4, 1) both; }
+}
+@keyframes seal-in { from { transform: rotate(-14deg) scale(1.35); opacity: 0; } to { transform: rotate(-4deg) scale(1); opacity: 1; } }

@@ -31,6 +31,42 @@
     document.body.insertBefore(ring, canvas.nextSibling);
   })();
 
+  // Chinese theme: a ring of the twelve branches around the eight trigrams
+  (function branchRing() {
+    const ring = document.createElement('div');
+    ring.className = 'sky-ring sky-ring-cn';
+    ring.setAttribute('aria-hidden', 'true');
+    const branches = '子丑寅卯辰巳午未申酉戌亥';
+    const trigrams = ['☰', '☴', '☵', '☶', '☷', '☳', '☲', '☱'];
+    let svg = '<svg viewBox="-500 -500 1000 1000" xmlns="http://www.w3.org/2000/svg">';
+    svg += '<circle r="470" fill="none" stroke="currentColor" stroke-width="1.2"/><circle r="458" fill="none" stroke="currentColor" stroke-width="0.5"/>';
+    svg += '<circle r="380" fill="none" stroke="currentColor" stroke-width="0.8"/><circle r="250" fill="none" stroke="currentColor" stroke-width="0.6" stroke-dasharray="3 9"/>';
+    svg += '<circle r="150" fill="none" stroke="currentColor" stroke-width="0.8"/>';
+    for (let i = 0; i < 12; i++) {
+      const a = (i * 30 - 90) * Math.PI / 180, m = (i * 30 - 75) * Math.PI / 180;
+      svg += `<line x1="${380 * Math.cos(m)}" y1="${380 * Math.sin(m)}" x2="${458 * Math.cos(m)}" y2="${458 * Math.sin(m)}" stroke="currentColor" stroke-width="0.8"/>`;
+      svg += `<text x="${420 * Math.cos(a)}" y="${420 * Math.sin(a)}" font-size="46" text-anchor="middle" dominant-baseline="central" fill="currentColor" font-family="Ma Shan Zheng, Noto Serif SC, serif" transform="rotate(${i * 30} ${420 * Math.cos(a)} ${420 * Math.sin(a)})">${branches[i]}</text>`;
+    }
+    for (let i = 0; i < 8; i++) {
+      const a = (i * 45 - 90) * Math.PI / 180;
+      svg += `<text x="${200 * Math.cos(a)}" y="${200 * Math.sin(a)}" font-size="40" text-anchor="middle" dominant-baseline="central" fill="currentColor" transform="rotate(${i * 45} ${200 * Math.cos(a)} ${200 * Math.sin(a)})">${trigrams[i]}︎</text>`;
+    }
+    // taijitu at the centre
+    svg += '<g transform="scale(1.1)"><circle r="100" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M0 -100 A100 100 0 0 1 0 100 A50 50 0 0 1 0 0 A50 50 0 0 0 0 -100Z" fill="currentColor" fill-opacity="0.55"/><circle cy="-50" r="13" fill="currentColor" fill-opacity="0.55"/><circle cy="50" r="13" fill="none" stroke="currentColor" stroke-width="1.5"/></g>';
+    svg += '</svg>';
+    ring.innerHTML = svg;
+    document.body.insertBefore(ring, canvas.nextSibling);
+  })();
+  const isCN = () => document.documentElement.classList.contains('theme-cn');
+  let lanterns = [];
+  function spawnLantern(anywhere) {
+    lanterns.push({
+      x: Math.random() * w, y: anywhere ? Math.random() * h : h + 30,
+      r: 3 + Math.random() * 4.5, vy: 9 + Math.random() * 14, sway: 6 + Math.random() * 14,
+      ph: Math.random() * Math.PI * 2, fl: 2 + Math.random() * 3, a: 0.35 + Math.random() * 0.45,
+    });
+  }
+
   function seed() {
     dpr = Math.min(window.devicePixelRatio || 1, 2);
     w = window.innerWidth; h = window.innerHeight;
@@ -64,11 +100,12 @@
     const dt = last ? Math.min((t - last) / 1000, 0.05) : 0;
     last = t;
     ctx.clearRect(0, 0, w, h);
+    const cnStars = isCN();
     for (const s of stars) {
       if (!still) { s.x -= s.vx * dt; if (s.x < -4) { s.x = w + 4; s.y = Math.random() * h; } }
       const a = still ? s.a : s.a * (0.55 + 0.45 * Math.sin(s.ph + (t / 1000) * s.tw));
       ctx.beginPath();
-      ctx.fillStyle = `rgba(${s.c},${a.toFixed(3)})`;
+      ctx.fillStyle = `rgba(${cnStars ? '255,226,180' : s.c},${a.toFixed(3)})`;
       ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
       ctx.fill();
       if (s.r > 1.1) {
@@ -76,8 +113,26 @@
         ctx.beginPath(); ctx.arc(s.x, s.y, s.r * 4, 0, Math.PI * 2); ctx.fill();
       }
     }
+    const cnNow = isCN();
+    if (cnNow) {
+      if (!lanterns.length) for (let k = 0; k < Math.round(w / 90); k++) spawnLantern(true);
+      lanterns = lanterns.filter((l) => l.y > -40);
+      while (!still && lanterns.length < Math.round(w / 90)) spawnLantern(false);
+      for (const l of lanterns) {
+        if (!still) l.y -= l.vy * dt;
+        const x = l.x + Math.sin(l.ph + t / 1000 * 0.5) * l.sway;
+        const flick = still ? 1 : 0.85 + 0.15 * Math.sin(l.ph + t / 1000 * l.fl);
+        const gr = ctx.createRadialGradient(x, l.y, 0, x, l.y, l.r * 6);
+        gr.addColorStop(0, `rgba(255,190,110,${(l.a * flick).toFixed(3)})`);
+        gr.addColorStop(0.25, `rgba(255,110,60,${(l.a * 0.55 * flick).toFixed(3)})`);
+        gr.addColorStop(1, 'rgba(200,40,30,0)');
+        ctx.fillStyle = gr; ctx.beginPath(); ctx.arc(x, l.y, l.r * 6, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = `rgba(255,214,150,${(0.9 * l.a * flick).toFixed(3)})`;
+        ctx.beginPath(); ctx.ellipse(x, l.y, l.r * 0.75, l.r, 0, 0, Math.PI * 2); ctx.fill();
+      }
+    } else if (lanterns.length) lanterns = [];
     if (!still) {
-      if (t > nextMeteor) { if (nextMeteor) spawnMeteor(); nextMeteor = t + 4000 + Math.random() * 9000; }
+      if (!cnNow && t > nextMeteor) { if (nextMeteor) spawnMeteor(); nextMeteor = t + 4000 + Math.random() * 9000; }
       meteors = meteors.filter((m) => m.life < m.max);
       for (const m of meteors) {
         m.life += dt; m.x += m.vx * dt; m.y += m.vy * dt;
@@ -98,5 +153,6 @@
   seed();
   window.addEventListener('resize', () => { seed(); if (still) draw(0); });
   document.addEventListener('visibilitychange', () => { last = 0; });
+  window.addEventListener('skywheel-theme', () => { if (still) draw(0); });
   if (still) draw(0); else requestAnimationFrame(draw);
 })();

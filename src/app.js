@@ -731,6 +731,10 @@
     [['tabWestern', 'western'], ['tabChinese', 'chinese']].forEach(([id, val]) => {
       const on = view === val; $(id).setAttribute('aria-selected', String(on)); $(id).tabIndex = on ? 0 : -1;
     });
+    document.documentElement.classList.toggle('theme-cn', view === 'chinese');
+    const meta = document.querySelector('meta[name="theme-color"]');
+    if (meta) meta.setAttribute('content', view === 'chinese' ? '#0d0506' : '#07061a');
+    window.dispatchEvent(new Event('skywheel-theme'));
     try { localStorage.setItem('skywheel-view', view); } catch (e) { /* ignore */ }
     if (fromUser) { urlSync = true; render(); }
   }
@@ -801,6 +805,7 @@
       ${differs ? `<p class="cn-note">Between Start of Spring and Chinese New Year the year pillar (${Z.STEMS[p.year.stem][0]}${Z.BRANCHES[p.year.branch][0]}) and the zodiac year differ. Four Pillars uses Start of Spring.</p>` : ''}`;
 
     drawAnimalWheel(p);
+    $('sealChar').textContent = Z.BRANCHES[ly.branch][0];
     // header for this view
     $('title').textContent = `${Z.BRANCHES[p.day.branch][2]} Day · ${yel} ${yanimal} Year`;
     $('big3').innerHTML = `<div><b>${Z.STEMS[dm][1]} ${Z.ELEMENTS[del]}</b> Day Master</div><div><b>${Z.LUNAR_MONTHS[lun.month]}</b> lunar month</div><div><b>${cur[2]}</b></div>`;
@@ -820,7 +825,7 @@
       const on = marks[b];
       el('path', { d: `M${x0} ${y0} A${R0} ${R0} 0 0 1 ${x1} ${y1} L${x2} ${y2} A${R2} ${R2} 0 0 0 ${x3} ${y3}Z`, fill: EL_COLOR[elx], 'fill-opacity': on ? 0.26 : 0.08, stroke: 'var(--rule)', 'stroke-width': 1, 'data-tip': `cn-branch:${b}`, class: 'tipzone' }, svg);
       const [tx, ty] = P(b, (R0 + R1) / 2 + 4);
-      el('text', { x: tx, y: ty, 'text-anchor': 'middle', 'dominant-baseline': 'central', 'font-size': 30, fill: EL_COLOR[elx], 'font-family': 'var(--f-zh)', 'data-tip': `cn-branch:${b}`, class: 'tipzone', tabindex: 0, 'aria-label': `${animal} details` }, svg, ch);
+      el('text', { x: tx, y: ty, 'text-anchor': 'middle', 'dominant-baseline': 'central', 'font-size': 32, fill: EL_COLOR[elx], 'font-family': 'var(--f-brush)', 'data-tip': `cn-branch:${b}`, class: 'tipzone', tabindex: 0, 'aria-label': `${animal} details` }, svg, ch);
       const [ax, ay] = P(b, R1 - 14);
       el('text', { x: ax, y: ay, 'text-anchor': 'middle', 'dominant-baseline': 'central', 'font-size': 12.5, fill: on ? 'var(--ink)' : 'var(--muted)', 'font-family': 'var(--f-body)', 'pointer-events': 'none' }, svg, animal);
       if (on) {
@@ -838,7 +843,7 @@
     const [cx0, cy0] = P(p.day.branch, R2), [cx1, cy1] = P((p.day.branch + 6) % 12, R2);
     el('line', { x1: cx0, y1: cy0, x2: cx1, y2: cy1, stroke: 'var(--fire)', 'stroke-width': 1.2, 'stroke-dasharray': '4 4', 'stroke-opacity': 0.8 }, svg);
     const yb = Z.BRANCHES[p.year.branch];
-    el('text', { x: c, y: c - 10, 'text-anchor': 'middle', 'dominant-baseline': 'central', 'font-size': 34, fill: 'var(--gold-bright)', 'font-family': 'var(--f-zh)' }, svg, Z.STEMS[p.year.stem][0] + yb[0]);
+    el('text', { x: c, y: c - 10, 'text-anchor': 'middle', 'dominant-baseline': 'central', 'font-size': 38, fill: 'var(--gold-bright)', 'font-family': 'var(--f-brush)' }, svg, Z.STEMS[p.year.stem][0] + yb[0]);
     el('text', { x: c, y: c + 22, 'text-anchor': 'middle', 'dominant-baseline': 'central', 'font-size': 12, fill: 'var(--muted)', 'font-family': 'var(--f-display)', 'letter-spacing': '0.12em' }, svg, yb[2].toUpperCase());
     $('cnLegend').innerHTML = '<span><b>Y</b> year · <b>M</b> month · <b>D</b> day · <b>H</b> hour</span><span><i style="border-color:var(--fire);border-top-style:dashed"></i>day clash</span>';
   }
