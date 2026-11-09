@@ -20,6 +20,8 @@
     ['London', 51.51, -0.13, 'Europe/London'],
     ['Paris', 48.86, 2.35, 'Europe/Paris'],
     ['Berlin', 52.52, 13.40, 'Europe/Berlin'],
+    ['Bologna', 44.49, 11.34, 'Europe/Rome'],
+    ['Francavilla al Mare', 42.42, 14.29, 'Europe/Rome'],
     ['New York', 40.72, -74.00, 'America/New_York'],
     ['Los Angeles', 34.05, -118.24, 'America/Los_Angeles'],
     ['Mexico City', 19.43, -99.13, 'America/Mexico_City'],
