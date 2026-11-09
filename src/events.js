@@ -170,5 +170,102 @@
     return ev.sort((x, y) => x.t - y.t);
   }
 
-  root.AstroEvents = { dignity, signInfo, SIGNS, ELEMENT, MODE, RULER, ASPECTS, aspects, patterns, balance, moonPhase, dayEvents, sep };
+  // ---------- the year ahead ----------
+  // Notable sky events between `start` and `start + days`: eclipses, stations, slow-planet ingresses,
+  // exact aspects between the outer planets, Venus–Sun conjunctions and the equinoxes/solstices.
+  const STATION_BODIES = ['Mercury', 'Venus', 'Mars', 'Jupiter', 'Saturn', 'Uranus', 'Neptune', 'Pluto', 'Chiron'];
+  const INGRESS_BODIES = ['Jupiter', 'Saturn', 'Uranus', 'Neptune', 'Pluto', 'Chiron', 'Node'];
+  const OUTER = ['Jupiter', 'Saturn', 'Uranus', 'Neptune', 'Pluto', 'Chiron'];
+  const DAY = 86400000;
+  const posText = (l) => { l = norm(l); const s = Math.floor(l / 30), d = l - s * 30; return `${Math.floor(d)}°${String(Math.floor((d % 1) * 60)).padStart(2, '0')}′ ${SIGNS[s]}`; };
+
+  function yearAhead(start, days = 366) {
+    const A = root.Astronomy;
+    const t0 = start.getTime(), t1 = t0 + days * DAY;
+    const out = [];
+    const add = (t, cat, body, title, detail, extra = {}) => { if (t >= t0 && t <= t1) out.push({ t: new Date(t), cat, body, title, detail, ...extra }); };
+
+    // daily samples of the slow-ish bodies
+    const names = [...new Set(['Sun', 'Venus', ...STATION_BODIES, ...INGRESS_BODIES])];
+    const times = []; for (let t = t0 - DAY; t <= t1 + DAY; t += DAY) times.push(t);
+    const lon = {}; names.forEach((n) => { lon[n] = times.map((t) => C.lonOf(n, new Date(t))); });
+    const step = (n, i) => wrap(lon[n][i + 1] - lon[n][i]);
+
+    for (let i = 0; i < times.length - 2; i++) {
+      const ta = times[i], tb = times[i + 1];
+      // stations: daily motion changes sign
+      STATION_BODIES.forEach((b) => {
+        const m0 = step(b, i), m1 = step(b, i + 1);
+        if (Math.sign(m0) !== Math.sign(m1) && m0 !== 0) {
+          const when = refine((t) => C.speed(b, new Date(t)) * Math.sign(m1), ta, times[i + 2]);
+          const retro = m1 < 0;
+          add(when.getTime(), 'retro', b, `${b} stations ${retro ? 'retrograde' : 'direct'}`, posText(C.lonOf(b, when)), { retro });
+        }
+      });
+      // ingresses of the slow movers
+      INGRESS_BODIES.forEach((b) => {
+        const s0 = Math.floor(lon[b][i] / 30), s1 = Math.floor(lon[b][i + 1] / 30);
+        if (s0 !== s1) {
+          const back = step(b, i) < 0;
+          const target = back ? s0 * 30 : s1 * 30;
+          const when = refine((t) => wrap(C.lonOf(b, new Date(t)) - target), ta, tb);
+          const label = b === 'Node' ? 'North Node' : b;
+          add(when.getTime(), 'ingress', b, `${label} enters ${SIGNS[s1]}`, back ? `back into ${SIGNS[s1]}, retrograde` : (b === 'Node' ? 'South Node enters ' + SIGNS[(s1 + 6) % 12] : `leaves ${SIGNS[s0]}`), { sign: s1 });
+        }
+      });
+      // exact aspects between outer planets
+      for (let a = 0; a < OUTER.length; a++) for (let b = a + 1; b < OUTER.length; b++) {
+        const P = OUTER[a], Q = OUTER[b];
+        const d0 = norm(lon[Q][i] - lon[P][i]), d1 = norm(lon[Q][i + 1] - lon[P][i + 1]);
+        ASPECTS.filter((x) => x.key !== 'qx').forEach((asp) => {
+          const angles = asp.angle === 0 || asp.angle === 180 ? [asp.angle] : [asp.angle, 360 - asp.angle];
+          angles.forEach((ang) => {
+            const x0 = wrap(d0 - ang), x1 = wrap(d1 - ang);
+            if (Math.sign(x0) !== Math.sign(x1) && Math.abs(x0 - x1) < 5) {
+              const when = refine((t) => wrap(norm(C.lonOf(Q, new Date(t)) - C.lonOf(P, new Date(t))) - ang) * Math.sign(x1 - x0), ta, tb);
+              add(when.getTime(), 'aspect', P, `${P} ${asp.name.toLowerCase()} ${Q}`, `${posText(C.lonOf(P, when))} · ${posText(C.lonOf(Q, when))}`, { other: Q, aspKey: asp.key });
+            }
+          });
+        });
+      }
+      // Venus–Sun conjunctions (Venus star points)
+      const v0 = wrap(lon.Venus[i] - lon.Sun[i]), v1 = wrap(lon.Venus[i + 1] - lon.Sun[i + 1]);
+      if (Math.sign(v0) !== Math.sign(v1) && Math.abs(v0 - v1) < 10) {
+        const when = refine((t) => wrap(C.lonOf('Venus', new Date(t)) - C.lonOf('Sun', new Date(t))) * Math.sign(v1 - v0), ta, tb);
+        const retro = C.speed('Venus', when) < 0;
+        add(when.getTime(), 'venus', 'Venus', `Venus star point (${retro ? 'inferior' : 'superior'} conjunction)`, `${posText(C.lonOf('Sun', when))}${retro ? ' · Venus retrograde, morning star rising' : ' · Venus direct, evening star rising'}`);
+      }
+    }
+
+    // eclipses
+    try {
+      let le = A.SearchLunarEclipse(new Date(t0));
+      while (le.peak.date.getTime() <= t1) {
+        const t = le.peak.date, ml = C.lonOf('Moon', t);
+        add(t.getTime(), 'eclipse', 'Moon', `${le.kind[0].toUpperCase() + le.kind.slice(1)} lunar eclipse`, `Moon ${posText(ml)}${le.obscuration ? ` · ${Math.round(le.obscuration * 100)}% in umbra` : ''}`);
+        le = A.NextLunarEclipse(le.peak);
+      }
+      let se = A.SearchGlobalSolarEclipse(new Date(t0));
+      while (se.peak.date.getTime() <= t1) {
+        const t = se.peak.date, sl = C.lonOf('Sun', t);
+        const where = se.latitude != null && se.kind !== 'partial' ? ` · best seen near ${Math.abs(se.latitude).toFixed(0)}°${se.latitude >= 0 ? 'N' : 'S'}, ${Math.abs(se.longitude).toFixed(0)}°${se.longitude >= 0 ? 'E' : 'W'}` : '';
+        add(t.getTime(), 'eclipse', 'Sun', `${se.kind[0].toUpperCase() + se.kind.slice(1)} solar eclipse`, `Sun ${posText(sl)}${where}`);
+        se = A.NextGlobalSolarEclipse(se.peak);
+      }
+    } catch (e) { /* eclipse search unavailable */ }
+
+    // equinoxes and solstices
+    const y0 = new Date(t0).getUTCFullYear();
+    [y0, y0 + 1].forEach((y) => {
+      try {
+        const s = A.Seasons(y);
+        [[s.mar_equinox, 'Aries ingress · March equinox'], [s.jun_solstice, 'Cancer ingress · June solstice'], [s.sep_equinox, 'Libra ingress · September equinox'], [s.dec_solstice, 'Capricorn ingress · December solstice']]
+          .forEach(([at, title]) => add(at.date.getTime(), 'season', 'Sun', `Sun enters ${title.split(' ')[0]}`, title.split(' · ')[1], { sign: SIGNS.indexOf(title.split(' ')[0]) }));
+      } catch (e) { /* seasons unavailable */ }
+    });
+
+    return out.sort((a, b) => a.t - b.t);
+  }
+
+  root.AstroEvents = { yearAhead, dignity, signInfo, SIGNS, ELEMENT, MODE, RULER, ASPECTS, aspects, patterns, balance, moonPhase, dayEvents, sep };
 })(typeof window !== 'undefined' ? window : globalThis);

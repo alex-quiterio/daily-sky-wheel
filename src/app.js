@@ -370,6 +370,21 @@
     });
   }
 
+  // Is this New or Full Moon also an eclipse? Returns " · Total Solar Eclipse" or "".
+  function eclipseAt(lun) {
+    const A = window.Astronomy, from = new Date(lun.t.getTime() - 2 * 86400000);
+    try {
+      if (/New Moon/.test(lun.title)) {
+        const e = A.SearchGlobalSolarEclipse(from);
+        if (Math.abs(e.peak.date - lun.t) < 86400000) return ` · ${e.kind[0].toUpperCase() + e.kind.slice(1)} Solar Eclipse`;
+      } else if (/Full Moon/.test(lun.title)) {
+        const e = A.SearchLunarEclipse(from);
+        if (Math.abs(e.peak.date - lun.t) < 86400000) return ` · ${e.kind[0].toUpperCase() + e.kind.slice(1)} Lunar Eclipse`;
+      }
+    } catch (err) { /* no eclipse info */ }
+    return '';
+  }
+
   function isCompact() { return window.innerWidth < 600; }
 
   function drawMoon(phase) {
@@ -639,6 +654,63 @@
   });
   window.addEventListener('scroll', () => { if (!pinned) hideTip(); }, { passive: true });
 
+  // ---------- year ahead ----------
+  const YEAR_CATS = [['all', 'All'], ['eclipse', 'Eclipses'], ['retro', 'Stations'], ['ingress', 'Ingresses'], ['aspect', 'Outer aspects'], ['venus', 'Venus'], ['season', 'Seasons']];
+  let yearEvents = null;
+  let yearCat = (() => { try { return localStorage.getItem('skywheel-year') || 'all'; } catch (e) { return 'all'; } })();
+  function yearGlyphs(e) {
+    const sym = (x) => `<span class="yg-s">${x}</span>`;
+    if (e.cat === 'retro') return `${g(e.body)}${sym(e.retro ? '℞' : 'D')}`;
+    if (e.cat === 'ingress') return `${g(e.body)}${sym('→')}${sg(e.sign)}`;
+    if (e.cat === 'aspect') return `${g(e.body)}<span style="color:${ASPECT_COLOR[e.aspKey]}">${ASPECT_GLYPH[e.aspKey]}${VS}</span>${g(e.other)}`;
+    if (e.cat === 'eclipse') return `<span class="ecl ecl-${e.body === 'Sun' ? 'sun' : 'moon'}"></span>`;
+    if (e.cat === 'venus') return `${g('Venus')}${ASPECT_GLYPH.conj}${VS}${g('Sun')}`;
+    if (e.cat === 'season') return `${g('Sun')}${sym('→')}${sg(e.sign)}`;
+    return '';
+  }
+  function renderYear(place, when) {
+    const box = $('yearlist');
+    if (!yearEvents) return;
+    const chips = $('yearChips');
+    if (!chips.childElementCount) {
+      YEAR_CATS.forEach(([cat, label]) => {
+        const b = document.createElement('button');
+        b.type = 'button'; b.dataset.cat = cat;
+        b.textContent = cat === 'all' ? label : `${label} ${yearEvents.filter((e) => e.cat === cat).length}`;
+        b.addEventListener('click', () => { yearCat = cat; try { localStorage.setItem('skywheel-year', cat); } catch (e) { /* ignore */ } renderYear(currentPlace(), lastWhen); });
+        chips.appendChild(b);
+      });
+    }
+    chips.querySelectorAll('button').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.cat === yearCat)));
+    const list = yearEvents.filter((e) => yearCat === 'all' || e.cat === yearCat);
+    const fmtMonth = new Intl.DateTimeFormat('en-GB', { timeZone: place.tz, month: 'long', year: 'numeric' });
+    const fmtDay = new Intl.DateTimeFormat('en-GB', { timeZone: place.tz, day: 'numeric', month: 'short' });
+    const now = Date.now();
+    let month = '', html = '';
+    list.forEach((e) => {
+      const m = fmtMonth.format(e.t);
+      if (m !== month) { html += `<div class="ymonth">${m}</div>`; month = m; }
+      const lp = localParts(e.t, place.tz);
+      const days = Math.round((e.t - now) / 86400000);
+      const active = when && Math.abs(e.t - when) < 90000;
+      html += `<button type="button" class="yitem y-${e.cat}${active ? ' active' : ''}" data-t="${e.t.toISOString()}" title="Cast the chart for this moment">
+        <span class="yd"><b>${fmtDay.format(e.t)}</b><small>${lp.time}</small></span>
+        <span class="yg">${yearGlyphs(e)}</span>
+        <span class="yt">${e.title}${e.detail ? `<small>${e.detail}</small>` : ''}</span>
+        <span class="yin">${days <= 0 ? 'today' : days === 1 ? 'tomorrow' : `in ${days} d`}</span>
+      </button>`;
+    });
+    box.innerHTML = html || '<p class="empty">Nothing of this kind in the next 12 months.</p>';
+  }
+  function jumpTo(iso) {
+    const t = new Date(iso), place = currentPlace(), lp = localParts(t, place.tz);
+    $('date').value = lp.date; $('time').value = lp.time;
+    urlSync = true;
+    render();
+    if (isCompact()) document.querySelector('.wheelbox').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+  let lastWhen = null;
+
   // ---------- render ----------
 
   function render() {
@@ -668,7 +740,7 @@
     const dateStr = new Intl.DateTimeFormat('en-GB', { timeZone: place.tz, weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }).format(when);
     const phase = E.moonPhase(byName.Sun.lon, byName.Moon.lon);
     const moonSign = E.SIGNS[Math.floor(byName.Moon.lon / 30)];
-    $('title').textContent = lunation ? lunation.title : `Moon in ${moonSign}`;
+    $('title').textContent = lunation ? lunation.title + eclipseAt(lunation) : `Moon in ${moonSign}`;
     $('subtitle').textContent = `${dateStr} · ${$('time').value} ${tzAbbr(when, place.tz)} · ${place.name}`;
     $('big3').innerHTML = '';
     [['Rising', chart.asc], ['Moon', byName.Moon.lon], ['Sun', byName.Sun.lon]].forEach(([lab, l]) => {
@@ -678,6 +750,8 @@
     });
 
     ctx = { chart, asps, byName, place, houseOf: (lon) => houseOfCusps(chart.cusps, lon) };
+    lastWhen = when;
+    renderYear(place, when);
     drawWheel(chart, asps);
 
     // today card
@@ -791,6 +865,12 @@
     });
     render();
     if (document.fonts && document.fonts.ready) document.fonts.ready.then(render);
+    $('yearlist').addEventListener('click', (e) => { const b = e.target.closest('.yitem'); if (b) jumpTo(b.dataset.t); });
+    setTimeout(() => {
+      const d = new Date(); const start = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()));
+      try { yearEvents = E.yearAhead(start); } catch (err) { yearEvents = []; }
+      renderYear(currentPlace(), lastWhen);
+    }, 60);
   }
   if (window.Astronomy) boot();
   else document.getElementById('subtitle').textContent = 'The astronomy library did not load. Reload the page to try again.';

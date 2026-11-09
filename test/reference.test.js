@@ -60,3 +60,16 @@ test('Placidus cusps', () => {
   const idx = [0, 1, 2, 9, 10, 11];
   idx.forEach((i, k) => assert.ok(diff(chart.cusps[i], pos(...want[k])) < 0.05, `cusp ${i + 1}: ${chart.cusps[i].toFixed(3)}`));
 });
+
+test('year ahead: eclipses, stations, ingresses and outer aspects', () => {
+  const ev = E.yearAhead(new Date(Date.UTC(2026, 10, 9)));
+  const find = (title, y, m, d) => ev.find((e) => e.title === title && e.t.getUTCFullYear() === y && e.t.getUTCMonth() === m - 1 && Math.abs(e.t.getUTCDate() - d) <= 1);
+  assert.ok(find('Annular solar eclipse', 2027, 2, 6), 'annular eclipse 6 Feb 2027');
+  const total = find('Total solar eclipse', 2027, 8, 2);
+  assert.ok(total && /^9°5\d′ Leo/.test(total.detail.replace('Sun ', '')), 'total eclipse 2 Aug 2027 at 9° Leo');
+  assert.ok(find('Mars stations retrograde', 2027, 1, 10), 'Mars retrograde 10 Jan 2027');
+  assert.ok(find('Mercury stations retrograde', 2027, 2, 9), 'Mercury retrograde 9 Feb 2027');
+  assert.ok(find('Jupiter enters Virgo', 2027, 7, 26), 'Jupiter into Virgo late July 2027');
+  assert.ok(ev.some((e) => e.title === 'Jupiter trine Saturn'), 'Jupiter trine Saturn in 2027');
+  assert.ok(ev.every((e, i) => i === 0 || e.t >= ev[i - 1].t), 'sorted by time');
+});
