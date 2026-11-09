@@ -747,6 +747,12 @@
     });
     window.dispatchEvent(new Event('skywheel-theme'));
     try { localStorage.setItem('skywheel-view', view); } catch (e) { /* ignore */ }
+    // keep the chosen tab in view when the tab row scrolls (phones)
+    const activeTab = document.querySelector('.tabs [aria-selected="true"]');
+    if (activeTab && activeTab.parentElement.scrollWidth > activeTab.parentElement.clientWidth) {
+      const bar = activeTab.parentElement;
+      bar.scrollTo({ left: activeTab.offsetLeft - (bar.clientWidth - activeTab.offsetWidth) / 2, behavior: fromUser ? 'smooth' : 'auto' });
+    }
     if (fromUser) { urlSync = true; render(); }
   }
 

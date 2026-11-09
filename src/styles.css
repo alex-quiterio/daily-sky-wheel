@@ -860,9 +860,20 @@ section.card h2 .ar { font-size: 18px; color: var(--muted); font-weight: 400; }
 /* phones: nothing may widen the page; the six tabs become a 3 × 2 grid */
 .wrap > * { min-width: 0; }
 .tabs { max-width: 100%; }
-@media (max-width: 720px) {
-  .tabs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); width: 100%; border-radius: 18px; gap: 4px; }
-  .tabs button { padding: 8px 4px; font-size: 12px; letter-spacing: .1em; border-radius: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+/* tabs lead the page; on narrower screens they become one row you swipe */
+.tabs { margin-bottom: 2px; }
+.tabs button { white-space: nowrap; }
+@media (max-width: 960px) {
+  .tabs {
+    display: flex; justify-self: stretch; width: 100%; overflow-x: auto; overscroll-behavior-x: contain;
+    scroll-snap-type: x proximity; scrollbar-width: none; border-radius: 99px; gap: 2px;
+    -webkit-mask: linear-gradient(90deg, transparent 0, #000 14px, #000 calc(100% - 14px), transparent 100%);
+    mask: linear-gradient(90deg, transparent 0, #000 14px, #000 calc(100% - 14px), transparent 100%);
+  }
+  .tabs::-webkit-scrollbar { display: none; }
+  .tabs button { flex: none; scroll-snap-align: center; padding: 7px 14px; font-size: 12px; letter-spacing: .12em; white-space: nowrap; }
+  .tabs button:first-child { margin-left: 6px; }
+  .tabs button:last-child { margin-right: 6px; }
 }
 @media (max-width: 599px) {
   h1 { font-size: clamp(24px, 7.4vw, 32px); overflow-wrap: anywhere; }

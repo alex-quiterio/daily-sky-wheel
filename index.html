@@ -26,6 +26,15 @@
 <canvas id="stars" aria-hidden="true"></canvas>
 <div class="skyline" aria-hidden="true"></div>
 <div class="wrap">
+  <div class="tabs" role="tablist" aria-label="Astrology system, in order of earliest documented practice">
+    <button type="button" role="tab" id="tabWestern" aria-controls="viewWestern" aria-selected="true" title="Babylonian celestial omens, c. 1600 BCE; Hellenistic horoscopes from the 2nd century BCE">Western</button>
+    <button type="button" role="tab" id="tabChinese" aria-controls="viewChinese" aria-selected="false" tabindex="-1" title="Stem-and-branch day counts on Shang oracle bones, c. 1250 BCE">Chinese <span class="zh">中</span></button>
+    <button type="button" role="tab" id="tabVedic" aria-controls="viewVedic" aria-selected="false" tabindex="-1" title="Nakshatras in the Vedic texts, c. 1200–1000 BCE">Vedic <span class="dev">ॐ</span></button>
+    <button type="button" role="tab" id="tabMaya" aria-controls="viewMaya" aria-selected="false" tabindex="-1" title="The Mesoamerican 260-day count, c. 600–300 BCE">Maya</button>
+    <button type="button" role="tab" id="tabKabbalah" aria-controls="viewKabbalah" aria-selected="false" tabindex="-1" title="Sefer Yetzirah, c. 2nd–6th century CE">Kabbalah <span class="he">א</span></button>
+    <button type="button" role="tab" id="tabIslamic" aria-controls="viewIslamic" aria-selected="false" tabindex="-1" title="The Hijri calendar, instituted 638 CE">Islamic <span class="ar">هـ</span></button>
+  </div>
+
   <header class="top">
     <div class="brand">
       <div class="seal" id="seal" aria-hidden="true"><span id="sealChar">午</span></div>
@@ -92,14 +101,6 @@
     <p class="urlnote" id="urlnote" role="status" hidden></p>
   </form>
 
-  <div class="tabs" role="tablist" aria-label="Astrology system, in order of earliest documented practice">
-    <button type="button" role="tab" id="tabWestern" aria-controls="viewWestern" aria-selected="true" title="Babylonian celestial omens, c. 1600 BCE; Hellenistic horoscopes from the 2nd century BCE">Western</button>
-    <button type="button" role="tab" id="tabChinese" aria-controls="viewChinese" aria-selected="false" tabindex="-1" title="Stem-and-branch day counts on Shang oracle bones, c. 1250 BCE">Chinese <span class="zh">中</span></button>
-    <button type="button" role="tab" id="tabVedic" aria-controls="viewVedic" aria-selected="false" tabindex="-1" title="Nakshatras in the Vedic texts, c. 1200–1000 BCE">Vedic <span class="dev">ॐ</span></button>
-    <button type="button" role="tab" id="tabMaya" aria-controls="viewMaya" aria-selected="false" tabindex="-1" title="The Mesoamerican 260-day count, c. 600–300 BCE">Maya</button>
-    <button type="button" role="tab" id="tabKabbalah" aria-controls="viewKabbalah" aria-selected="false" tabindex="-1" title="Sefer Yetzirah, c. 2nd–6th century CE">Kabbalah <span class="he">א</span></button>
-    <button type="button" role="tab" id="tabIslamic" aria-controls="viewIslamic" aria-selected="false" tabindex="-1" title="The Hijri calendar, instituted 638 CE">Islamic <span class="ar">هـ</span></button>
-  </div>
 
   <div class="main" id="viewWestern" role="tabpanel" aria-labelledby="tabWestern">
     <div class="side">
