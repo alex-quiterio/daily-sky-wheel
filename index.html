@@ -25,6 +25,16 @@
 <body>
 <canvas id="stars" aria-hidden="true"></canvas>
 <div class="skyline" aria-hidden="true"></div>
+<div class="minibar" id="minibar" aria-label="Quick controls" aria-hidden="true">
+  <div class="mb-row">
+    <button type="button" id="mPrev" aria-label="Previous day">‹</button>
+    <input type="date" id="mDate" aria-label="Day">
+    <button type="button" id="mNext" aria-label="Next day">›</button>
+    <input type="time" id="mTime" step="60" aria-label="Time">
+    <button type="button" id="mPlay" class="playbtn" aria-pressed="false" aria-label="Play the next 24 hours"><span class="play-ico" aria-hidden="true"></span></button>
+    <select id="mPlace" aria-label="Place"></select>
+  </div>
+</div>
 <div class="wrap">
   <div class="tabs" role="tablist" aria-label="Astrology system, in order of earliest documented practice">
     <button type="button" role="tab" id="tabWestern" aria-controls="viewWestern" aria-selected="true" title="Babylonian celestial omens, c. 1600 BCE; Hellenistic horoscopes from the 2nd century BCE">Western</button>
@@ -87,6 +97,7 @@
       </div>
     </label>
     <label class="field"><span>Time</span><input type="time" id="time" step="60"></label>
+    <button type="button" id="play" class="playbtn" aria-pressed="false" title="Play the next 24 hours"><span class="play-ico" aria-hidden="true"></span><span class="play-label">Play 24 h</span></button>
     <label class="field"><span>Place</span><select id="place"></select></label>
     <div class="custom" id="customBox" hidden>
       <label class="field"><span>Latitude</span><input id="lat" type="number" step="0.01" min="-89" max="89"></label>

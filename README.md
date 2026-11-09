@@ -46,6 +46,8 @@ Pick a day, a time and a place and the sky comes back as a chart.
 
 **My location** uses your device's position (the browser asks first). The **i** next to the house toggle explains all twelve houses, and hovering a house system explains how it divides the chart.
 
+**▶ Play 24 h** runs the next day in 10-minute steps, about 20 seconds in all, so you can watch the Ascendant sweep the houses and every tab change. Once you scroll past the controls, a compact bar stays pinned at the top with the day, time, place and play.
+
 Move through the days with **‹ ›** or the arrow keys. **Now** casts the chart for this minute in your own time zone, picked up from the browser.
 
 ## ☾ Install it as an app

@@ -1458,10 +1458,43 @@
     el('circle', { cx: c, cy: c, r: 4, fill: 'var(--wheel-core)', stroke: 'var(--gold-bright)' }, svg);
   }
 
+  // ---------- sticky quick bar and play ----------
+  let dayEventsCache = null;
+  let play = null; // { timer, left }
+  function syncMini() {
+    $('mDate').value = $('date').value; $('mTime').value = $('time').value; $('mPlace').value = $('place').value;
+  }
+  function setPlaying(on) {
+    ['play', 'mPlay'].forEach((id) => { const b = $(id); b.setAttribute('aria-pressed', String(on)); b.classList.toggle('on', on); });
+    $('play').querySelector('.play-label').textContent = on ? 'Pause' : 'Play 24 h';
+    $('play').title = $('mPlay').ariaLabel = on ? 'Pause' : 'Play the next 24 hours';
+  }
+  function stopPlay() { if (play) { clearTimeout(play.timer); play = null; setPlaying(false); } }
+  function stepPlay() {
+    if (!play) return;
+    const [y, m, d] = $('date').value.split('-').map(Number), [hh, mm] = ($('time').value || '12:00').split(':').map(Number);
+    const t = new Date(Date.UTC(y, m - 1, d, hh, mm + 10));
+    $('date').value = t.toISOString().slice(0, 10);
+    $('time').value = `${pad(t.getUTCHours())}:${pad(t.getUTCMinutes())}`;
+    const t0 = performance.now();
+    render();
+    play.left -= 10;
+    if (play.left <= 0) { stopPlay(); return; }
+    play.timer = setTimeout(stepPlay, Math.max(40, 130 - (performance.now() - t0)));
+  }
+  function togglePlay() {
+    if (play) { stopPlay(); return; }
+    urlSync = true;
+    play = { left: 24 * 60, timer: 0 };
+    setPlaying(true);
+    stepPlay();
+  }
+
   // ---------- render ----------
 
   function render() {
     hideTip(true);
+    syncMini();
     setTimeout(syncURL, 0);
     const place = currentPlace();
     const hsys = $('hsys').value;
@@ -1480,7 +1513,9 @@
     // day events (local midnight to midnight)
     const dayStart = localToUTC(y, m, d, 0, 0, place.tz);
     const dayEnd = localToUTC(y, m, d + 1, 0, 0, place.tz);
-    const evs = E.dayEvents(dayStart, dayEnd);
+    const evKey = `${dayStart.getTime()}`;
+    if (!dayEventsCache || dayEventsCache.key !== evKey) dayEventsCache = { key: evKey, evs: E.dayEvents(dayStart, dayEnd) };
+    const evs = dayEventsCache.evs;
     const lunation = evs.find((e) => e.kind === 'lunation');
 
     // header
@@ -1610,10 +1645,33 @@
     }, { passive: true });
     $('install').addEventListener('click', install);
     ['lat', 'lon', 'place'].forEach((id) => $(id).addEventListener('change', () => { fromGeo = false; }, true));
-    $('prev').addEventListener('click', () => shiftDay(-1));
-    $('next').addEventListener('click', () => shiftDay(1));
+    $('prev').addEventListener('click', () => { stopPlay(); shiftDay(-1); });
+    $('next').addEventListener('click', () => { stopPlay(); shiftDay(1); });
     $('now').addEventListener('click', () => { urlSync = true; useBrowserPlace(); setNow(true); render(); });
-    ['date', 'time', 'place', 'lat', 'lon', 'tz'].forEach((id) => $(id).addEventListener('change', render));
+    ['date', 'time', 'place', 'lat', 'lon', 'tz'].forEach((id) => $(id).addEventListener('change', () => { stopPlay(); render(); }));
+    // quick bar: mirrors the main controls
+    PLACES.forEach((p, i) => { const o = document.createElement('option'); o.value = String(i); o.textContent = p[0]; $('mPlace').appendChild(o); });
+    { const o = document.createElement('option'); o.value = 'custom'; o.textContent = 'Custom'; $('mPlace').appendChild(o); }
+    const fromMini = (id, mid) => $(mid).addEventListener('change', () => { stopPlay(); $(id).value = $(mid).value; urlSync = true; render(); });
+    fromMini('date', 'mDate'); fromMini('time', 'mTime'); fromMini('place', 'mPlace');
+    $('mPrev').addEventListener('click', () => { stopPlay(); shiftDay(-1); });
+    $('mNext').addEventListener('click', () => { stopPlay(); shiftDay(1); });
+    $('play').addEventListener('click', togglePlay);
+    $('mPlay').addEventListener('click', togglePlay);
+    // show the quick bar once the main controls have scrolled out of view
+    let mbShown = null, mbRaf = 0;
+    const checkMini = () => {
+      mbRaf = 0;
+      const show = $('controls').getBoundingClientRect().bottom < 0;
+      if (show === mbShown) return;
+      mbShown = show;
+      $('minibar').classList.toggle('show', show);
+      $('minibar').setAttribute('aria-hidden', String(!show));
+      $('minibar').querySelectorAll('button, input, select').forEach((x) => { x.tabIndex = show ? 0 : -1; });
+    };
+    window.addEventListener('scroll', () => { if (!mbRaf) mbRaf = requestAnimationFrame(checkMini); }, { passive: true });
+    window.addEventListener('resize', checkMini);
+    checkMini();
     document.querySelectorAll('input[name="hsysPick"]').forEach((r) => r.addEventListener('change', () => {
       if (!r.checked) return;
       urlSync = true; $('hsys').value = r.value; render();
