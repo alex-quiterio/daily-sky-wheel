@@ -91,6 +91,7 @@
     fromGeo = savedIdx === 'custom' && saved.geo === true;
     setNow(false);
     $('time').value = '12:00';
+    try { setView(localStorage.getItem('skywheel-view') || 'western'); } catch (e) { setView('western'); }
     applyQuery();
   }
 
@@ -162,6 +163,7 @@
       }
     } else if (q.has('lat') || q.has('lon')) problems.push('lat and lon must both be numbers');
 
+    if (q.get('view')) setView(slug(q.get('view')) === 'chinese' ? 'chinese' : 'western');
     const h = q.get('houses') || q.get('hsys');
     if (h) { const v = HOUSE_ALIASES[slug(h)]; if (v) $('hsys').value = v; else problems.push(`house system "${h}" is not supported`); }
 
@@ -191,6 +193,7 @@
     if ($('place').value === 'custom') { q.set('lat', $('lat').value); q.set('lon', $('lon').value); q.set('tz', $('tz').value); }
     else q.set('place', slug(currentPlace().name));
     q.set('houses', $('hsys').value);
+    if (view === 'chinese') q.set('view', 'chinese');
     const url = `${location.pathname}?${q.toString().replace(/%2F/g, '/').replace(/%3A/g, ':')}${location.hash}`;
     try { history.replaceState(null, '', url); } catch (e) { /* sandboxed */ }
   }
@@ -587,6 +590,8 @@
     if (kind === 'aspect') return tipAspect(+v);
     if (kind === 'hsys') return tipSystem(v);
     if (kind === 'houses') return tipAllHouses();
+    if (kind === 'cn-stem') return tipCnStem(+v);
+    if (kind === 'cn-branch') return tipCnBranch(+v);
     return '';
   }
   function focusWheel(key) {
@@ -711,6 +716,161 @@
   }
   let lastWhen = null;
 
+
+  // ---------- Chinese astrology tab ----------
+  const Z = window.Chinese;
+  const EL_COLOR = ['var(--wood)', 'var(--fire)', 'var(--earth-el)', 'var(--metal)', 'var(--water-el)'];
+  const polarity = (yang) => (yang ? 'Yang' : 'Yin');
+  let view = 'western';
+  let cn = null; // last computed Chinese chart
+
+  function setView(v, fromUser) {
+    view = v === 'chinese' ? 'chinese' : 'western';
+    $('viewWestern').hidden = view !== 'western';
+    $('viewChinese').hidden = view !== 'chinese';
+    [['tabWestern', 'western'], ['tabChinese', 'chinese']].forEach(([id, val]) => {
+      const on = view === val; $(id).setAttribute('aria-selected', String(on)); $(id).tabIndex = on ? 0 : -1;
+    });
+    try { localStorage.setItem('skywheel-view', view); } catch (e) { /* ignore */ }
+    if (fromUser) { urlSync = true; render(); }
+  }
+
+  function stemCell(s, god, label) {
+    const [ch, py, el] = Z.STEMS[s];
+    return `<div class="pc-stem tipzone" data-tip="cn-stem:${s}" tabindex="0">
+      <span class="pc-god">${god}</span>
+      <span class="pc-ch" style="color:${EL_COLOR[el]}">${ch}</span>
+      <span class="pc-py">${py}</span>
+      <span class="pc-el">${polarity(s % 2 === 0)} ${Z.ELEMENTS[el]}</span>
+    </div>`;
+  }
+  function branchCell(b, dm) {
+    const [ch, py, animal, el, , , hidden] = Z.BRANCHES[b];
+    return `<div class="pc-branch tipzone" data-tip="cn-branch:${b}" tabindex="0">
+      <span class="pc-ch" style="color:${EL_COLOR[el]}">${ch}</span>
+      <span class="pc-py">${py} · ${animal}</span>
+      <span class="pc-el">${Z.ELEMENTS[el]}</span>
+      <span class="pc-hidden">${hidden.map((h) => `<span title="${Z.STEMS[h][1]} ${Z.ELEMENTS[Z.STEMS[h][2]]} · ${Z.tenGod(dm, h)[1]}" style="color:${EL_COLOR[Z.STEMS[h][2]]}">${Z.STEMS[h][0]}</span>`).join('')}</span>
+    </div>`;
+  }
+
+  function renderChinese(when, local, place) {
+    const p = Z.fourPillars(when, local);
+    const lun = Z.lunarDate(when);
+    const terms = Z.solarTerms(when);
+    const dm = p.day.stem;
+    cn = { p, lun, terms, dm, place };
+
+    // pillars, shown right to left: hour, day, month, year
+    const cols = [['Hour', '時', p.hour], ['Day', '日', p.day], ['Month', '月', p.month], ['Year', '年', p.year]];
+    $('pillars').innerHTML = cols.map(([label, zh, x]) => {
+      const god = label === 'Day' ? 'Day Master' : Z.tenGod(dm, x.stem)[1];
+      return `<div class="pcol${label === 'Day' ? ' pcol-dm' : ''}"><div class="pc-head">${label} <span class="zh">${zh}</span></div>${stemCell(x.stem, god)}${branchCell(x.branch, dm)}</div>`;
+    }).join('');
+
+    // five elements
+    const counts = Z.elementCount(p), max = Math.max(...counts, 1);
+    $('cnElements').innerHTML = Z.ELEMENTS.map((e, i) => `<div class="bar"><span>${e} <span class="zh">${Z.ELEMENT_ZH[i]}</span></span><span class="track"><span class="fill" style="display:block;width:${(counts[i] / max) * 100}%;background:${EL_COLOR[i]};color:${EL_COLOR[i]}"></span></span><span class="n">${counts[i]}</span></div>`).join('');
+    const [dch, dpy, del, dimg, dtext] = Z.STEMS[dm];
+    const missing = Z.ELEMENTS.filter((e, i) => !counts[i]);
+    $('cnDM').innerHTML = `<div class="cn-dm-head"><span class="pc-ch" style="color:${EL_COLOR[del]}">${dch}</span><div><b>Day Master: ${polarity(dm % 2 === 0)} ${Z.ELEMENTS[del]}</b> <span class="muted">(${dpy}, ${dimg})</span><p>${dtext}</p></div></div>`
+      + `<p class="cn-note">Counts the eight characters by their main element.${missing.length ? ` Missing: ${missing.join(', ')}.` : ''} If this moment is a birth time, the Day Master stands for the person.</p>`;
+
+    // calendar
+    const ly = Z.pillar(lun.year - 4);
+    const [ych, , yanimal] = Z.BRANCHES[ly.branch];
+    const yel = Z.ELEMENTS[Z.STEMS[ly.stem][2]];
+    const fmt = (d) => new Intl.DateTimeFormat('en-GB', { timeZone: place.tz, day: 'numeric', month: 'short', year: 'numeric' }).format(d);
+    const fmtCN = (d) => new Intl.DateTimeFormat('en-GB', { timeZone: 'Asia/Shanghai', day: 'numeric', month: 'short', year: 'numeric' }).format(d); // calendar dates are China dates
+    const fmtT = (d) => new Intl.DateTimeFormat('en-GB', { timeZone: place.tz, day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).format(d);
+    const nextNY = Z.chineseNewYear(lun.year + 1), nly = Z.pillar(lun.year - 3);
+    const cur = Z.TERMS[terms.current.i], nxt = Z.TERMS[terms.next.i];
+    const clash = (p.day.branch + 6) % 12;
+    const differs = ly.index !== p.year.index;
+    $('cnCal').innerHTML = `
+      <div class="cn-year">
+        <span class="cn-year-ch">${Z.STEMS[ly.stem][0]}${ych}</span>
+        <div><div class="cn-year-name">Year of the ${yel} ${yanimal}</div>
+        <div class="muted">${polarity(ly.stem % 2 === 0)} ${yel} · since Chinese New Year, ${fmtCN(lun.newYear)}</div></div>
+      </div>
+      ${row('Lunar date', `${lun.leap ? 'Leap ' : ''}${Z.LUNAR_MONTHS[lun.month]} month, day ${lun.day} <span class="muted">of ${lun.monthLength}</span>`)}
+      ${row('Solar term', `<span class="zh">${cur[0]}</span> ${cur[2]} <span class="muted">since ${terms.current.at ? fmt(terms.current.at) : '—'}</span>`)}
+      ${row('Next term', `<span class="zh">${nxt[0]}</span> ${nxt[2]} <span class="muted">${terms.next.at ? fmtT(terms.next.at) : '—'}</span>`)}
+      ${row('Day', `<span class="zh">${Z.STEMS[p.day.stem][0]}${Z.BRANCHES[p.day.branch][0]}</span> ${Z.BRANCHES[p.day.branch][2]} day · clashes with the ${Z.BRANCHES[clash][2]} <span class="zh">${Z.BRANCHES[clash][0]}</span>`)}
+      ${row('Next New Year', `${fmtCN(nextNY)} · ${Z.ELEMENTS[Z.STEMS[nly.stem][2]]} ${Z.BRANCHES[nly.branch][2]}`)}
+      ${differs ? `<p class="cn-note">Between Start of Spring and Chinese New Year the year pillar (${Z.STEMS[p.year.stem][0]}${Z.BRANCHES[p.year.branch][0]}) and the zodiac year differ. Four Pillars uses Start of Spring.</p>` : ''}`;
+
+    drawAnimalWheel(p);
+    // header for this view
+    $('title').textContent = `${Z.BRANCHES[p.day.branch][2]} Day · ${yel} ${yanimal} Year`;
+    $('big3').innerHTML = `<div><b>${Z.STEMS[dm][1]} ${Z.ELEMENTS[del]}</b> Day Master</div><div><b>${Z.LUNAR_MONTHS[lun.month]}</b> lunar month</div><div><b>${cur[2]}</b></div>`;
+  }
+
+  function drawAnimalWheel(p) {
+    const svg = $('cnWheel'); svg.innerHTML = '';
+    const c = 200, R0 = 196, R1 = 128, R2 = 74;
+    const ang = (b, off = 0) => (-90 + b * 30 + off) * Math.PI / 180; // Rat at the top, clockwise
+    const P = (b, r, off = 0) => [c + r * Math.cos(ang(b, off)), c + r * Math.sin(ang(b, off))];
+    el('circle', { cx: c, cy: c, r: R0, fill: 'var(--wheel-bg)', 'fill-opacity': 0.85, stroke: 'var(--gold)', 'stroke-width': 1.2 }, svg);
+    const marks = {};
+    [['Y', p.year], ['M', p.month], ['D', p.day], ['H', p.hour]].forEach(([k, x]) => { (marks[x.branch] = marks[x.branch] || []).push(k); });
+    for (let b = 0; b < 12; b++) {
+      const [ch, , animal, elx] = Z.BRANCHES[b];
+      const [x0, y0] = P(b, R0, -15), [x1, y1] = P(b, R0, 15), [x2, y2] = P(b, R2, 15), [x3, y3] = P(b, R2, -15);
+      const on = marks[b];
+      el('path', { d: `M${x0} ${y0} A${R0} ${R0} 0 0 1 ${x1} ${y1} L${x2} ${y2} A${R2} ${R2} 0 0 0 ${x3} ${y3}Z`, fill: EL_COLOR[elx], 'fill-opacity': on ? 0.26 : 0.08, stroke: 'var(--rule)', 'stroke-width': 1, 'data-tip': `cn-branch:${b}`, class: 'tipzone' }, svg);
+      const [tx, ty] = P(b, (R0 + R1) / 2 + 4);
+      el('text', { x: tx, y: ty, 'text-anchor': 'middle', 'dominant-baseline': 'central', 'font-size': 30, fill: EL_COLOR[elx], 'font-family': 'var(--f-zh)', 'data-tip': `cn-branch:${b}`, class: 'tipzone', tabindex: 0, 'aria-label': `${animal} details` }, svg, ch);
+      const [ax, ay] = P(b, R1 - 14);
+      el('text', { x: ax, y: ay, 'text-anchor': 'middle', 'dominant-baseline': 'central', 'font-size': 12.5, fill: on ? 'var(--ink)' : 'var(--muted)', 'font-family': 'var(--f-body)', 'pointer-events': 'none' }, svg, animal);
+      if (on) {
+        const [mx, my] = P(b, R2 + 16);
+        el('text', { x: mx, y: my, 'text-anchor': 'middle', 'dominant-baseline': 'central', 'font-size': 11, 'font-weight': 600, fill: 'var(--gold-bright)', 'font-family': 'var(--f-data)', 'pointer-events': 'none' }, svg, on.join(''));
+      }
+    }
+    el('circle', { cx: c, cy: c, r: R1, fill: 'none', stroke: 'var(--rule)' }, svg);
+    el('circle', { cx: c, cy: c, r: R2, fill: 'url(#cnCore)', stroke: 'var(--gold)' }, svg);
+    const defs = el('defs', {}, svg);
+    const grad = el('radialGradient', { id: 'cnCore' }, defs);
+    el('stop', { offset: '0%', style: 'stop-color:var(--nebula-1);stop-opacity:0.6' }, grad);
+    el('stop', { offset: '100%', style: 'stop-color:var(--wheel-core);stop-opacity:1' }, grad);
+    // day clash line
+    const [cx0, cy0] = P(p.day.branch, R2), [cx1, cy1] = P((p.day.branch + 6) % 12, R2);
+    el('line', { x1: cx0, y1: cy0, x2: cx1, y2: cy1, stroke: 'var(--fire)', 'stroke-width': 1.2, 'stroke-dasharray': '4 4', 'stroke-opacity': 0.8 }, svg);
+    const yb = Z.BRANCHES[p.year.branch];
+    el('text', { x: c, y: c - 10, 'text-anchor': 'middle', 'dominant-baseline': 'central', 'font-size': 34, fill: 'var(--gold-bright)', 'font-family': 'var(--f-zh)' }, svg, Z.STEMS[p.year.stem][0] + yb[0]);
+    el('text', { x: c, y: c + 22, 'text-anchor': 'middle', 'dominant-baseline': 'central', 'font-size': 12, fill: 'var(--muted)', 'font-family': 'var(--f-display)', 'letter-spacing': '0.12em' }, svg, yb[2].toUpperCase());
+    $('cnLegend').innerHTML = '<span><b>Y</b> year · <b>M</b> month · <b>D</b> day · <b>H</b> hour</span><span><i style="border-color:var(--fire);border-top-style:dashed"></i>day clash</span>';
+  }
+
+  function tipCnStem(s) {
+    const [ch, py, elx, img, text] = Z.STEMS[s];
+    let h = `<div class="th"><span class="zh" style="color:${EL_COLOR[elx]}">${ch}</span> ${py} · ${polarity(s % 2 === 0)} ${Z.ELEMENTS[elx]}</div>`;
+    h += `<div class="tplain">Heavenly stem, the image of ${img}. ${text}</div>`;
+    if (cn) {
+      const g2 = Z.tenGod(cn.dm, s);
+      h += row('To the Day Master', s === cn.dm ? 'Same stem as the Day Master' : `<span class="zh">${g2[0]}</span> ${g2[1]}`);
+    }
+    h += row('Element', `${Z.ELEMENTS[elx]} <span class="zh">${Z.ELEMENT_ZH[elx]}</span> · produces ${Z.ELEMENTS[(elx + 1) % 5]}, controls ${Z.ELEMENTS[(elx + 2) % 5]}`);
+    return h;
+  }
+  function tipCnBranch(b) {
+    const [ch, py, animal, elx, hours, traits, hidden] = Z.BRANCHES[b];
+    let h = `<div class="th"><span class="zh" style="color:${EL_COLOR[elx]}">${ch}</span> ${py} · ${animal}</div>`;
+    h += `<div class="tplain">${traits}</div>`;
+    h += row('Element', `${Z.ELEMENTS[elx]} <span class="zh">${Z.ELEMENT_ZH[elx]}</span>`);
+    h += row('Hours', hours);
+    h += row('Hidden stems', hidden.map((x) => `<span class="zh" style="color:${EL_COLOR[Z.STEMS[x][2]]}">${Z.STEMS[x][0]}</span> ${Z.STEMS[x][1]}`).join(', '));
+    h += row('Clashes with', `${Z.BRANCHES[(b + 6) % 12][2]} <span class="zh">${Z.BRANCHES[(b + 6) % 12][0]}</span>`);
+    const trine = [(b + 4) % 12, (b + 8) % 12].map((x) => Z.BRANCHES[x][2]).join(' and ');
+    h += row('Allies (trine)', trine);
+    if (cn) {
+      const roles = [['year', cn.p.year], ['month', cn.p.month], ['day', cn.p.day], ['hour', cn.p.hour]].filter(([, x]) => x.branch === b).map(([k]) => k);
+      if (roles.length) h += `<div class="muted tnote">This moment's ${roles.join(' and ')} branch.</div>`;
+    }
+    return h;
+  }
+
   // ---------- render ----------
 
   function render() {
@@ -753,6 +913,7 @@
     lastWhen = when;
     renderYear(place, when);
     drawWheel(chart, asps);
+    if (view === 'chinese') renderChinese(when, { y, m, d, hh, mm }, place);
 
     // today card
     drawMoon(phase);
@@ -836,6 +997,14 @@
       else done(false);
     });
     $('locate').addEventListener('click', locate);
+    $('tabWestern').addEventListener('click', () => setView('western', true));
+    $('tabChinese').addEventListener('click', () => setView('chinese', true));
+    document.querySelector('.tabs').addEventListener('keydown', (e) => {
+      if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+      e.preventDefault(); e.stopPropagation();
+      const next = view === 'western' ? 'chinese' : 'western';
+      setView(next, true); $(next === 'chinese' ? 'tabChinese' : 'tabWestern').focus();
+    });
     // redraw the wheel when crossing the phone/desktop width (e.g. rotating a phone)
     let wasCompact = isCompact(), rt = 0;
     window.addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(() => { if (isCompact() !== wasCompact) { wasCompact = isCompact(); render(); } }, 150); });

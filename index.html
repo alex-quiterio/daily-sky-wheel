@@ -15,6 +15,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600&family=EB+Garamond:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&family=Noto+Sans+Symbols:wght@400;600&family=Noto+Sans+Symbols+2&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@500;700&display=swap&text=%E4%B8%81%E4%B8%83%E4%B8%91%E4%B8%99%E4%B8%AD%E4%B9%99%E4%BA%8C%E4%BA%94%E4%BA%A5%E5%81%8F%E5%82%B7%E5%86%AC%E5%88%86%E5%8A%AB%E5%8D%81%E5%8D%88%E5%8D%AF%E5%8D%B0%E5%9B%9B%E5%9C%9F%E5%A3%AC%E5%A4%8F%E5%A4%A7%E5%AD%90%E5%AE%98%E5%AF%85%E5%AF%92%E5%B0%8F%E5%B7%B1%E5%B7%B3%E5%B9%B4%E5%BA%9A%E6%88%8A%E6%88%8C%E6%97%A5%E6%98%8E%E6%98%A5%E6%99%82%E6%9A%91%E6%9B%86%E6%9C%88%E6%9C%A8%E6%9C%AA%E6%9F%B1%E6%AD%A3%E6%AE%BA%E6%AF%94%E6%B0%B4%E6%B8%85%E6%BB%BF%E7%81%AB%E7%94%9F%E7%94%B2%E7%94%B3%E7%99%B8%E7%99%BD%E7%A5%9E%E7%A7%8B%E7%A8%AE%E7%A9%80%E7%AB%8B%E8%82%96%E8%82%A9%E8%87%B3%E8%8A%92%E8%99%95%E8%9F%84%E8%A1%8C%E8%B2%A1%E8%BE%9B%E8%BE%B0%E8%BE%B2%E9%85%89%E9%87%91%E9%99%8D%E9%9B%A8%E9%9B%AA%E9%9C%9C%E9%9C%B2%E9%A3%9F%E9%A9%9A">
 <link rel="stylesheet" href="src/styles.css?v=dev">
 </head>
 <body>
@@ -81,7 +82,12 @@
     <p class="urlnote" id="urlnote" role="status" hidden></p>
   </form>
 
-  <div class="main">
+  <div class="tabs" role="tablist" aria-label="Astrology system">
+    <button type="button" role="tab" id="tabWestern" aria-controls="viewWestern" aria-selected="true">Western</button>
+    <button type="button" role="tab" id="tabChinese" aria-controls="viewChinese" aria-selected="false" tabindex="-1">Chinese <span class="zh">中</span></button>
+  </div>
+
+  <div class="main" id="viewWestern" role="tabpanel" aria-labelledby="tabWestern">
     <div class="side">
     <div class="wheelbox">
       <div class="wheelbar">
@@ -140,6 +146,32 @@
     </div>
   </div>
 
+  <div class="main" id="viewChinese" role="tabpanel" aria-labelledby="tabChinese" hidden>
+    <div class="side">
+      <section class="card">
+        <h2>Four Pillars <span class="zh">四柱</span></h2>
+        <div class="pillars" id="pillars"></div>
+        <p class="cn-note">Read right to left: year, month, day, hour. The year pillar turns at Start of Spring (立春), the month pillar at each solar term, and the day at local midnight.</p>
+      </section>
+      <section class="card">
+        <h2>Five Elements <span class="zh">五行</span></h2>
+        <div class="bars" id="cnElements"></div>
+        <div id="cnDM" class="cn-dm"></div>
+      </section>
+    </div>
+    <div class="side">
+      <section class="card">
+        <h2>Calendar <span class="zh">農曆</span></h2>
+        <div id="cnCal"></div>
+      </section>
+      <section class="card">
+        <h2>Animal wheel <span class="zh">十二生肖</span></h2>
+        <svg id="cnWheel" viewBox="-10 -10 420 420" role="img" aria-label="The twelve animals with this moment's year, month, day and hour"></svg>
+        <div class="legend" id="cnLegend"></div>
+      </section>
+    </div>
+  </div>
+
   <footer class="method">
     <h2>Method</h2>
     <dl>
@@ -147,6 +179,7 @@
       <div><dt>Planets</dt><dd>Astronomy Engine, accurate to under 1′.</dd></div>
       <div><dt>Chiron &amp; asteroids <span class="approx-mark">≈</span></dt><dd>Fixed orbital elements tuned to a reference chart (9 Nov 2026). Within a few arcminutes for 2024–2029, less accurate outside that.</dd></div>
       <div><dt>Houses</dt><dd>Placidus falls back to Equal above 66° latitude.</dd></div>
+      <div><dt>Chinese</dt><dd>Lunar months and New Year follow China Standard Time. The month pillar turns at each solar term and the day pillar at local midnight, with no true-solar-time correction.</dd></div>
       <div><dt>Times</dt><dd>Shown in the selected place's local time.</dd></div>
     </dl>
   </footer>
@@ -156,6 +189,7 @@
 <script src="src/stars.js?v=dev"></script>
 <script src="src/core.js?v=dev"></script>
 <script src="src/events.js?v=dev"></script>
+<script src="src/chinese.js?v=dev"></script>
 <script src="src/app.js?v=dev"></script>
 </body>
 </html>

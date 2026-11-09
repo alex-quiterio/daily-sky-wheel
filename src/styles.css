@@ -26,6 +26,11 @@
   --f-display: "Cinzel", "Trajan Pro", Georgia, serif;
   --f-body: "EB Garamond", Garamond, Georgia, serif;
   --f-data: "IBM Plex Mono", ui-monospace, monospace;
+  --f-zh: "Noto Serif SC", "Songti SC", "STSong", "SimSun", serif;
+  --wood: #84dba8;
+  --earth-el: #e0a868;
+  --metal: #dde2f0;
+  --water-el: #8db3ff;
   --f-glyph: "Noto Sans Symbols", "Noto Sans Symbols 2", "Segoe UI Symbol", "Apple Symbols", sans-serif;
   color-scheme: dark;
 }
@@ -335,4 +340,48 @@ button.primary { background: linear-gradient(180deg, rgba(216, 180, 106, 0.3), r
   .yearlist { max-height: none; }
   .yitem { grid-template-columns: 48px 46px minmax(0, 1fr); }
   .yin { display: none; }
+}
+
+/* tabs */
+.tabs { display: flex; gap: 4px; padding: 4px; border-radius: 99px; border: 1px solid var(--rule); background: var(--sheet); width: fit-content; justify-self: center; -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); }
+.tabs button { min-height: 0; border: 0; border-radius: 99px; padding: 6px 22px; font-family: var(--f-display); font-size: 13px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); background: transparent; }
+.tabs button:hover { color: var(--ink); box-shadow: none; }
+.tabs button[aria-selected="true"] { color: var(--gold-bright); background: linear-gradient(180deg, rgba(216, 180, 106, 0.26), rgba(216, 180, 106, 0.1)); box-shadow: 0 0 0 1px var(--gold) inset, 0 0 16px -6px var(--gold); }
+.zh { font-family: var(--f-zh); letter-spacing: 0; text-transform: none; }
+section.card h2 .zh { font-size: 15px; color: var(--muted); font-weight: 500; }
+
+/* Chinese view */
+.pillars { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+.pcol { display: grid; gap: 6px; text-align: center; padding: 8px 4px; border-radius: 12px; border: 1px solid var(--rule); background: rgba(255, 255, 255, 0.02); min-width: 0; }
+.pcol-dm { border-color: var(--gold); box-shadow: 0 0 20px -10px var(--gold); background: rgba(216, 180, 106, 0.06); }
+.pc-head { font-family: var(--f-display); font-size: 11px; letter-spacing: .18em; text-transform: uppercase; color: var(--gold); }
+.pc-stem, .pc-branch { display: grid; gap: 1px; justify-items: center; padding: 4px 2px; border-radius: 8px; }
+.pc-stem { border-bottom: 1px dashed var(--rule); padding-bottom: 8px; }
+.pc-stem:hover, .pc-branch:hover { background: rgba(216, 180, 106, 0.07); }
+.pc-god { font-size: 12px; color: var(--muted); font-style: italic; min-height: 1.3em; }
+.pcol-dm .pc-god { color: var(--gold-bright); font-style: normal; font-weight: 600; }
+.pc-ch { font-family: var(--f-zh); font-size: clamp(34px, 4.4vw, 46px); line-height: 1.1; font-weight: 500; text-shadow: 0 0 18px currentColor; }
+.pc-py { font-size: 14px; }
+.pc-el { font-size: 12.5px; color: var(--muted); }
+.pc-hidden { display: flex; gap: 4px; justify-content: center; font-family: var(--f-zh); font-size: 15px; margin-top: 2px; }
+.cn-note { color: var(--muted); font-size: 13.5px; font-style: italic; margin: 10px 0 0; }
+.cn-dm { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--rule); }
+.cn-dm-head { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 14px; align-items: center; }
+.cn-dm-head p { margin: 2px 0 0; }
+.cn-dm .pc-ch { font-size: 52px; }
+.cn-year { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 14px; align-items: center; margin-bottom: 10px; padding-bottom: 12px; border-bottom: 1px solid var(--rule); }
+.cn-year-ch { font-family: var(--f-zh); font-size: 44px; line-height: 1; color: var(--gold-bright); text-shadow: 0 0 22px rgba(244, 220, 156, 0.4); }
+.cn-year-name { font-family: var(--f-display); font-size: 18px; letter-spacing: .04em; }
+#cnCal .tr { display: flex; justify-content: space-between; gap: 16px; padding: 5px 0; border-top: 1px solid var(--rule); }
+#cnCal .tr > span:first-child { color: var(--muted); flex: none; }
+#cnCal .tr > span:last-child { text-align: right; }
+#cnCal .muted { color: var(--muted); }
+#cnWheel { display: block; width: 100%; max-width: 440px; height: auto; margin: 0 auto; }
+#cnLegend b { color: var(--gold-bright); font-family: var(--f-data); }
+@media (max-width: 599px) {
+  .pillars { gap: 5px; }
+  .pcol { padding: 6px 2px; }
+  .pc-py { font-size: 12.5px; }
+  .pc-el, .pc-god { font-size: 11px; }
+  .tabs button { padding: 6px 16px; }
 }

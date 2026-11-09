@@ -73,3 +73,29 @@ test('year ahead: eclipses, stations, ingresses and outer aspects', () => {
   assert.ok(ev.some((e) => e.title === 'Jupiter trine Saturn'), 'Jupiter trine Saturn in 2027');
   assert.ok(ev.every((e, i) => i === 0 || e.t >= ev[i - 1].t), 'sorted by time');
 });
+
+require('../src/chinese.js');
+const Z = globalThis.Chinese;
+const cstISO = (d) => new Date(d.getTime() + 8 * 3600000).toISOString().slice(0, 10);
+const sb = (p) => Z.STEMS[p.stem][0] + Z.BRANCHES[p.branch][0];
+
+test('Chinese New Year dates', () => {
+  const want = { 2020: '2020-01-25', 2021: '2021-02-12', 2022: '2022-02-01', 2023: '2023-01-22', 2024: '2024-02-10', 2025: '2025-01-29', 2026: '2026-02-17', 2027: '2027-02-06', 2028: '2028-01-26', 2033: '2033-01-31', 2034: '2034-02-19' };
+  for (const [y, d] of Object.entries(want)) assert.strictEqual(cstISO(Z.chineseNewYear(+y)), d, `CNY ${y}`);
+});
+
+test('Chinese leap months', () => {
+  const l1 = Z.lunarDate(new Date('2023-03-22T06:00:00Z'));
+  assert.deepStrictEqual([l1.month, l1.leap, l1.day], [2, true, 1]);
+  const l2 = Z.lunarDate(new Date('2025-07-25T06:00:00Z'));
+  assert.deepStrictEqual([l2.month, l2.leap, l2.day], [6, true, 1]);
+  const l3 = Z.lunarDate(new Date('2020-05-23T06:00:00Z'));
+  assert.deepStrictEqual([l3.month, l3.leap, l3.day], [4, true, 1]);
+});
+
+test('Four Pillars', () => {
+  const a = Z.fourPillars(new Date(Date.UTC(2000, 0, 1, 4)), { y: 2000, m: 1, d: 1, hh: 12, mm: 0 });
+  assert.deepStrictEqual([sb(a.year), sb(a.month), sb(a.day), sb(a.hour)], ['己卯', '丙子', '戊午', '戊午']);
+  const b = Z.fourPillars(when, { y: 2026, m: 11, d: 9, hh: 2, mm: 2 });
+  assert.deepStrictEqual([sb(b.year), sb(b.month), sb(b.day), sb(b.hour)], ['丙午', '己亥', '丁亥', '辛丑']);
+});
