@@ -1,5 +1,6 @@
 // Chinese tab: everything worked out for one moment, as plain data. No markup here.
-import { Chinese, ChineseReading } from '#astro';
+import * as Chinese from '#astro/chinese.ts';
+import * as ChineseReading from '#astro/chinese-reading.ts';
 import type { Moment } from '#lib/types.ts';
 import type { Model } from '#views/chinese/types.ts';
 

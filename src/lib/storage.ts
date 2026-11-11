@@ -5,6 +5,7 @@ export interface Saved {
   geo?: boolean; // the custom place came from the device's location
   place?: string;
   hsys?: string;
+  lilith?: string; // 'mean' or 'true'
   lat?: string;
   lon?: string;
   tz?: string;

@@ -1,6 +1,7 @@
 // Kabbalah tab: everything worked out for one moment, as plain data. No markup here.
 import * as Astronomy from 'astronomy-engine';
-import { Hebrew, KabbalahReading } from '#astro';
+import * as Hebrew from '#astro/hebrew.ts';
+import * as KabbalahReading from '#astro/kabbalah-reading.ts';
 import { localToUTC } from '#lib/time.ts';
 import type { Moment, Place } from '#lib/types.ts';
 import type { Model } from '#views/kabbalah/types.ts';

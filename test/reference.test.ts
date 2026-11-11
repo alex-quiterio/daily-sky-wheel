@@ -58,6 +58,113 @@ for (const [name, [d, m, s, retro]] of Object.entries(REF)) {
   });
 }
 
+// ---------- a second reference chart: 20 Jul 1975 14:45 UTC, Buenos Aires ----------
+// Fifty years from the first, in the southern hemisphere. Planets, node, Lilith and houses from the Swiss
+// Ephemeris (Moshier); Chiron and the asteroids from JPL Horizons (apparent, ecliptic of date).
+const when1975 = new Date(Date.UTC(1975, 6, 20, 14, 45));
+const chart1975 = C.chart(when1975, -34.6037, -58.3816, 'placidus');
+const by1975 = Object.fromEntries(chart1975.pts.map((p) => [p.name, p]));
+const REF1975: Record<string, [lon: number, retro: boolean, tolerance: number]> = {
+  Sun: [117.2719, false, 0.02],
+  Moon: [266.7858, false, 0.02],
+  Mercury: [104.1755, false, 0.02],
+  Venus: [157.0613, false, 0.02],
+  Mars: [43.5562, false, 0.02],
+  Jupiter: [23.6792, false, 0.02],
+  Saturn: [113.1511, false, 0.02],
+  Uranus: [208.4371, false, 0.02],
+  Neptune: [249.2855, true, 0.02],
+  Pluto: [186.7874, false, 0.02],
+  Node: [239.5057, true, 0.1], // true node, from the main periodic terms
+  Lilith: [348.5009, false, 0.15], // mean Lilith: Meeus, against the Swiss Ephemeris' corrected mean apogee
+  Chiron: [28.0999622, false, 0.02],
+  Ceres: [58.5030699, false, 0.02],
+  Pallas: [6.3949508, false, 0.02],
+  Juno: [103.8499067, false, 0.02],
+  Vesta: [1.9060653, false, 0.02],
+};
+for (const [name, [lon, retro, tol]] of Object.entries(REF1975)) {
+  test(`1975 chart: ${name}`, () => {
+    assert.ok(diff(by1975[name].lon, lon) < tol, `${name}: ${by1975[name].lon.toFixed(4)} vs ${lon}`);
+    if (!['Sun', 'Moon'].includes(name)) assert.strictEqual(by1975[name].retro, retro, `${name} retrograde`);
+  });
+}
+
+test('1975 chart: angles and Placidus cusps in the southern hemisphere', () => {
+  assert.ok(diff(chart1975.asc, 196.3868) < 0.01, `Asc ${chart1975.asc}`);
+  assert.ok(diff(chart1975.mc, 99.7698) < 0.01, `MC ${chart1975.mc}`);
+  assert.ok(diff(chart1975.vertex, 7.1124) < 0.01, `Vertex ${chart1975.vertex}`);
+  const want = [196.3868, 231.7991, 257.3565, 279.7698, 303.6462, 334.075];
+  want.forEach((w, i) => assert.ok(diff(chart1975.cusps[i], w) < 0.01, `cusp ${i + 1}: ${chart1975.cusps[i]}`));
+  // the opposite cusps
+  want.forEach((w, i) => assert.ok(diff(chart1975.cusps[i + 6], w + 180) < 0.01, `cusp ${i + 7}`));
+});
+
+test('true Lilith: the osculating apogee, against the Swiss Ephemeris from 1900 to 2099', () => {
+  const ref: [y: number, m: number, d: number, lon: number][] = [
+    [1900, 1, 1, 135.9653],
+    [1939, 11, 3, 356.9763],
+    [1979, 9, 4, 163.0133],
+    [2019, 7, 6, 313.9779],
+    [2059, 5, 7, 181.3661],
+    [2099, 3, 8, 339.6195],
+  ];
+  for (const [y, m, d, lon] of ref) {
+    const t = new Date(Date.UTC(y, m - 1, d, 8, 52, 48));
+    assert.ok(diff(C.lonOf('TrueLilith', t), lon) < 0.2, `${y}-${m}-${d}: ${C.lonOf('TrueLilith', t)} vs ${lon}`);
+  }
+  // the chart shows it under the name Lilith when asked for, and says which
+  const c = C.chart(when1975, -34.6037, -58.3816, 'placidus', 'true');
+  const lilith = c.pts.find((p) => p.name === 'Lilith')!;
+  assert.strictEqual(c.lilith, 'true');
+  assert.ok(diff(lilith.lon, 340.4542) < 0.2, `true Lilith 1975: ${lilith.lon}`);
+});
+
+test('Chiron and the asteroids, against JPL Horizons from 1901 to 2099', () => {
+  const ref: Record<string, [date: string, lon: number][]> = {
+    Chiron: [
+      ['1901-01-08', 269.4721237],
+      ['1950-01-19', 257.7166316],
+      ['2042-01-12', 122.0818395],
+      ['2099-01-24', 230.2136907],
+    ],
+    Ceres: [
+      ['1901-01-08', 325.9203463],
+      ['1950-01-19', 241.473922],
+      ['2042-01-12', 234.1016368],
+      ['2099-01-24', 336.3059827],
+    ],
+    Pallas: [
+      ['1901-01-08', 307.5566932],
+      ['1950-01-19', 221.6981236],
+      ['2042-01-12', 199.9428106],
+      ['2099-01-24', 299.8677321],
+    ],
+    Juno: [
+      ['1901-01-08', 11.8456065],
+      ['1950-01-19', 184.2913481],
+      ['2042-01-12', 210.9875028],
+      ['2099-01-24', 228.9220789],
+    ],
+    Vesta: [
+      ['1901-01-08', 138.375346],
+      ['1950-01-19', 319.7209133],
+      ['2042-01-12', 67.0581206],
+      ['2099-01-24', 338.1802591],
+    ],
+  };
+  for (const [name, rows] of Object.entries(ref))
+    for (const [date, lon] of rows) {
+      const got = C.lonOf(name, new Date(`${date}T00:00:00Z`));
+      assert.ok(
+        diff(got, lon) < 1.5 / 60,
+        `${name} ${date}: ${got.toFixed(4)} vs ${lon} (${(diff(got, lon) * 60).toFixed(2)}′)`,
+      );
+    }
+  assert.ok(C.orbitsCover(new Date(Date.UTC(1950, 0, 1))));
+  assert.ok(!C.orbitsCover(new Date(Date.UTC(1850, 0, 1))), 'before the table, positions are marked approximate');
+});
+
 test('angles', () => {
   assert.ok(diff(chart.asc, pos(22, 3, 'Vir')) < 0.05);
   assert.ok(diff(chart.mc, pos(20, 47, 'Gem')) < 0.05);

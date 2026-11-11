@@ -1,5 +1,6 @@
 // Maya tab: the Tzolk'in day, the Long Count, the Haab' and the calendar gears.
-import { Maya, Glossary } from '#astro';
+import * as Maya from '#astro/maya.ts';
+import * as Glossary from '#astro/glossary.ts';
 import { defineView } from '#lib/state.ts';
 import { subtitleOf } from '#lib/time.ts';
 import type { HeaderInfo, Moment, ViewProps } from '#lib/types.ts';

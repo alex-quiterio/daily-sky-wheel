@@ -1,5 +1,5 @@
 // Vedic tab: SVG drawing.
-import { Vedic } from '#astro';
+import * as Vedic from '#astro/vedic.ts';
 import { el } from '#lib/dom.ts';
 import { vdLast } from '#views/vedic/model.ts';
 

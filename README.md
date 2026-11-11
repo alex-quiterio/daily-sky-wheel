@@ -103,7 +103,7 @@ npm run dev          # rebuilds on every save → http://localhost:8000
 
 ## ☿ Proven against a real chart
 
-The calculations are checked against a reference chart cast in desktop astrology software: the **Scorpio New Moon of 9 November 2026, 2:02 AM EST, New York**.
+The calculations are checked against two reference charts. The first was cast in desktop astrology software: the **Scorpio New Moon of 9 November 2026, 2:02 AM EST, New York**. The second is fifty years earlier and in the southern hemisphere, **20 July 1975, 11:45 AM, Buenos Aires**, with the planets, node, Lilith and houses from the Swiss Ephemeris and Chiron and the asteroids from JPL Horizons. Chiron, the asteroids and true Lilith are also checked at dates spread from 1900 to 2099.
 
 ```sh
 npm install && npm test
@@ -208,7 +208,8 @@ Ideas for where the project could go next, in depth, code quality and usability,
 |---|---|---|
 | Sun to Pluto | Astronomy Engine (VSOP87, ELP) | < 1′ |
 | True Node, mean Lilith | Meeus' series | a few arcminutes |
-| Chiron, Ceres, Pallas, Juno, Vesta ≈ | Keplerian elements tuned to the reference chart | a few arcminutes over 2024–2029, drifting outside that |
+| True Lilith | the osculating lunar apogee, from the Moon's position and velocity | within 10′ of the Swiss Ephemeris |
+| Chiron, Ceres, Pallas, Juno, Vesta | two-body orbits from JPL Horizons elements, a row every 1–2 years (`astro/orbits.ts`, made by `scripts/fetch-orbits.mjs`) | within 1.5′ from 1900 to 2100; marked ≈ outside those years |
 
 Placidus falls back to Equal houses above 66° latitude. There's no city search, because the page makes no network calls. A place outside the preset list goes in as custom latitude, longitude and time zone.
 

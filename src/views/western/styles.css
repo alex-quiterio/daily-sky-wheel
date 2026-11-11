@@ -426,3 +426,8 @@ table.eph .hcell:focus-visible {
   background: radial-gradient(circle at 35% 35%, #c9744f, #6b2a22 70%);
   box-shadow: 0 0 8px rgba(255, 138, 120, 0.5);
 }
+
+/* the choice of mean or true Lilith, under the positions */
+.lilith-pick {
+  margin-top: 10px;
+}

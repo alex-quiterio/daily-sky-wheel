@@ -94,7 +94,9 @@ export default tseslint.config(
   {
     // the build script runs in Node
     files: ['scripts/**'],
-    languageOptions: { globals: { process: 'readonly', console: 'readonly' } },
+    languageOptions: {
+      globals: { process: 'readonly', console: 'readonly', fetch: 'readonly', URLSearchParams: 'readonly' },
+    },
   },
   {
     // the service worker runs in its own global scope

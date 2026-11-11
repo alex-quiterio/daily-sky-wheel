@@ -7,19 +7,17 @@ export function MethodNotes() {
       <dl>
         <div>
           <dt>Zodiac</dt>
-          <dd>Tropical, geocentric. True node, mean Lilith.</dd>
+          <dd>Tropical, geocentric. True node; mean or true (osculating) Lilith, as chosen under Positions.</dd>
         </div>
         <div>
           <dt>Planets</dt>
           <dd>Astronomy Engine, accurate to under 1′.</dd>
         </div>
         <div>
-          <dt>
-            Chiron &amp; asteroids <span class="approx-mark">≈</span>
-          </dt>
+          <dt>Chiron &amp; asteroids</dt>
           <dd>
-            Fixed orbital elements tuned to a reference chart (9 Nov 2026). Within a few arcminutes for 2024–2029, less
-            accurate outside that.
+            Orbits from JPL Horizons, a set of elements every one or two years from 1900 to 2100: within about 1′.
+            Outside those years they are marked <span class="approx-mark">≈</span> and drift further.
           </dd>
         </div>
         <div>

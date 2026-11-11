@@ -1,5 +1,6 @@
 // Islamic tab: everything worked out for one moment, as plain data. No markup here.
-import { Islamic, IslamicReading } from '#astro';
+import * as Islamic from '#astro/islamic.ts';
+import * as IslamicReading from '#astro/islamic-reading.ts';
 import { render } from '#lib/state.ts';
 import { localToUTC } from '#lib/time.ts';
 import type { Moment } from '#lib/types.ts';

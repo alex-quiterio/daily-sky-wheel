@@ -1,5 +1,6 @@
 // Kabbalah tab: the Hebrew date, Shabbat times, the month in Sefer Yetzirah and the Tree of Life.
-import { Hebrew, Glossary } from '#astro';
+import * as Hebrew from '#astro/hebrew.ts';
+import * as Glossary from '#astro/glossary.ts';
 import { defineView } from '#lib/state.ts';
 import { dateFormat, localParts, subtitleOf } from '#lib/time.ts';
 import type { HeaderInfo, Moment, ViewProps } from '#lib/types.ts';

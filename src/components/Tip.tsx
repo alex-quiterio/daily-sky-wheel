@@ -1,7 +1,7 @@
 // The pieces tooltips are made of: a heading, a line of plain text, label-value rows and sub-headings.
 // The tabs build their tooltips from these (see views/<tab>/tips.tsx).
 import type { ComponentChildren } from 'preact';
-import { Western } from '#astro';
+import * as Western from '#astro/western.ts';
 import { dms, g, label, norm, sg } from '#lib/format.ts';
 
 export const TipHead = ({ children }: { children: ComponentChildren }) => <div class="th">{children}</div>;

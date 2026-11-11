@@ -2,7 +2,8 @@
 // Each tab's code and styles load the first time the tab is opened.
 import { render as mount } from 'preact';
 import { useEffect, useMemo, useState } from 'preact/hooks';
-import { Core, Western } from '#astro';
+import * as Core from '#astro/core.ts';
+import * as Western from '#astro/western.ts';
 import { VIEWS } from '#lib/constants.ts';
 import { onMoment, onRender, publish, state as st, views } from '#lib/state.ts';
 import { useStore } from '#lib/store.ts';
@@ -73,7 +74,7 @@ function cast() {
   const [y, m, d] = s.date.split('-').map(Number);
   const [hh, mm] = (s.time || '12:00').split(':').map(Number);
   const when = localToUTC(y, m, d, hh, mm, place.tz);
-  const chart = Core.chart(when, place.lat, place.lon, s.hsys);
+  const chart = Core.chart(when, place.lat, place.lon, s.hsys, s.lilith);
   const asps = Western.aspects(chart.pts);
   const byName = Object.fromEntries(chart.pts.map((p) => [p.name, p]));
   st.ctx = { chart, asps, byName, place, houseOf: (lon) => Core.houseOf(chart.cusps, lon) };

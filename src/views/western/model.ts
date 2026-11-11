@@ -1,6 +1,7 @@
 // Western tab: everything worked out for one moment, as plain data. No markup here.
 import * as Astronomy from 'astronomy-engine';
-import { Western, WesternReading } from '#astro';
+import * as Western from '#astro/western.ts';
+import * as WesternReading from '#astro/western-reading.ts';
 import type { DayEvent } from '#astro';
 import { state as st } from '#lib/state.ts';
 import { localToUTC } from '#lib/time.ts';

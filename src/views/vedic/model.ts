@@ -1,5 +1,6 @@
 // Vedic tab: everything worked out for one moment, as plain data. No markup here.
-import { Vedic, VedicReading } from '#astro';
+import * as Vedic from '#astro/vedic.ts';
+import * as VedicReading from '#astro/vedic-reading.ts';
 import { pad } from '#lib/format.ts';
 import { localToUTC } from '#lib/time.ts';
 import type { Moment } from '#lib/types.ts';

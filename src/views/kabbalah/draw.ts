@@ -1,5 +1,5 @@
 // Kabbalah tab: SVG drawing.
-import { Hebrew } from '#astro';
+import * as Hebrew from '#astro/hebrew.ts';
 import { el } from '#lib/dom.ts';
 import { TREE_PATHS, TREE_POS } from '#views/kabbalah/constants.ts';
 

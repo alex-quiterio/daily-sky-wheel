@@ -1,6 +1,8 @@
 // Islamic tab: the Hijri date, prayer times, the Qibla, dates ahead and the Moon.
 import { useEffect, useState } from 'preact/hooks';
-import { Western, Islamic, Glossary } from '#astro';
+import * as Western from '#astro/western.ts';
+import * as Islamic from '#astro/islamic.ts';
+import * as Glossary from '#astro/glossary.ts';
 import { defineView } from '#lib/state.ts';
 import { dateFormat, localParts, subtitleOf } from '#lib/time.ts';
 import type { HeaderInfo, Moment, ViewProps } from '#lib/types.ts';

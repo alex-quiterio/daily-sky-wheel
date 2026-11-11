@@ -1,5 +1,5 @@
 // Maya tab: what its tooltips say.
-import { Maya } from '#astro';
+import * as Maya from '#astro/maya.ts';
 import { tips } from '#lib/state.ts';
 import { TipHead, TipRow, TipText } from '#components/Tip.tsx';
 

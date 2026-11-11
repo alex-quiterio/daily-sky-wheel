@@ -3,7 +3,7 @@
 // Above the sections: Open all, Close all, and Explain terms, which adds a plain sentence under each term
 // the first time it comes up in a section.
 import { useState } from 'preact/hooks';
-import { Glossary } from '#astro';
+import * as Glossary from '#astro/glossary.ts';
 import type { GlossaryEntry, ReadingItem } from '#astro';
 import type { ReadingCardProps } from '#lib/types.ts';
 import { Card } from '#components/Card.tsx';

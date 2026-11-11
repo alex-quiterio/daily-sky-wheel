@@ -1,5 +1,5 @@
 // Western tab: the chart wheel and the Moon picture, drawn as SVG.
-import { Western } from '#astro';
+import * as Western from '#astro/western.ts';
 import type { Aspect, Chart, MoonPhase } from '#astro';
 import { ASPECT_COLOR, EL_VAR, GLYPH, LABEL } from '#lib/constants.ts';
 import { el, isCompact } from '#lib/dom.ts';

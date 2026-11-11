@@ -1,7 +1,8 @@
 // The slow calculations, written as jobs so they can run off the main thread.
 // A job takes and returns plain data (numbers, strings, Dates), because that is all that crosses to a worker.
 // Nothing here may touch the DOM: this file is bundled into the worker as well as the page.
-import { Vedic, Western } from '#astro';
+import * as Vedic from '#astro/vedic.ts';
+import * as Western from '#astro/western.ts';
 
 export const JOBS = {
   // a year of eclipses, stations, ingresses and outer-planet aspects from `start`

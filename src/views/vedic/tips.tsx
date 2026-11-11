@@ -1,5 +1,5 @@
 // Vedic tab: what its tooltips say.
-import { Vedic } from '#astro';
+import * as Vedic from '#astro/vedic.ts';
 import { pad } from '#lib/format.ts';
 import { tips } from '#lib/state.ts';
 import { TipHead, TipRow, TipText } from '#components/Tip.tsx';

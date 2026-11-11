@@ -2,7 +2,9 @@
 import * as Astronomy from 'astronomy-engine';
 import { background } from '#lib/background.ts';
 import { useEffect, useMemo, useState } from 'preact/hooks';
-import { Western, Glossary } from '#astro';
+import * as Core from '#astro/core.ts';
+import * as Western from '#astro/western.ts';
+import * as Glossary from '#astro/glossary.ts';
 import type { Pattern, YearEvent } from '#astro';
 import { APPROX, ASPECT_COLOR, ASPECT_GLYPH, EL_VAR, LABEL, VS } from '#lib/constants.ts';
 import { isCompact } from '#lib/dom.ts';
@@ -16,7 +18,7 @@ import { Chips } from '#components/Chips.tsx';
 import { Drawing } from '#components/Drawing.tsx';
 import { ReadingCard } from '#components/ReadingCard.tsx';
 import { useStored } from '#components/useStored.ts';
-import { goTo, jumpTo, setHouses, shiftDay, shareURL } from '#shell/controls.ts';
+import { goTo, jumpTo, setHouses, setLilith, shiftDay, shareURL } from '#shell/controls.ts';
 import { SYSTEMS, YEAR_CATS } from '#views/western/constants.ts';
 import { drawMoon, drawWheel } from '#views/western/draw.ts';
 import { build } from '#views/western/model.ts';
@@ -106,6 +108,8 @@ function Positions({ moment }: { moment: Moment }) {
     { name: 'Vertex', lon: chart.vertex },
   ];
   const ANGLE: Record<string, string> = { Asc: 'angle:AC', MC: 'angle:MC', Vertex: 'angle:Vx' };
+  // Chiron and the asteroids are approximate only outside the table of orbits (1900-2100)
+  const approx = !Core.orbitsCover(chart.date);
   return (
     <Card title="Positions" id="positionsCard">
       <table class="eph" id="eph">
@@ -116,7 +120,7 @@ function Positions({ moment }: { moment: Moment }) {
             <tr
               data-tip={ANGLE[p.name] || `planet:${p.name}`}
               tabindex={0}
-              class={`tipzone${APPROX.includes(p.name) ? ' approx' : ''}`}
+              class={`tipzone${approx && APPROX.includes(p.name) ? ' approx' : ''}`}
             >
               <td class="g" style={isAngle ? 'font-family:var(--f-data);font-size:11px;font-weight:600' : ''}>
                 {g(p.name)}
@@ -139,6 +143,25 @@ function Positions({ moment }: { moment: Moment }) {
           );
         })}
       </table>
+      <div class="seg lilith-pick" role="radiogroup" aria-label="Black Moon Lilith">
+        {(
+          [
+            ['mean', 'Mean Lilith'],
+            ['true', 'True Lilith'],
+          ] as const
+        ).map(([value, label]) => (
+          <label>
+            <input
+              type="radio"
+              name="lilithPick"
+              value={value}
+              checked={chart.lilith === value}
+              onChange={() => setLilith(value)}
+            />
+            <span>{label}</span>
+          </label>
+        ))}
+      </div>
     </Card>
   );
 }

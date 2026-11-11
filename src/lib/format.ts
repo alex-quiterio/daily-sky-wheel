@@ -1,5 +1,5 @@
 // Positions, glyphs and labels as text.
-import { Core } from '#astro';
+import * as Core from '#astro/core.ts';
 import { GLYPH, LABEL, SIGN_ABBR, SIGN_GLYPH, VS } from '#lib/constants.ts';
 
 export const norm = Core.norm;

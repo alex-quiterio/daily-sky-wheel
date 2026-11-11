@@ -1,5 +1,6 @@
 // Chinese tab: Four Pillars, the Five Elements, the lunar calendar and the animal wheel.
-import { Chinese, Glossary } from '#astro';
+import * as Chinese from '#astro/chinese.ts';
+import * as Glossary from '#astro/glossary.ts';
 import { defineView } from '#lib/state.ts';
 import type { HeaderInfo, Moment, ViewProps } from '#lib/types.ts';
 import { dateFormat, subtitleOf } from '#lib/time.ts';

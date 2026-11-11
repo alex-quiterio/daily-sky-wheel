@@ -1,5 +1,5 @@
 // Maya tab: SVG drawing.
-import { Maya } from '#astro';
+import * as Maya from '#astro/maya.ts';
 import { el, one } from '#lib/dom.ts';
 import { DIR_COLOR } from '#views/maya/constants.ts';
 import type { MayaDate } from '#views/maya/types.ts';

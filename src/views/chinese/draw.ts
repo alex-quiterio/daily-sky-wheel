@@ -1,5 +1,5 @@
 // Chinese tab: SVG drawing.
-import { Chinese } from '#astro';
+import * as Chinese from '#astro/chinese.ts';
 import { el } from '#lib/dom.ts';
 import { EL_COLOR } from '#views/chinese/constants.ts';
 

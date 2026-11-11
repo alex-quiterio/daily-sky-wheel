@@ -1,5 +1,5 @@
 // Chinese tab: what its tooltips say.
-import { Chinese } from '#astro';
+import * as Chinese from '#astro/chinese.ts';
 import { tips } from '#lib/state.ts';
 import { TipHead, TipNote, TipRow, TipText } from '#components/Tip.tsx';
 import { EL_COLOR } from '#views/chinese/constants.ts';

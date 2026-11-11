@@ -1,5 +1,5 @@
 // Kabbalah tab: what its tooltips say.
-import { Hebrew } from '#astro';
+import * as Hebrew from '#astro/hebrew.ts';
 import { tips } from '#lib/state.ts';
 import { TipHead, TipRow, TipText } from '#components/Tip.tsx';
 

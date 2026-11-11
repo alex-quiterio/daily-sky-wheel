@@ -1,5 +1,6 @@
 // Western tab: what the tooltips say about planets, signs, houses, angles and aspects.
-import { Western } from '#astro';
+import * as Core from '#astro/core.ts';
+import * as Western from '#astro/western.ts';
 import { APPROX, ASPECT_COLOR, ASPECT_GLYPH, EL_VAR, LABEL, VS } from '#lib/constants.ts';
 import { dm, fmtPos, g, norm, pad, sg } from '#lib/format.ts';
 import { tips, chartContext } from '#lib/state.ts';
@@ -35,7 +36,7 @@ function TipPlanet({ name }: { name: string }) {
     <>
       <TipHead>
         <PlanetName name={name} />
-        {APPROX.includes(name) && (
+        {APPROX.includes(name) && !Core.orbitsCover(chart.date) && (
           <>
             {' '}
             <span class="badge">≈ approx.</span>
@@ -86,7 +87,13 @@ function TipPlanet({ name }: { name: string }) {
           </span>
         </div>
       ))}
-      {name === 'Lilith' && <TipNote>Mean Black Moon Lilith (lunar apogee)</TipNote>}
+      {name === 'Lilith' && (
+        <TipNote>
+          {chart.lilith === 'true'
+            ? 'True Black Moon Lilith: the apogee of the Moon’s orbit at this instant (osculating)'
+            : 'Mean Black Moon Lilith: the average lunar apogee'}
+        </TipNote>
+      )}
       {name === 'Node' && <TipNote>True node</TipNote>}
     </>
   );

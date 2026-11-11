@@ -1,5 +1,6 @@
 // Vedic tab: the reading, the Panchang, muhurta times and the days ahead; the rashi chart, the grahas and the dasha.
-import { Vedic, Glossary } from '#astro';
+import * as Vedic from '#astro/vedic.ts';
+import * as Glossary from '#astro/glossary.ts';
 import { useEffect, useState } from 'preact/hooks';
 import { background } from '#lib/background.ts';
 import { defineView } from '#lib/state.ts';

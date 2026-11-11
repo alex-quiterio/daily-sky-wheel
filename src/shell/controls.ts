@@ -1,7 +1,7 @@
 // The moment and the place: one store holds what the controls show, and everything that changes it is here.
 // The form, the quick bar and the tabs read the store; the render loop in app.tsx casts the chart whenever
 // the moment, the place or the house system in it changes.
-import type { HouseSystem } from '#astro';
+import type { HouseSystem, LilithKind } from '#astro';
 import { HOUSE_ALIASES, PLACES, VIEWS } from '#lib/constants.ts';
 import { $, isCompact, flash, unflash } from '#lib/dom.ts';
 import { pad, slug } from '#lib/format.ts';
@@ -19,6 +19,7 @@ export interface ControlsState {
   lon: string;
   tz: string;
   hsys: HouseSystem;
+  lilith: LilithKind; // the mean or the true Black Moon Lilith
   view: string; // the open tab
   fromGeo: boolean; // the custom place came from the device's location
   urlSync: boolean; // true once the address bar should follow the controls
@@ -36,6 +37,7 @@ export const controls = createStore<ControlsState>({
   lon: '-9.14',
   tz: 'Europe/Lisbon',
   hsys: 'placidus',
+  lilith: 'mean',
   view: 'western',
   fromGeo: false,
   urlSync: false,
@@ -46,7 +48,7 @@ export const controls = createStore<ControlsState>({
 });
 
 // what the chart is cast from: when any of these change, the chart is cast again
-export const CHART_KEYS = ['date', 'time', 'place', 'lat', 'lon', 'tz', 'hsys'] as const;
+export const CHART_KEYS = ['date', 'time', 'place', 'lat', 'lon', 'tz', 'hsys', 'lilith'] as const;
 
 // every time zone the browser knows, for the Custom place
 export const ZONES: string[] = (() => {
@@ -120,6 +122,7 @@ export function initControls() {
     ...controls.get(),
     place: idx === -2 ? 'custom' : idx >= 0 ? String(idx) : '0',
     hsys: s.hsys && ['placidus', 'whole', 'equal', 'natural'].includes(s.hsys) ? (s.hsys as HouseSystem) : 'placidus',
+    lilith: s.lilith === 'true' ? 'true' : 'mean',
     lat: s.lat ?? '38.72',
     lon: s.lon ?? '-9.14',
     tz: s.tz || 'Europe/Lisbon',
@@ -170,6 +173,11 @@ function applyQuery(s: ControlsState): ControlsState {
   } else if (q.has('lat') || q.has('lon')) problems.push('lat and lon must both be numbers');
 
   if (q.get('view')) s.view = knownView(slug(q.get('view')));
+  const lq = q.get('lilith');
+  if (lq) {
+    if (lq === 'true' || lq === 'mean') s.lilith = lq;
+    else problems.push(`Lilith "${lq}" should be mean or true`);
+  }
   const h = q.get('houses') || q.get('hsys');
   if (h) {
     const v = HOUSE_ALIASES[slug(h)];
@@ -209,6 +217,7 @@ function linkOf(s: ControlsState) {
     q.set('tz', s.tz);
   } else q.set('place', slug(currentPlace(s).name));
   q.set('houses', s.hsys);
+  if (s.lilith === 'true') q.set('lilith', 'true');
   if (s.view !== 'western') q.set('view', s.view);
   return `${location.pathname}?${q.toString().replace(/%2F/g, '/').replace(/%3A/g, ':')}${location.hash}`;
 }
@@ -254,6 +263,7 @@ export function goTo(to: { date?: string; time?: string }) {
 }
 
 export const setHouses = (system: HouseSystem) => change({ hsys: system });
+export const setLilith = (kind: LilithKind) => change({ lilith: kind });
 
 export function setView(v: string) {
   controls.set({ view: knownView(v), urlSync: true });
@@ -417,11 +427,12 @@ export function startControls() {
   let urlPending = false;
   controls.subscribe((s, prev) => {
     if (s.view !== prev.view) theme(s.view);
-    if ((['place', 'lat', 'lon', 'tz', 'hsys', 'fromGeo'] as const).some((k) => s[k] !== prev[k]))
+    if ((['place', 'lat', 'lon', 'tz', 'hsys', 'lilith', 'fromGeo'] as const).some((k) => s[k] !== prev[k]))
       saved.set({
         geo: s.fromGeo,
         place: s.place === 'custom' ? 'custom' : slug(currentPlace(s).name),
         hsys: s.hsys,
+        lilith: s.lilith,
         lat: s.lat,
         lon: s.lon,
         tz: s.tz,

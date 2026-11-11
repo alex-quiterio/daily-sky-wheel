@@ -1,5 +1,6 @@
 // Chart calculations. Needs global `Astronomy` (astronomy-engine 2.1.19).
 import * as Astronomy from 'astronomy-engine';
+import { ORBITS } from './orbits.ts';
 
 // One body or calculated point on the ecliptic
 export interface Point {
@@ -12,12 +13,15 @@ export interface Point {
 }
 
 export type HouseSystem = 'placidus' | 'whole' | 'equal' | 'natural';
+// which Black Moon Lilith the chart shows: the mean lunar apogee, or the true (osculating) one
+export type LilithKind = 'mean' | 'true';
 
 export interface Chart {
   date: Date;
   lat: number;
   lon: number;
   system: HouseSystem;
+  lilith: LilithKind;
   pts: Point[];
   asc: number;
   mc: number;
@@ -31,58 +35,74 @@ const D2R = Math.PI / 180,
   R2D = 180 / Math.PI;
 const norm = (x: number) => ((x % 360) + 360) % 360;
 
-// Osculating elements, J2000 ecliptic. M0 (mean anomaly at EPOCH, JD TT) was fitted against a
-// reference chart for 2026-11-09 07:02 UTC. Good to a few arcminutes around 2024-2029; drifts further out.
-const EPOCH = 2461353.5; // 2026-11-09 0h
-interface Orbit {
-  a: number;
-  e: number;
-  i: number;
-  O: number;
-  w: number;
-  M0: number;
-}
-const MINOR: Record<string, Orbit> = {
-  Chiron: { a: 13.692, e: 0.3789, i: 6.926, O: 209.3, w: 339.25, M0: 219.7 },
-  Ceres: { a: 2.767, e: 0.0789, i: 10.588, O: 80.25, w: 73.3, M0: 307.15 },
-  Pallas: { a: 2.7704, e: 0.2303, i: 34.93, O: 172.9, w: 310.9, M0: 286.96 },
-  Juno: { a: 2.6688, e: 0.2563, i: 12.99, O: 169.85, w: 247.9, M0: 297.32 },
-  Vesta: { a: 2.3615, e: 0.0886, i: 7.14, O: 103.8, w: 151.5, M0: 122.77 },
-};
+// Chiron and the asteroids: two-body orbits from the nearest row of JPL Horizons' osculating elements
+// (astro/orbits.ts, 1900-2100). Outside that range the end rows are used, and the error grows with distance.
+const GAUSS = 0.9856076686; // the Sun's mean motion at 1 au, degrees a day
+const LIGHT_DAYS_PER_AU = 0.0057755183;
 
 function jdTT(date: Date) {
   return Astronomy.MakeTime(date).tt + 2451545.0;
 }
 
-function helioMinor(el: Orbit, date: Date) {
-  const t = Astronomy.MakeTime(date);
-  const jd = t.tt + 2451545.0;
-  const n = 0.9856076686 / Math.pow(el.a, 1.5);
-  const M = norm(el.M0 + n * (jd - EPOCH)) * D2R;
+// whether a date falls inside the table of elements, where the positions are good to about an arcminute
+function orbitsCover(date: Date) {
+  const jd = jdTT(date);
+  return Object.values(ORBITS).every((o) => jd >= o.start - o.step && jd <= o.start + o.step * o.rows.length);
+}
+
+// heliocentric position (au, EQJ axes) of a minor body at Julian Day `jd` (TT)
+function helioMinor(name: string, jd: number): [number, number, number] {
+  const o = ORBITS[name];
+  const k = Math.min(o.rows.length - 1, Math.max(0, Math.round((jd - o.start) / o.step)));
+  const [a, e, inc, node, peri, M0] = o.rows[k];
+  const M = norm(M0 + (GAUSS / Math.pow(a, 1.5)) * (jd - (o.start + k * o.step))) * D2R;
   let E = M;
-  for (let k = 0; k < 30; k++) E = E - (E - el.e * Math.sin(E) - M) / (1 - el.e * Math.cos(E));
-  const xv = el.a * (Math.cos(E) - el.e),
-    yv = el.a * Math.sqrt(1 - el.e * el.e) * Math.sin(E);
+  for (let n = 0; n < 30; n++) E = E - (E - e * Math.sin(E) - M) / (1 - e * Math.cos(E));
+  const xv = a * (Math.cos(E) - e),
+    yv = a * Math.sqrt(1 - e * e) * Math.sin(E);
   const v = Math.atan2(yv, xv),
     r = Math.hypot(xv, yv);
-  const O = el.O * D2R,
-    w = el.w * D2R,
-    i = el.i * D2R,
+  const O = node * D2R,
+    w = peri * D2R,
+    i = inc * D2R,
     u = v + w;
   const x = r * (Math.cos(O) * Math.cos(u) - Math.sin(O) * Math.sin(u) * Math.cos(i));
   const y = r * (Math.sin(O) * Math.cos(u) + Math.cos(O) * Math.sin(u) * Math.cos(i));
   const z = r * Math.sin(u) * Math.sin(i);
-  // ecliptic J2000 -> EQJ
+  // J2000 ecliptic -> EQJ
   const eps = 23.4392911 * D2R;
-  return new Astronomy.Vector(x, y * Math.cos(eps) - z * Math.sin(eps), y * Math.sin(eps) + z * Math.cos(eps), t);
+  return [x, y * Math.cos(eps) - z * Math.sin(eps), y * Math.sin(eps) + z * Math.cos(eps)];
 }
 
-function minorLon(name: string, date: Date): number {
-  const t = Astronomy.MakeTime(date);
-  const p = helioMinor(MINOR[name], date);
-  const e = Astronomy.HelioVector(Astronomy.Body.Earth, t);
-  const g = new Astronomy.Vector(p.x - e.x, p.y - e.y, p.z - e.z, t);
-  return Astronomy.Ecliptic(g).elon;
+// where a minor body appears from the Earth, on the ecliptic of date, allowing for the light's travel time
+function minorEcliptic(name: string, date: Date) {
+  const t = Astronomy.MakeTime(date),
+    jd = t.tt + 2451545.0;
+  const earth = Astronomy.HelioVector(Astronomy.Body.Earth, t);
+  let p = helioMinor(name, jd);
+  const dist = Math.hypot(p[0] - earth.x, p[1] - earth.y, p[2] - earth.z);
+  p = helioMinor(name, jd - dist * LIGHT_DAYS_PER_AU);
+  return Astronomy.Ecliptic(new Astronomy.Vector(p[0] - earth.x, p[1] - earth.y, p[2] - earth.z, t));
+}
+
+// True (osculating) Black Moon Lilith: the apogee of the ellipse the Moon would follow if only the Earth pulled
+// on it, worked out from the Moon's position and velocity at this instant
+const MU_EARTH_MOON = (403503.2357 * 86400 * 86400) / Math.pow(149597870.7, 3); // G(M+m), au^3 / day^2
+function trueLilith(date: Date): number {
+  const s = Astronomy.GeoMoonState(date);
+  const r = [s.x, s.y, s.z],
+    v = [s.vx, s.vy, s.vz];
+  const cross = (p: number[], q: number[]) => [
+    p[1] * q[2] - p[2] * q[1],
+    p[2] * q[0] - p[0] * q[2],
+    p[0] * q[1] - p[1] * q[0],
+  ];
+  const h = cross(r, v),
+    vh = cross(v, h),
+    rl = Math.hypot(r[0], r[1], r[2]);
+  // the eccentricity vector points to perigee; apogee is the other way
+  const ecc = [0, 1, 2].map((k) => vh[k] / MU_EARTH_MOON - r[k] / rl);
+  return Astronomy.Ecliptic(new Astronomy.Vector(-ecc[0], -ecc[1], -ecc[2], s.t)).elon;
 }
 
 // ecliptic latitude (degrees); 0 for the calculated points
@@ -92,12 +112,7 @@ function latOf(name: string, date: Date): number {
   if (name === 'Sun') return Astronomy.SunPosition(date).elat;
   if (name === 'Moon') return Astronomy.EclipticGeoMoon(date).lat;
   if (MAJOR.includes(name)) return Astronomy.Ecliptic(Astronomy.GeoVector(body(name), date, true)).elat;
-  if (MINOR[name]) {
-    const t = Astronomy.MakeTime(date),
-      p = helioMinor(MINOR[name], date),
-      e = Astronomy.HelioVector(Astronomy.Body.Earth, t);
-    return Astronomy.Ecliptic(new Astronomy.Vector(p.x - e.x, p.y - e.y, p.z - e.z, t)).elat;
-  }
+  if (ORBITS[name]) return minorEcliptic(name, date).elat;
   return 0;
 }
 
@@ -114,7 +129,7 @@ function lonOf(name: string, date: Date): number {
   if (name === 'Sun') return Astronomy.SunPosition(date).elon;
   if (name === 'Moon') return Astronomy.EclipticGeoMoon(date).lon;
   if (MAJOR.includes(name)) return Astronomy.Ecliptic(Astronomy.GeoVector(body(name), date, true)).elon;
-  if (MINOR[name]) return minorLon(name, date);
+  if (ORBITS[name]) return minorEcliptic(name, date).elon;
   const T = (jdTT(date) - 2451545.0) / 36525;
   if (name === 'Node') {
     // true node (Meeus ch. 47 periodic terms)
@@ -132,7 +147,9 @@ function lonOf(name: string, date: Date): number {
         0.0801 * Math.sin(2 * (Mm - F)),
     );
   }
+  // mean Black Moon Lilith: the mean lunar apogee
   if (name === 'Lilith') return norm(83.3532465 + 4069.0137287 * T - 0.01032 * T * T + 180);
+  if (name === 'TrueLilith') return trueLilith(date);
   throw new Error(name);
 }
 
@@ -232,12 +249,13 @@ const BODIES = [
   'Vesta',
 ];
 
-function chart(date: Date, lat: number, lon: number, system: HouseSystem): Chart {
+function chart(date: Date, lat: number, lon: number, system: HouseSystem, lilith: LilithKind = 'mean'): Chart {
   const eps = obliquity(date);
   const pts = BODIES.map((name): Point => {
-    const l = lonOf(name, date);
-    const s = speed(name, date);
-    const lat = latOf(name, date);
+    const from = name === 'Lilith' && lilith === 'true' ? 'TrueLilith' : name; // still shown as Lilith
+    const l = lonOf(from, date);
+    const s = speed(from, date);
+    const lat = latOf(from, date);
     return { name, lon: l, lat, decl: declination(l, lat, eps), speed: s, retro: s < 0 };
   });
   const ramc = norm(Astronomy.SiderealTime(date) * 15 + lon);
@@ -245,7 +263,7 @@ function chart(date: Date, lat: number, lon: number, system: HouseSystem): Chart
     mc = mcFrom(ramc, eps);
   const vertex = ascFrom(norm(ramc + 180), eps, 90 - lat); // Ascendant of the co-latitude, from the IC
   const cusps = houses(system, asc, mc, ramc, eps, lat);
-  return { date, lat, lon, system, pts, asc, mc, vertex, cusps, ramc, eps };
+  return { date, lat, lon, system, lilith, pts, asc, mc, vertex, cusps, ramc, eps };
 }
 
 // which house (1-12) a longitude falls in, given the twelve cusps
@@ -258,4 +276,4 @@ function houseOf(cusps: number[], lon: number) {
   return 1;
 }
 
-export { houseOf, chart, lonOf, latOf, declination, speed, MINOR, EPOCH, norm, BODIES, minorLon };
+export { houseOf, chart, lonOf, latOf, declination, speed, norm, BODIES, orbitsCover };

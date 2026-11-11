@@ -44,14 +44,6 @@ Every tab now has a reading, and each reading has a glossary in `astro/glossary.
 
 A **"today across traditions"** strip at the top of the page, one line from each tab, would let someone see all six without clicking through. Each reading already has a one-line summary to draw from. **M**
 
-### Accuracy
-
-| Idea | Why | Size |
-|---|---|---|
-| Better orbits for Chiron and the asteroids | They use fixed elements tuned to one reference chart, good for 2024 to 2029 and drifting outside it. A small table of elements by epoch would cover a lifetime of birth dates, which saved charts will need. | M |
-| True Black Moon Lilith | Only the mean one is offered. | S |
-| A second reference chart | Every test is checked against one chart in 2026. A second, decades away and in the southern hemisphere, would catch what the first cannot. | S |
-
 ## 2. Good practices: making the code easier to trust and change
 
 ### Finish what the rewrite started
