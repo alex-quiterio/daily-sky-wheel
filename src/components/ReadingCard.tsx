@@ -39,6 +39,7 @@ const toggled = (list: string[], key: string, on: boolean) =>
 
 export function ReadingCard(props: ReadingCardProps) {
   const { id, heading, reading, storageKey, open, title, note, link, glossary } = props;
+  const [goodLabel, careLabel] = props.adviceLabels ?? ['Good for', 'Go easy on'];
   const [sections, setSectionsNow] = useState<string[]>(() => {
     try {
       return JSON.parse(localStorage.getItem(storageKey) || 'null') || open;
@@ -84,16 +85,23 @@ export function ReadingCard(props: ReadingCardProps) {
   return (
     <Card title={heading} id={id} class="reading">
       <p class="rd-sum">{reading.summary}</p>
-      <div class="rd-advice">
-        <div class="good">
-          <b>Good for</b>
-          {reading.advice.good.join(' · ')}
+      {/* a box with nothing in it is left out */}
+      {(reading.advice.good.length > 0 || reading.advice.care.length > 0) && (
+        <div class="rd-advice">
+          {reading.advice.good.length > 0 && (
+            <div class="good">
+              <b>{goodLabel}</b>
+              {reading.advice.good.join(' · ')}
+            </div>
+          )}
+          {reading.advice.care.length > 0 && (
+            <div class="care">
+              <b>{careLabel}</b>
+              {reading.advice.care.join(' · ')}
+            </div>
+          )}
         </div>
-        <div class="care">
-          <b>Go easy on</b>
-          {reading.advice.care.join(' · ')}
-        </div>
-      </div>
+      )}
       <div class="rd-tools" role="group" aria-label="Reading">
         <button type="button" disabled={allOpen} onClick={() => setSections(() => allTitles)}>
           Open all

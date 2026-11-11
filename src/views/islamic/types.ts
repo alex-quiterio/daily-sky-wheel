@@ -1,5 +1,5 @@
 // Islamic tab: the shapes its model and components share.
-import type { Islamic } from '#astro';
+import type { Islamic, Reading } from '#astro';
 
 type Times = ReturnType<typeof Islamic.prayerTimes>;
 
@@ -14,4 +14,5 @@ export interface Model {
   current: PrayerKey | null;
   next: [key: PrayerKey, english: string, arabic: string] | undefined;
   qibla: ReturnType<typeof Islamic.qibla>;
+  reading: Reading;
 }

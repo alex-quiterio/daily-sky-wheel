@@ -1,6 +1,6 @@
 // Kabbalah tab: everything worked out for one moment, as plain data. No markup here.
 import * as Astronomy from 'astronomy-engine';
-import { Hebrew } from '#astro';
+import { Hebrew, KabbalahReading } from '#astro';
 import { localToUTC } from '#lib/time.ts';
 import type { Moment, Place } from '#lib/types.ts';
 import type { Model } from '#views/kabbalah/types.ts';
@@ -28,5 +28,6 @@ export function build({ when, local, place }: Moment): Model {
     after,
     today,
     omer: Hebrew.omer(h),
+    reading: KabbalahReading.read(h),
   };
 }

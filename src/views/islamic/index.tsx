@@ -1,13 +1,14 @@
 // Islamic tab: the Hijri date, prayer times, the Qibla, dates ahead and the Moon.
 import { useEffect, useState } from 'preact/hooks';
-import { Western, Islamic } from '#astro';
+import { Western, Islamic, Glossary } from '#astro';
 import { defineView } from '#lib/state.ts';
-import { dateFormat, localParts } from '#lib/time.ts';
+import { dateFormat, localParts, subtitleOf } from '#lib/time.ts';
 import type { HeaderInfo, Moment, ViewProps } from '#lib/types.ts';
 import { Card } from '#components/Card.tsx';
 import { Drawing } from '#components/Drawing.tsx';
+import { ReadingCard } from '#components/ReadingCard.tsx';
 import { Row } from '#components/Row.tsx';
-import { goTo } from '#shell/controls.ts';
+import { goTo, shareURL } from '#shell/controls.ts';
 import { PRAYERS } from '#views/islamic/constants.ts';
 import { drawQibla } from '#views/islamic/draw.ts';
 import { build, setPrefs } from '#views/islamic/model.ts';
@@ -234,6 +235,18 @@ function IslamicView({ moment, model }: ViewProps<Model>) {
         <DatesAhead moment={moment} />
       </div>
       <div class="side">
+        <ReadingCard
+          glossary={Glossary.ISLAMIC}
+          id="islamicReadingCard"
+          heading={<>The day {ar('اليوم')}</>}
+          reading={model.reading}
+          link={shareURL}
+          storageKey="skywheel-islamic-reading"
+          open={['Today', 'Next']}
+          title={`${header(model, moment).title} · ${subtitleOf(moment)}`}
+          note="What is widely practised on this day, as it is commonly described; schools and communities differ, and nothing here is a ruling. The Hijri day begins at Maghrib. The lunar mansion is pre-Islamic Arab sky-lore, shown as heritage."
+          adviceLabels={['Recommended today', 'Not done today']}
+        />
         <Qibla model={model} />
         <Moon moment={moment} model={model} />
       </div>

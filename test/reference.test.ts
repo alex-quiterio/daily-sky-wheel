@@ -14,6 +14,8 @@ import {
   Glossary,
   ChineseReading,
   MayaReading,
+  KabbalahReading,
+  IslamicReading,
   Islamic as I,
 } from '#astro';
 
@@ -436,4 +438,41 @@ test('Maya reading: the day, the trecena and the year bearer', () => {
   const w = MayaReading.read(M.mayaDate(2026, 3, 25));
   assert.strictEqual(w.sections[2].items[1].head, "Wayeb'");
   assert.ok(w.advice.care[0].includes("Wayeb'"));
+});
+
+test('Kabbalah reading: the day, the month, the Omer and the holy days', () => {
+  const r = KabbalahReading.read(H.hebrewDate(2026, 11, 9, false));
+  assert.deepStrictEqual(
+    r.sections.map((s) => s.title),
+    ['The day', 'The month', 'Holy days'],
+  );
+  assert.match(r.summary, /^Monday, 29 Cheshvan 5787, a day of Gevurah \(strength\)\./);
+  assert.strictEqual(r.sections[2].items[0].head, 'Next: Chanukah');
+  // the sixth day of the Omer is Yesod within Chesed; Pesach is under way, so the next holy day is Lag BaOmer
+  const pesach = KabbalahReading.read(H.hebrewDate(2027, 4, 28, false));
+  assert.strictEqual(pesach.sections.find((s) => s.title === 'The Omer')!.items[0].head, 'Day 6 · Yesod she-be-Chesed');
+  const holy = pesach.sections.find((s) => s.title === 'Holy days')!.items.map((i) => i.head);
+  assert.deepStrictEqual(holy, ['Pesach', 'Next: Lag BaOmer · hillula of Rabbi Shimon bar Yochai']);
+  assert.ok(!/undefined|NaN/.test(r.text + pesach.text));
+});
+
+test('Islamic reading: occasions, the month, the next occasion, and the mansion as heritage', () => {
+  const r = IslamicReading.read(I.hijriDate(2026, 11, 9, false), 230, false);
+  assert.deepStrictEqual(
+    r.sections.map((s) => s.title),
+    ['Today', 'The month', 'Next', 'Heritage'],
+  );
+  assert.match(r.summary, /^Monday \(al-Ithnayn\), 29 Jumada al-Ula 1448 AH\./);
+  assert.match(r.sections[3].items[0].text, /heritage, not religious practice/);
+  assert.ok(!/undefined|NaN/.test(r.text));
+  // Eid al-Fitr: no fasting, and the Eid prayer recommended
+  let eid = null;
+  for (let k = 0; k < 400 && !eid; k++) {
+    const t = new Date(Date.UTC(2026, 0, 1 + k));
+    const h = I.hijriDate(t.getUTCFullYear(), t.getUTCMonth() + 1, t.getUTCDate(), false);
+    if (h.month === 10 && h.day === 1) eid = IslamicReading.read(h, 0, false);
+  }
+  assert.ok(eid);
+  assert.ok(eid.advice.care.some((c) => c.startsWith('fasting')));
+  assert.ok(eid.advice.good.some((g) => g.includes('Eid prayer')));
 });

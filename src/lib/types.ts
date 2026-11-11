@@ -65,4 +65,5 @@ export interface ReadingCardProps {
   link: () => string; // the address of this moment, added to a copied reading
   note: string;
   glossary: GlossaryEntry[]; // the terms "Explain terms" can explain in this reading
+  adviceLabels?: [good: string, care: string]; // instead of "Good for" and "Go easy on"
 }

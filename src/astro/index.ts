@@ -11,7 +11,9 @@ export * as Glossary from './glossary.ts';
 export * as Maya from './maya.ts';
 export * as MayaReading from './maya-reading.ts';
 export * as Hebrew from './hebrew.ts';
+export * as KabbalahReading from './kabbalah-reading.ts';
 export * as Islamic from './islamic.ts';
+export * as IslamicReading from './islamic-reading.ts';
 // the shapes used across the page are also exported by name: Chart, Aspect, Reading, ...
 export type * from './core.ts';
 export type * from './western.ts';

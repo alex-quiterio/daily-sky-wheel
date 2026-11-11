@@ -1,5 +1,5 @@
 // Islamic tab: everything worked out for one moment, as plain data. No markup here.
-import { Islamic } from '#astro';
+import { Islamic, IslamicReading } from '#astro';
 import { render } from '#lib/state.ts';
 import { localToUTC } from '#lib/time.ts';
 import type { Moment } from '#lib/types.ts';
@@ -26,7 +26,7 @@ export function setPrefs(next: Partial<typeof prefs>) {
   render();
 }
 
-export function build({ when, local, place }: Moment): Model {
+export function build({ when, local, place, byName }: Moment): Model {
   const dayStart = localToUTC(local.y, local.m, local.d, 0, 0, place.tz);
   const times = Islamic.prayerTimes(dayStart, place.lat, place.lon, prefs.method, prefs.asr);
   const after = times.maghrib ? when >= times.maghrib : false;
@@ -50,5 +50,6 @@ export function build({ when, local, place }: Moment): Model {
     current,
     next,
     qibla,
+    reading: IslamicReading.read(h, byName.Moon.lon, after),
   };
 }

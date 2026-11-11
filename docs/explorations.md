@@ -38,16 +38,11 @@ The readings already say "for someone born at this minute, the same lines descri
 | Choghadiya and hora | The other two ways of dividing the day, next to Rahu Kaal in the Muhurta card. | M |
 | Special aspects of the nodes | Many traditions give Rahu and Ketu the 5th and 9th aspects. Currently they only cast the 7th. Worth a setting rather than a silent choice. | S |
 
-### The other two tabs
+### Across the tabs
 
-The reading card (`components/ReadingCard.tsx`) takes any `Reading`, so each tradition only needs a module that produces one, and a short glossary in `astro/glossary.ts` for Explain terms. Western, Vedic, Chinese and Maya have theirs.
+Every tab now has a reading, and each reading has a glossary in `astro/glossary.ts` for Explain terms.
 
-| Tab | A reading could cover | Size |
-|---|---|---|
-| Kabbalah | The day's sefira, the month's letter and sense, the Omer pair in season, and what a coming holy day asks for. | M |
-| Islamic | Kept factual: the day's occasions and what is recommended on them. The lunar mansions stay labelled as heritage. | S |
-
-A **"today across traditions"** strip at the top of the page, one line from each tab, would let someone see all six without clicking through. **M**, once the readings exist.
+A **"today across traditions"** strip at the top of the page, one line from each tab, would let someone see all six without clicking through. Each reading already has a one-line summary to draw from. **M**
 
 ### Accuracy
 

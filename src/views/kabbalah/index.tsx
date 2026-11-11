@@ -1,12 +1,13 @@
 // Kabbalah tab: the Hebrew date, Shabbat times, the month in Sefer Yetzirah and the Tree of Life.
-import { Hebrew } from '#astro';
+import { Hebrew, Glossary } from '#astro';
 import { defineView } from '#lib/state.ts';
-import { dateFormat, localParts } from '#lib/time.ts';
+import { dateFormat, localParts, subtitleOf } from '#lib/time.ts';
 import type { HeaderInfo, Moment, ViewProps } from '#lib/types.ts';
 import { Card } from '#components/Card.tsx';
 import { Drawing } from '#components/Drawing.tsx';
+import { ReadingCard } from '#components/ReadingCard.tsx';
 import { Row } from '#components/Row.tsx';
-import { goTo } from '#shell/controls.ts';
+import { goTo, shareURL } from '#shell/controls.ts';
 import { drawTree } from '#views/kabbalah/draw.ts';
 import { build, sunEvents } from '#views/kabbalah/model.ts';
 import type { Model } from '#views/kabbalah/types.ts';
@@ -220,6 +221,17 @@ function KabbalahView({ moment, model }: ViewProps<Model>) {
         <Coming h={model.h} />
       </div>
       <div class="side">
+        <ReadingCard
+          glossary={Glossary.KABBALAH}
+          id="kabbalahReadingCard"
+          heading={<>Reading {he('קריאה')}</>}
+          reading={model.reading}
+          link={shareURL}
+          storageKey="skywheel-kabbalah-reading"
+          open={['The day', 'The month', 'The Omer', 'Holy days']}
+          title={`${header(model, moment).title} · ${subtitleOf(moment)}`}
+          note="The day's sefira follows the week from Chesed on Sunday to Malkhut on Shabbat; the month's letter, sign, tribe and sense come from Sefer Yetzirah. The Hebrew day begins at sunset. One way into the tradition's symbols, not a ruling on practice."
+        />
         <Tree model={model} />
         <Day model={model} />
       </div>

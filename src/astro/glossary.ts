@@ -357,3 +357,109 @@ export const MAYA: GlossaryEntry[] = [
     text: 'The five days left over at the end of the Haab’ year, outside the months and without names of their own.',
   },
 ];
+
+export const KABBALAH: GlossaryEntry[] = [
+  {
+    term: 'Sefirot',
+    match: /\bsefir(a|ot)\b|\b(Chesed|Gevurah|Tiferet|Netzach|Hod|Yesod|Malkhut)\b/,
+    text: 'The ten attributes through which, in Kabbalah, the infinite is revealed, drawn as the Tree of Life. The seven lower ones, from Chesed (lovingkindness) to Malkhut (kingdom), are the emotional and active ones.',
+  },
+  {
+    term: 'Sefer Yetzirah',
+    match: /\bSefer Yetzirah\b/,
+    text: 'The Book of Formation, one of the oldest Kabbalistic texts. It gives each of the twelve simple letters of the alphabet a month, a sign, a tribe and a human sense.',
+  },
+  {
+    term: 'The Omer',
+    match: /\bOmer\b/,
+    text: 'The 49 days counted each evening from the second night of Pesach to Shavuot. Kabbalists pair each week with a sefira and each day with a facet of it, for seven weeks of refining character.',
+  },
+  {
+    term: 'She-be',
+    match: /\bshe-be-/,
+    text: 'Hebrew for “that is within”: Gevurah she-be-Chesed is the strength within lovingkindness.',
+  },
+  {
+    term: 'Shabbat',
+    match: /\bShabbat\b/,
+    text: 'The seventh day, from sunset on Friday to nightfall on Saturday: a day of rest from creative work, linked with Malkhut, the presence of the Shekhinah.',
+  },
+  {
+    term: 'Hebrew day',
+    match: /\bfrom the evening before\b/,
+    text: 'The Hebrew day begins at sunset, so every holy day starts the evening before its civil date.',
+  },
+  {
+    term: 'Teshuvah',
+    match: /\bteshuvah\b/,
+    text: 'Return: repentance understood as coming back to oneself and to God, the work of Elul and the High Holy Days.',
+  },
+];
+
+export const ISLAMIC: GlossaryEntry[] = [
+  {
+    term: 'Hijri calendar',
+    match: /\bAH\b|\bcrescent\b/,
+    text: 'The Islamic lunar calendar, counted from the Hijra, the Prophet’s move from Mecca to Medina in 622. Its twelve months follow the Moon, so it runs about eleven days a year ahead of the solar calendar.',
+  },
+  {
+    term: 'Umm al-Qura',
+    match: /\bUmm al-Qura\b/,
+    text: 'The calendar of Saudi Arabia, which starts each month by a calculated rule at Mecca. Many communities instead wait for the crescent to be seen locally.',
+  },
+  {
+    term: 'Sunnah',
+    match: /\bsunnah\b/,
+    text: 'The practice of the Prophet. Something called a sunnah is recommended and rewarded, but not obligatory.',
+  },
+  {
+    term: "Jumu'ah",
+    match: /\bJumu'ah\b/,
+    text: 'Friday, and the congregational prayer held at midday in place of Dhuhr, with a sermon (khutbah).',
+  },
+  {
+    term: 'Ayyam al-Bid',
+    match: /\bAyyam al-Bid\b|\bwhite days\b/,
+    text: 'The 13th, 14th and 15th of each Hijri month, when the Moon is full and the nights are bright.',
+  },
+  {
+    term: 'Sacred months',
+    match: /\bsacred months\b/,
+    text: 'Muharram, Rajab, Dhu al-Qa’dah and Dhu al-Hijjah, four months named in the Quran in which fighting was forbidden.',
+  },
+  {
+    term: 'Zakat al-Fitr',
+    match: /\bZakat al-Fitr\b/,
+    text: 'A small charity of food, or its value, given for every member of the household before the Eid al-Fitr prayer.',
+  },
+  {
+    term: 'Udhiyah',
+    match: /\budhiyah\b/,
+    text: 'The animal sacrifice of Eid al-Adha, remembering Ibrahim; the meat is shared between the household, relatives and the poor.',
+  },
+  {
+    term: 'Takbir',
+    match: /\btakbir\b/,
+    text: 'Saying “Allahu akbar”, God is greatest, repeated aloud in the days of Eid.',
+  },
+  {
+    term: 'Ayyam al-Tashriq',
+    match: /\bTashriq\b/,
+    text: 'The 11th to 13th of Dhu al-Hijjah, the days after Eid al-Adha, on which fasting is not done.',
+  },
+  {
+    term: 'Laylat al-Qadr',
+    match: /\bLaylat al-Qadr\b/,
+    text: 'The Night of Power, when the Quran was first revealed, described as better than a thousand months. Its date is not known; it is sought in the last ten nights of Ramadan.',
+  },
+  {
+    term: 'Maghrib',
+    match: /\bMaghrib\b/,
+    text: 'The sunset prayer. The Islamic day begins at Maghrib, so an occasion starts the evening before its civil date.',
+  },
+  {
+    term: 'Lunar mansions',
+    match: /\bmansions?\b/,
+    text: 'The 28 manāzil al-qamar, stations of the Moon through the stars, used by the Arabs before Islam to mark seasons and rain. Kept here as heritage.',
+  },
+];
