@@ -1,5 +1,5 @@
 // Chinese tab: everything worked out for one moment, as plain data. No markup here.
-import { Chinese } from '#astro';
+import { Chinese, ChineseReading } from '#astro';
 import type { Moment } from '#lib/types.ts';
 import type { Model } from '#views/chinese/types.ts';
 
@@ -19,6 +19,7 @@ export function build({ when, local }: Moment): Model {
     lun,
     terms,
     zodiac,
+    reading: ChineseReading.read(p),
   };
   return cn;
 }

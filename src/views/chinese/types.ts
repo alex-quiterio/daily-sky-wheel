@@ -1,5 +1,5 @@
 // Chinese tab: the shapes its model and components share.
-import type { Chinese } from '#astro';
+import type { Chinese, Reading } from '#astro';
 
 export interface Model {
   p: Chinese.FourPillars;
@@ -7,4 +7,5 @@ export interface Model {
   lun: ReturnType<typeof Chinese.lunarDate>;
   terms: ReturnType<typeof Chinese.solarTerms>;
   zodiac: Chinese.Pillar; // the lunar year, which turns at Chinese New Year
+  reading: Reading;
 }

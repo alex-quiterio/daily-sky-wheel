@@ -38,14 +38,12 @@ The readings already say "for someone born at this minute, the same lines descri
 | Choghadiya and hora | The other two ways of dividing the day, next to Rahu Kaal in the Muhurta card. | M |
 | Special aspects of the nodes | Many traditions give Rahu and Ketu the 5th and 9th aspects. Currently they only cast the 7th. Worth a setting rather than a silent choice. | S |
 
-### The other four tabs
+### The other two tabs
 
-The reading card (`components/ReadingCard.tsx`) takes any `Reading`, so each tradition only needs a module that produces one.
+The reading card (`components/ReadingCard.tsx`) takes any `Reading`, so each tradition only needs a module that produces one, and a short glossary in `astro/glossary.ts` for Explain terms. Western, Vedic, Chinese and Maya have theirs.
 
 | Tab | A reading could cover | Size |
 |---|---|---|
-| Chinese | The Day Master's strength, which elements help it, clashes and combinations between the four branches, and the day's officer (the twelve Jian Chu). | L |
-| Maya | The day sign with its number, the trecena's theme, and the year bearer. Short, because the tradition is. | S |
 | Kabbalah | The day's sefira, the month's letter and sense, the Omer pair in season, and what a coming holy day asks for. | M |
 | Islamic | Kept factual: the day's occasions and what is recommended on them. The lunar mansions stay labelled as heritage. | S |
 

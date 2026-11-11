@@ -12,6 +12,8 @@ import {
   Vedic as V,
   VedicReading,
   Glossary,
+  ChineseReading,
+  MayaReading,
   Islamic as I,
 } from '#astro';
 
@@ -390,4 +392,48 @@ test('Explain terms finds the jargon in both readings, once per section', () => 
   );
   assert.ok(!Glossary.termsIn('T-square to Mars', Glossary.WESTERN, 'Patterns').some((t) => t.term === 'Square'));
   assert.ok(!Glossary.termsIn('Rahu Kaal is over', Glossary.VEDIC, 'The day').some((t) => t.term === 'Rahu and Ketu'));
+});
+
+test('Chinese reading: Day Master, branches and the day officer', () => {
+  const p = Z.fourPillars(when, { y: 2026, m: 11, d: 9, hh: 2, mm: 2 });
+  const r = ChineseReading.read(p);
+  assert.deepStrictEqual(
+    r.sections.map((s) => s.title),
+    ['Day Master', 'Branches', 'The day’s officer'],
+  );
+  const [zh, name] = ChineseReading.OFFICERS[(p.day.branch - p.month.branch + 12) % 12];
+  assert.strictEqual(r.sections[2].items[0].head, `${zh} ${name} day`);
+  assert.match(r.sections[0].items[1].head, /^(Strong|Weak|Balanced) Day Master$/);
+  assert.ok(!/undefined|NaN/.test(r.text), r.text);
+  // Rat year, Horse month, Monkey day, Dragon hour: a clash, and the whole Water frame
+  const made = ChineseReading.read({
+    year: Z.pillar(0),
+    month: Z.pillar(6),
+    day: Z.pillar(8),
+    hour: Z.pillar(4),
+    sun: 0,
+  });
+  const heads = made.sections.find((s) => s.title === 'Branches')!.items.map((i) => i.head);
+  assert.ok(heads.includes('Year and month clash · Rat and Horse'), heads.join(' / '));
+  assert.ok(heads.includes('Monkey, Rat, Dragon · Water frame'), heads.join(' / '));
+  // the Monkey day in a Horse month is the 3rd officer
+  assert.strictEqual(made.sections[2].items[0].head, '滿 Full day');
+});
+
+test('Maya reading: the day, the trecena and the year bearer', () => {
+  const r = M.mayaDate(2026, 11, 9);
+  const m = MayaReading.read(r);
+  assert.deepStrictEqual(
+    m.sections.map((s) => s.title),
+    ['The day', 'The trecena', 'The year'],
+  );
+  assert.match(
+    m.summary,
+    /^5 Chuwen, a gentle Monkey day, on day 5 of the trecena of Manik' \(deer\), in a year carried by 2 Manik'\.$/,
+  );
+  assert.ok(!/undefined|NaN/.test(m.text), m.text);
+  // the five nameless days add a line and a caution
+  const w = MayaReading.read(M.mayaDate(2026, 3, 25));
+  assert.strictEqual(w.sections[2].items[1].head, "Wayeb'");
+  assert.ok(w.advice.care[0].includes("Wayeb'"));
 });

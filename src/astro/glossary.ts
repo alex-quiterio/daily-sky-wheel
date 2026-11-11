@@ -264,3 +264,96 @@ export const VEDIC: GlossaryEntry[] = [
     text: 'About an hour and a half each day, an eighth of the daylight, when new undertakings are avoided.',
   },
 ];
+
+export const CHINESE: GlossaryEntry[] = [
+  {
+    term: 'Day Master',
+    match: /\bDay Master\b/,
+    text: 'The stem of the day pillar. In Four Pillars astrology it stands for the self, and everything else is read by how it relates to it.',
+  },
+  {
+    term: 'Stems and branches',
+    match: /\b(stem|branch)(es)?\b/,
+    text: 'Each pillar is a heavenly stem over an earthly branch. The ten stems are the five elements in a yang and a yin form; the twelve branches are the twelve animals.',
+  },
+  {
+    term: 'Four Pillars',
+    match: /\b(year|month|day|hour)\b/i,
+    section: 'Branches',
+    text: 'The year, month, day and hour of a moment, each written as a stem over a branch: eight characters in all.',
+  },
+  {
+    term: 'Yin and yang',
+    match: /\b(Yin|Yang)\b/,
+    text: 'Every stem is yang (active, outward) or yin (receptive, inward); the stems alternate between them.',
+  },
+  {
+    term: 'Five elements',
+    match: /\b(Wood|Fire|Earth|Metal|Water)\b/,
+    text: 'Wood feeds Fire, Fire makes Earth, Earth bears Metal, Metal carries Water, and Water feeds Wood. Each also controls the one two steps on: Wood breaks Earth, Earth dams Water, and so on.',
+  },
+  {
+    term: 'Strength in season',
+    match: /\((旺|相|休|囚|死)\)/,
+    text: 'How the month’s element treats the Day Master: prosperous (旺) when it is in season, then prime (相), resting (休), trapped (囚), and dead (死) when the season is against it.',
+  },
+  {
+    term: 'Clash',
+    match: /\bclash(es)?\b/,
+    text: 'Two branches opposite each other on the circle of twelve, like Rat and Horse. They jolt and pull apart.',
+  },
+  {
+    term: 'Six harmonies',
+    match: /\bsix-harmony\b|\bcombine\b/,
+    text: 'Six pairs of branches that bind together, like Rat and Ox, and make a new element between them.',
+  },
+  {
+    term: 'Three harmonies',
+    match: /\bthree-harmony\b|\bframe\b/,
+    text: 'Three branches four apart, like Monkey, Rat and Dragon, that together form one strong element. Two of them with the middle one make a half frame.',
+  },
+  {
+    term: 'Twelve officers',
+    match: /\bofficers?\b/,
+    text: 'An almanac cycle (Jian Chu) counted from the month’s branch to the day’s. Each of the twelve says what the day suits and what it does not.',
+  },
+];
+
+export const MAYA: GlossaryEntry[] = [
+  {
+    term: "Tzolk'in",
+    match: /^(1[0-3]|[1-9]) \S+ · /,
+    section: 'The day',
+    text: 'The 260-day count: thirteen numbers turning with twenty day signs, so each pairing of number and sign comes round once every 260 days.',
+  },
+  {
+    term: 'Directions',
+    match: /\b(east|north|west|south)\b/i,
+    text: 'The signs belong in turn to the four directions and their colours: east and red, north and white, west and black, south and yellow.',
+  },
+  {
+    term: 'Numbers',
+    match: /\bThe number \d+/,
+    text: 'The thirteen numbers carry weight of their own: 1 to 5 are gentle, 6 to 9 balanced, 10 to 13 strong, and a strong number makes a sign’s day more intense.',
+  },
+  {
+    term: 'Trecena',
+    match: /\btrecena\b|\bthirteen days\b/,
+    text: 'A run of thirteen days, numbered 1 to 13, named after the sign on which it began.',
+  },
+  {
+    term: "Haab'",
+    match: /\bHaab'/,
+    text: 'The 365-day year: eighteen months of twenty days, and five days more.',
+  },
+  {
+    term: 'Year bearer',
+    match: /\byear bearer\b|\bcarries the year\b/,
+    text: "The Tzolk'in day on which a Haab' year begins. Only four signs can fall there, and they take turns year by year.",
+  },
+  {
+    term: "Wayeb'",
+    match: /\bWayeb'/,
+    text: 'The five days left over at the end of the Haab’ year, outside the months and without names of their own.',
+  },
+];

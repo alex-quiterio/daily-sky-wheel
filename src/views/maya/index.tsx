@@ -1,11 +1,13 @@
 // Maya tab: the Tzolk'in day, the Long Count, the Haab' and the calendar gears.
-import { Maya } from '#astro';
+import { Maya, Glossary } from '#astro';
 import { defineView } from '#lib/state.ts';
+import { subtitleOf } from '#lib/time.ts';
 import type { HeaderInfo, Moment, ViewProps } from '#lib/types.ts';
 import { Card } from '#components/Card.tsx';
 import { Drawing } from '#components/Drawing.tsx';
+import { ReadingCard } from '#components/ReadingCard.tsx';
 import { Row } from '#components/Row.tsx';
-import { goTo } from '#shell/controls.ts';
+import { goTo, shareURL } from '#shell/controls.ts';
 import { DIR_COLOR } from '#views/maya/constants.ts';
 import { drawGears } from '#views/maya/draw.ts';
 import { build, utcDate } from '#views/maya/model.ts';
@@ -202,7 +204,8 @@ function Haab({ moment: { local }, r }: { moment: Moment; r: MayaDate }) {
   );
 }
 
-function MayaView({ moment, model: { r } }: ViewProps<Model>) {
+function MayaView({ moment, model }: ViewProps<Model>) {
+  const { r } = model;
   return (
     <div class="main" id="viewMaya" role="tabpanel" aria-labelledby="tabMaya">
       <div class="side">
@@ -211,6 +214,17 @@ function MayaView({ moment, model: { r } }: ViewProps<Model>) {
         <NextDays moment={moment} r={r} />
       </div>
       <div class="side">
+        <ReadingCard
+          glossary={Glossary.MAYA}
+          id="mayaReadingCard"
+          heading="Reading"
+          reading={model.reading}
+          link={shareURL}
+          storageKey="skywheel-maya-reading"
+          open={['The day', 'The trecena', 'The year']}
+          title={`${header(model).title} · ${subtitleOf(moment)}`}
+          note="As a daykeeper reads it: the day's sign and number, the thirteen days it belongs to, and the sign carrying the year. The meanings follow present-day K'iche' practice, which varies between teachers; the count itself (GMT correlation) is the same everywhere."
+        />
         <Gears r={r} />
         <Haab moment={moment} r={r} />
       </div>

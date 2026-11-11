@@ -1,12 +1,14 @@
 // Chinese tab: Four Pillars, the Five Elements, the lunar calendar and the animal wheel.
-import { Chinese } from '#astro';
+import { Chinese, Glossary } from '#astro';
 import { defineView } from '#lib/state.ts';
 import type { HeaderInfo, Moment, ViewProps } from '#lib/types.ts';
-import { dateFormat } from '#lib/time.ts';
+import { dateFormat, subtitleOf } from '#lib/time.ts';
 import { Bars } from '#components/Bars.tsx';
 import { Card } from '#components/Card.tsx';
 import { Drawing } from '#components/Drawing.tsx';
+import { ReadingCard } from '#components/ReadingCard.tsx';
 import { Row } from '#components/Row.tsx';
+import { shareURL } from '#shell/controls.ts';
 import { EL_COLOR } from '#views/chinese/constants.ts';
 import { drawAnimalWheel } from '#views/chinese/draw.ts';
 import { build, polarity } from '#views/chinese/model.ts';
@@ -226,6 +228,17 @@ function ChineseView({ moment, model }: ViewProps<Model>) {
         <Elements model={model} />
       </div>
       <div class="side">
+        <ReadingCard
+          glossary={Glossary.CHINESE}
+          id="chineseReadingCard"
+          heading={<>Reading {zh('命理')}</>}
+          reading={model.reading}
+          link={shareURL}
+          storageKey="skywheel-chinese-reading"
+          open={['Day Master', 'The day’s officer']}
+          title={`${header(model).title} · ${subtitleOf(moment)}`}
+          note="The Day Master's strength is the common simplified count: the season first, then the other seven characters weighted by place. The officers follow the Tong Shu almanac, whose lists differ a little between editions. Read as the quality of this moment; for someone born now, the same lines describe the birth chart."
+        />
         <Calendar moment={moment} model={model} />
         <AnimalWheel model={model} />
       </div>
