@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'preact/hooks';
 import { Western, Islamic } from '#astro';
 import { defineView } from '#lib/state.ts';
-import { localParts } from '#lib/time.ts';
+import { dateFormat, localParts } from '#lib/time.ts';
 import type { HeaderInfo, Moment, ViewProps } from '#lib/types.ts';
 import { Card } from '#components/Card.tsx';
 import { Drawing } from '#components/Drawing.tsx';
@@ -146,7 +146,7 @@ function DatesAhead({ moment: { local } }: { moment: Moment }) {
       <div id="isComing">
         {Islamic.upcoming(dayNumber + 1, 8).map((o) => {
           const iso = o.date.toISOString().slice(0, 10);
-          const label = new Intl.DateTimeFormat('en-GB', {
+          const label = dateFormat('en-GB', {
             timeZone: 'UTC',
             weekday: 'short',
             day: 'numeric',

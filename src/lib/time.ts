@@ -2,8 +2,20 @@
 import { pad } from '#lib/format.ts';
 import type { Moment } from '#lib/types.ts';
 
+// Making an Intl.DateTimeFormat is slow (Play makes hundreds a second otherwise), so each one is made once and kept.
+const formats = new Map<string, Intl.DateTimeFormat>();
+export function dateFormat(locale: string, options: Intl.DateTimeFormatOptions) {
+  const key = locale + JSON.stringify(options);
+  let f = formats.get(key);
+  if (!f) {
+    f = new Intl.DateTimeFormat(locale, options); // throws for an unknown time zone, which is then not kept
+    formats.set(key, f);
+  }
+  return f;
+}
+
 export function tzOffsetMin(utcMs: number, tz: string) {
-  const parts = new Intl.DateTimeFormat('en-US', {
+  const parts = dateFormat('en-US', {
     timeZone: tz,
     hourCycle: 'h23',
     year: 'numeric',
@@ -26,7 +38,7 @@ export function localToUTC(y: number, m: number, d: number, hh: number, mm: numb
 }
 
 export function localParts(date: Date, tz: string) {
-  const parts = new Intl.DateTimeFormat('en-CA', {
+  const parts = dateFormat('en-CA', {
     timeZone: tz,
     hourCycle: 'h23',
     year: 'numeric',
@@ -41,7 +53,7 @@ export function localParts(date: Date, tz: string) {
 
 export function tzAbbr(date: Date, tz: string) {
   try {
-    const p = new Intl.DateTimeFormat('en-US', { timeZone: tz, timeZoneName: 'short' })
+    const p = dateFormat('en-US', { timeZone: tz, timeZoneName: 'short' })
       .formatToParts(date)
       .find((x) => x.type === 'timeZoneName');
     return p ? p.value : tz;
@@ -52,7 +64,7 @@ export function tzAbbr(date: Date, tz: string) {
 
 // "Monday, 9 November 2026 · 02:02 EST · New York"
 export function subtitleOf(m: Moment) {
-  const date = new Intl.DateTimeFormat('en-GB', {
+  const date = dateFormat('en-GB', {
     timeZone: m.place.tz,
     weekday: 'long',
     day: 'numeric',

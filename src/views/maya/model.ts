@@ -1,6 +1,7 @@
 // Maya tab: everything worked out for one moment, as plain data. No markup here.
 import { Maya } from '#astro';
 import type { Moment } from '#lib/types.ts';
+import { dateFormat } from '#lib/time.ts';
 import type { Model } from '#views/maya/types.ts';
 
 export function build({ local }: Moment): Model {
@@ -11,7 +12,7 @@ export function build({ local }: Moment): Model {
 }
 
 export const utcDate = (d: Date, year = false) =>
-  new Intl.DateTimeFormat('en-GB', {
+  dateFormat('en-GB', {
     timeZone: 'UTC',
     day: 'numeric',
     month: 'short',

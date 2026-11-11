@@ -3,7 +3,7 @@ import { Vedic } from '#astro';
 import { useEffect, useState } from 'preact/hooks';
 import { background } from '#lib/background.ts';
 import { defineView } from '#lib/state.ts';
-import { localParts, localToUTC, subtitleOf } from '#lib/time.ts';
+import { dateFormat, localParts, localToUTC, subtitleOf } from '#lib/time.ts';
 import type { HeaderInfo, Moment, ViewProps } from '#lib/types.ts';
 import { Card } from '#components/Card.tsx';
 import { Chips } from '#components/Chips.tsx';
@@ -25,7 +25,7 @@ export const dev = (text: string) => <span class="dev">{text}</span>;
 function Panchang({ moment: { place }, model: { p, month, vara } }: { moment: Moment; model: Model }) {
   const until = (d: Date | null) =>
     d
-      ? `until ${new Intl.DateTimeFormat('en-GB', { timeZone: place.tz, weekday: 'short', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).format(d)}`
+      ? `until ${dateFormat('en-GB', { timeZone: place.tz, weekday: 'short', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).format(d)}`
       : '';
   const Limb = (props: { label: string; sub?: string; ends: Date | null; children: preact.ComponentChildren }) => (
     <div class="vd-limb">
@@ -162,8 +162,8 @@ function DaysAhead({ moment: { local, place } }: { moment: Moment }) {
     (e) =>
       e.civil.getTime() >= startDay && e.civil.getTime() < startDay + 366 * DAY && (cat === 'all' || e.kind === cat),
   );
-  const fmtMonth = new Intl.DateTimeFormat('en-GB', { timeZone: 'UTC', month: 'long', year: 'numeric' });
-  const fmtDay = new Intl.DateTimeFormat('en-GB', {
+  const fmtMonth = dateFormat('en-GB', { timeZone: 'UTC', month: 'long', year: 'numeric' });
+  const fmtDay = dateFormat('en-GB', {
     timeZone: 'UTC',
     weekday: 'short',
     day: 'numeric',
@@ -307,8 +307,7 @@ function Grahas({ model: { g, lagna, lagnaSign } }: { model: Model }) {
 
 function Dasha({ moment: { place }, model: { g, dashas } }: { moment: Moment; model: Model }) {
   const moon = g.list.find((x) => x.key === 'Moon')!;
-  const monthYear = (d: Date) =>
-    new Intl.DateTimeFormat('en-GB', { timeZone: place.tz, month: 'short', year: 'numeric' }).format(d);
+  const monthYear = (d: Date) => dateFormat('en-GB', { timeZone: place.tz, month: 'short', year: 'numeric' }).format(d);
   return (
     <Card title="Vimshottari dasha">
       <div id="vdDasha">

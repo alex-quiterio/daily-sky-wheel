@@ -7,7 +7,7 @@ import { $, isCompact, flash, unflash } from '#lib/dom.ts';
 import { pad, slug } from '#lib/format.ts';
 import { createStore } from '#lib/store.ts';
 import { store as saved } from '#lib/storage.ts';
-import { localParts } from '#lib/time.ts';
+import { dateFormat, localParts } from '#lib/time.ts';
 import type { Place } from '#lib/types.ts';
 import { shareImage } from '#shell/share.ts';
 
@@ -84,7 +84,7 @@ function browserTZ() {
 // Canonical zone name, so aliases match (Asia/Saigon = Asia/Ho_Chi_Minh, Europe/Kiev = Europe/Kyiv, ...)
 function canonTZ(tz: string) {
   try {
-    return new Intl.DateTimeFormat('en', { timeZone: tz }).resolvedOptions().timeZone;
+    return dateFormat('en', { timeZone: tz }).resolvedOptions().timeZone;
   } catch (e) {
     return null;
   }

@@ -1,7 +1,7 @@
 // Kabbalah tab: the Hebrew date, Shabbat times, the month in Sefer Yetzirah and the Tree of Life.
 import { Hebrew } from '#astro';
 import { defineView } from '#lib/state.ts';
-import { localParts } from '#lib/time.ts';
+import { dateFormat, localParts } from '#lib/time.ts';
 import type { HeaderInfo, Moment, ViewProps } from '#lib/types.ts';
 import { Card } from '#components/Card.tsx';
 import { Drawing } from '#components/Drawing.tsx';
@@ -22,9 +22,7 @@ export const he = (text: string) => (
 function HebrewDate({ moment: { local, place }, model: { h, after, today } }: { moment: Moment; model: Model }) {
   const time = (d?: Date) => (d ? localParts(d, place.tz).time : '—');
   const day = (d: Date) =>
-    new Intl.DateTimeFormat('en-GB', { timeZone: place.tz, weekday: 'short', day: 'numeric', month: 'short' }).format(
-      d,
-    );
+    dateFormat('en-GB', { timeZone: place.tz, weekday: 'short', day: 'numeric', month: 'short' }).format(d);
   const holidays = Hebrew.holidays(h);
   // Shabbat times for the coming (or current) Shabbat
   const rd = Hebrew.rdFromCivil(local.y, local.m, local.d);
@@ -120,7 +118,7 @@ function Coming({ h }: { h: Hebrew.HebrewDate }) {
         {coming.map((x) => {
           const civil = new Date(Date.UTC(x.civil.y, x.civil.m - 1, x.civil.d));
           const iso = civil.toISOString().slice(0, 10);
-          const label = new Intl.DateTimeFormat('en-GB', {
+          const label = dateFormat('en-GB', {
             timeZone: 'UTC',
             weekday: 'short',
             day: 'numeric',

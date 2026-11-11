@@ -2,6 +2,7 @@
 import { Chinese } from '#astro';
 import { defineView } from '#lib/state.ts';
 import type { HeaderInfo, Moment, ViewProps } from '#lib/types.ts';
+import { dateFormat } from '#lib/time.ts';
 import { Bars } from '#components/Bars.tsx';
 import { Card } from '#components/Card.tsx';
 import { Drawing } from '#components/Drawing.tsx';
@@ -133,10 +134,10 @@ function Calendar({ moment: { place }, model: { p, lun, terms, zodiac } }: { mom
   const element = Chinese.ELEMENTS[Chinese.STEMS[zodiac.stem][2]];
   const [mark, , animal] = Chinese.BRANCHES[zodiac.branch];
   const date = (d: Date, timeZone = place.tz) =>
-    new Intl.DateTimeFormat('en-GB', { timeZone, day: 'numeric', month: 'short', year: 'numeric' }).format(d);
+    dateFormat('en-GB', { timeZone, day: 'numeric', month: 'short', year: 'numeric' }).format(d);
   const china = (d: Date) => date(d, 'Asia/Shanghai'); // calendar dates are China dates
   const dateTime = (d: Date) =>
-    new Intl.DateTimeFormat('en-GB', {
+    dateFormat('en-GB', {
       timeZone: place.tz,
       day: 'numeric',
       month: 'short',

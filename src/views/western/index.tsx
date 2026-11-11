@@ -8,7 +8,7 @@ import { APPROX, ASPECT_COLOR, ASPECT_GLYPH, EL_VAR, LABEL, VS } from '#lib/cons
 import { isCompact } from '#lib/dom.ts';
 import { fmtPos, g, norm, pad, sg } from '#lib/format.ts';
 import { defineView, state as st } from '#lib/state.ts';
-import { localParts, localToUTC, subtitleOf } from '#lib/time.ts';
+import { dateFormat, localParts, localToUTC, subtitleOf } from '#lib/time.ts';
 import type { HeaderInfo, Moment, ViewProps } from '#lib/types.ts';
 import { Bars } from '#components/Bars.tsx';
 import { Card } from '#components/Card.tsx';
@@ -455,8 +455,8 @@ function YearAhead({ moment }: { moment: Moment }) {
     );
 
   const list = events.filter((e) => cat === 'all' || e.cat === cat);
-  const fmtMonth = new Intl.DateTimeFormat('en-GB', { timeZone: place.tz, month: 'long', year: 'numeric' });
-  const fmtDay = new Intl.DateTimeFormat('en-GB', { timeZone: place.tz, day: 'numeric', month: 'short' });
+  const fmtMonth = dateFormat('en-GB', { timeZone: place.tz, month: 'long', year: 'numeric' });
+  const fmtDay = dateFormat('en-GB', { timeZone: place.tz, day: 'numeric', month: 'short' });
   const now = Date.now();
   let month = '';
   return (
