@@ -1,5 +1,6 @@
 // Western tab: the wheel and its tables on the left; the reading, the day, planetary hours and the year ahead on the right.
 import * as Astronomy from 'astronomy-engine';
+import { background } from '#lib/background.ts';
 import { useEffect, useMemo, useState } from 'preact/hooks';
 import { Western } from '#astro';
 import type { Pattern, YearEvent } from '#astro';
@@ -378,6 +379,11 @@ function PlanetaryHours({ moment }: { moment: Moment }) {
 }
 
 let yearCache: YearEvent[] | null = null; // worked out once, from today
+let yearJob: Promise<YearEvent[]> | null = null; // the request, so a remount never asks twice
+const startOfToday = () => {
+  const d = new Date();
+  return Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate());
+};
 
 function YearGlyphs({ e }: { e: YearEvent }) {
   const sym = (x: string) => <span class="yg-s">{x}</span>;
@@ -424,19 +430,18 @@ function YearAhead({ moment }: { moment: Moment }) {
   const { place, when } = moment;
   const [events, setEvents] = useState(yearCache);
   const [cat, setCat] = useStored('skywheel-year', 'all');
-  // the year ahead takes a moment to work out, so it follows the first paint
+  // the year ahead takes a moment to work out, so it runs in the background, once
   useEffect(() => {
     if (yearCache) return;
-    const timer = setTimeout(() => {
-      const d = new Date();
-      try {
-        yearCache = Western.yearAhead(new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate())));
-      } catch (err) {
-        yearCache = [];
-      }
-      setEvents(yearCache);
-    }, 60);
-    return () => clearTimeout(timer);
+    let mounted = true;
+    yearJob ??= background('yearAhead', startOfToday()).catch((): YearEvent[] => []);
+    yearJob.then((found) => {
+      yearCache = found;
+      if (mounted) setEvents(found);
+    });
+    return () => {
+      mounted = false;
+    };
   }, []);
 
   if (!events)

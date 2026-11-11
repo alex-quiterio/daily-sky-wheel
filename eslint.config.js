@@ -57,6 +57,17 @@ const BOUNDARIES = [
     boundary([`src/views/${tab}/{model,types,constants}.ts`], [otherTabs(tab), ALIASES_ONLY, NO_MARKUP]),
   ]),
   boundary(['src/app.tsx'], [ALIASES_ONLY]),
+  // the worker has no page: only the jobs, and the calculations behind them
+  boundary(
+    ['src/worker.ts'],
+    [
+      ALIASES_ONLY,
+      forbid(
+        ['preact', 'preact/*', ...['components', 'shell', 'views'].flatMap(alias)],
+        'The worker runs without a page: import #lib/jobs.ts and #astro only.',
+      ),
+    ],
+  ),
 ];
 
 export default tseslint.config(

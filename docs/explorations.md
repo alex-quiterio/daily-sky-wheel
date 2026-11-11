@@ -85,7 +85,6 @@ A **"today across traditions"** strip at the top of the page, one line from each
 | Idea | Why | Size |
 |---|---|---|
 | Load each tab on demand | All six traditions ship in one bundle of about 103 kB gzipped. A dynamic import per view would mean someone who only reads the Western tab downloads much less. | M |
-| Slow work off the main thread | The year ahead and the Vedic festival year each take a noticeable moment. A Web Worker would keep the page responsive while they run. | M |
 | An error boundary per tab | If one tab's calculation throws, the whole page goes blank. Each view should fail on its own and say so. | S |
 | Text separate from logic | The readings mix rules and English sentences. Moving the phrases into data would make translation possible (Portuguese, Dutch) and wording changes safer. | L |
 

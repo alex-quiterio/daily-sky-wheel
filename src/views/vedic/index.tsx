@@ -1,5 +1,7 @@
 // Vedic tab: the reading, the Panchang, muhurta times and the days ahead; the rashi chart, the grahas and the dasha.
 import { Vedic } from '#astro';
+import { useEffect, useState } from 'preact/hooks';
+import { background } from '#lib/background.ts';
 import { defineView } from '#lib/state.ts';
 import { localParts, localToUTC, subtitleOf } from '#lib/time.ts';
 import type { HeaderInfo, Moment, ViewProps } from '#lib/types.ts';
@@ -120,6 +122,7 @@ function Muhurta({ moment: { when, place }, model: { p, periods } }: { moment: M
   );
 }
 
+let wanted = ''; // the place and day last asked for
 export let ahead: { key: string; startDay: number; list: (Vedic.Observance & { civil: Date })[] } | null = null;
 
 function DaysAhead({ moment: { local, place } }: { moment: Moment }) {
@@ -128,17 +131,33 @@ function DaysAhead({ moment: { local, place } }: { moment: Moment }) {
   const startDay = Date.UTC(local.y, local.m - 1, local.d);
   const key = `${place.lat},${place.lon},${place.tz}`;
   // reuse a computed year while the selected day stays inside its first month
-  if (!ahead || ahead.key !== key || startDay < ahead.startDay || startDay > ahead.startDay + 30 * DAY) {
-    const start = localToUTC(local.y, local.m, local.d, 0, 0, place.tz);
-    ahead = {
-      key,
-      startDay,
-      list: Vedic.daysAhead(start, 400, place.lat, place.lon).map((e) => ({
-        ...e,
-        civil: new Date(startDay + e.k * DAY),
-      })),
-    };
-  }
+  const fresh = !!ahead && ahead.key === key && startDay >= ahead.startDay && startDay <= ahead.startDay + 30 * DAY;
+  const [, repaint] = useState(0);
+  // otherwise work out a new one in the background; the last request made is the one that counts
+  useEffect(() => {
+    if (fresh) return;
+    const request = `${key}|${startDay}`;
+    wanted = request;
+    const start = localToUTC(local.y, local.m, local.d, 0, 0, place.tz).getTime();
+    background('vedicDaysAhead', start, 400, place.lat, place.lon)
+      .catch((): Vedic.Observance[] => [])
+      .then((found) => {
+        if (wanted !== request) return;
+        ahead = { key, startDay, list: found.map((e) => ({ ...e, civil: new Date(startDay + e.k * DAY) })) };
+        repaint((n) => n + 1);
+      });
+  }, [fresh, key, startDay, local.y, local.m, local.d, place.lat, place.lon, place.tz]);
+
+  // until the first answer for this place arrives there is nothing to show; after that, the last list stands in
+  if (!ahead || ahead.key !== key)
+    return (
+      <Card title="Days ahead · utsava and vrata">
+        <Chips id="vdChips" options={AHEAD_CATS} value={cat} onPick={setCat} />
+        <div class="yearlist" id="vdAhead">
+          <p class="empty">Working out the festivals and fasts of the coming year…</p>
+        </div>
+      </Card>
+    );
   const list = ahead.list.filter(
     (e) =>
       e.civil.getTime() >= startDay && e.civil.getTime() < startDay + 366 * DAY && (cat === 'all' || e.kind === cat),

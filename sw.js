@@ -8,6 +8,7 @@ const APP_FILES = [
   'manifest.webmanifest',
   'dist/app.js',
   'dist/app.css',
+  'dist/worker.js',
   'assets/logo.svg',
   'assets/icons/icon-192.png',
   'assets/icons/icon-512.png',

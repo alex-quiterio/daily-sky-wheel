@@ -79,7 +79,7 @@ If part of a link can't be read, the page says which part and uses its default f
 
 ## ✦ Start
 
-It's a static page built with TypeScript and Preact. esbuild bundles `src/` into `dist/app.js` and `dist/app.css`.
+It's a static page built with TypeScript and Preact. esbuild bundles `src/` into `dist/app.js`, `dist/app.css` and `dist/worker.js`.
 
 ```sh
 git clone https://github.com/alex-quiterio/daily-sky-wheel.git
@@ -130,6 +130,7 @@ GitHub Actions runs the tests on every push.
 ```
 index.html               the head, the sky canvas and the mount point
 src/app.tsx              start-up, the render loop and the <App> component
+src/worker.ts            the Web Worker: runs the slow calculations away from the page
 src/astro/               the calculations: no DOM, tested with node
   index.ts               one namespace per tradition: Core, Western, Chinese, Vedic, Maya, Hebrew, Islamic
   reading.ts             the shape both readings produce
@@ -150,6 +151,8 @@ src/lib/                  what the page shares that is not a component
   format.ts              positions, glyphs and labels as text
   time.ts                local time at a place
   storage.ts             the choices remembered between visits
+  jobs.ts                the slow calculations, as jobs that take and return plain data
+  background.ts          runs a job in the worker, or on the main thread if the worker cannot start
 src/components/          reusable pieces, one per file
   Card, Row, Bars, Chips, Drawing, ReadingCard, Tooltip, useStored
 src/shell/               the page around the tabs
@@ -190,6 +193,7 @@ Imports use aliases instead of relative paths: `#astro` for the calculations, th
 - **Planets** come from [Astronomy Engine](https://github.com/cosinekitty/astronomy) (MIT), accurate to well under an arcminute.
 - **Houses and angles** are computed from sidereal time and the true obliquity of the ecliptic.
 - **The day's events** are found by sampling the sky every hour, then bisecting each crossing to within 30 seconds.
+- **The year ahead and the Vedic festival year** are worked out in a Web Worker (`dist/worker.js`), so the page stays responsive while they run. If the worker cannot start, the same code runs on the main thread.
 - **Time zones** use the browser's own `Intl` database, so daylight-saving changes come out right.
 
 Ideas for where the project could go next, in depth, code quality and usability, are in [docs/explorations.md](docs/explorations.md).
