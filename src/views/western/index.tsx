@@ -15,7 +15,7 @@ import { Chips } from '#components/Chips.tsx';
 import { Drawing } from '#components/Drawing.tsx';
 import { ReadingCard } from '#components/ReadingCard.tsx';
 import { useStored } from '#components/useStored.ts';
-import { goTo, jumpTo, setHouses, shiftDay } from '#shell/controls.ts';
+import { goTo, jumpTo, setHouses, shiftDay, shareURL } from '#shell/controls.ts';
 import { SYSTEMS, YEAR_CATS } from '#views/western/constants.ts';
 import { drawMoon, drawWheel } from '#views/western/draw.ts';
 import { build } from '#views/western/model.ts';
@@ -521,6 +521,7 @@ function WesternView({ moment, model }: ViewProps<Model>) {
           id="readingCard"
           heading="Reading"
           reading={model.reading}
+          link={shareURL}
           storageKey="skywheel-reading"
           open={['Sun, Moon and Rising', 'Strongest contacts']}
           title={`${model.title} · ${subtitleOf(moment)}`}

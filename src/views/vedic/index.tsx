@@ -9,7 +9,7 @@ import { Drawing } from '#components/Drawing.tsx';
 import { ReadingCard } from '#components/ReadingCard.tsx';
 import { Row } from '#components/Row.tsx';
 import { useStored } from '#components/useStored.ts';
-import { goTo } from '#shell/controls.ts';
+import { goTo, shareURL } from '#shell/controls.ts';
 import { AHEAD_CATS } from '#views/vedic/constants.ts';
 import { drawRashi } from '#views/vedic/draw.ts';
 import { build, degMin, isNode } from '#views/vedic/model.ts';
@@ -326,6 +326,7 @@ function VedicView({ moment, model }: ViewProps<Model>) {
           id="vedicReadingCard"
           heading={<>Reading {dev('फल')}</>}
           reading={model.reading}
+          link={shareURL}
           storageKey="skywheel-vedic-reading"
           open={['The day', 'Lagna, Moon and Sun']}
           title={`${model.title} · ${subtitleOf(moment)}`}

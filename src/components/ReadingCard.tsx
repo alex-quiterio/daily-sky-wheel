@@ -4,7 +4,6 @@ import { useState } from 'preact/hooks';
 import type { ReadingItem } from '#astro';
 import type { ReadingCardProps } from '#lib/types.ts';
 import { Card } from '#components/Card.tsx';
-import { shareURL } from '#shell/controls.ts';
 
 function Head({ item }: { item: ReadingItem }) {
   return item.ref ? (
@@ -16,7 +15,7 @@ function Head({ item }: { item: ReadingItem }) {
   );
 }
 
-export function ReadingCard({ id, heading, reading, storageKey, open, title, note }: ReadingCardProps) {
+export function ReadingCard({ id, heading, reading, storageKey, open, title, note, link }: ReadingCardProps) {
   const [sections, setSections] = useState<string[]>(() => {
     try {
       return JSON.parse(localStorage.getItem(storageKey) || 'null') || open;
@@ -44,7 +43,7 @@ export function ReadingCard({ id, heading, reading, storageKey, open, title, not
       setTimeout(() => setCopied(''), 1600);
     };
     if (navigator.clipboard && navigator.clipboard.writeText)
-      navigator.clipboard.writeText(`${title}\n\n${reading.text}\n\n${shareURL()}`).then(
+      navigator.clipboard.writeText(`${title}\n\n${reading.text}\n\n${link()}`).then(
         () => done(true),
         () => done(false),
       );

@@ -171,6 +171,20 @@ manifest.webmanifest, sw.js   install as an app, work offline
 
 The page is built with [Preact](https://preactjs.com). A tab registers three things under its name, and `ViewDef` in `lib/types.ts` is the contract: `build(moment)` works everything out for the chosen moment and place as plain data, `header(model)` says what the page header shows, and a `View` component draws the model. The render loop in `app.tsx` reads the controls, casts the chart once, and publishes the `moment`; `<App>` hands it to the open tab. The larger SVG drawings are plain drawing functions wrapped in a `<Drawing>` component.
 
+The folders are layers, and ESLint enforces which may import from which (`eslint.config.js`):
+
+```
+astro  →  lib  →  components  →  shell  →  views  →  app.tsx
+```
+
+A folder may import from itself and from the ones to its left, never from one to its right. On top of that:
+
+- `src/astro` imports nothing but itself and `astronomy-engine`: no Preact, no page code.
+- A tab never imports from another tab. What two tabs share belongs in `src/lib` or `src/components`.
+- A tab's `model.ts`, `types.ts` and `constants.ts` are plain data: no Preact and no components.
+- The tests import from `#astro` only.
+- Outside `src/astro`, imports go through an alias, not a relative path.
+
 Imports use aliases instead of relative paths: `#astro` for the calculations, then `#lib/…`, `#components/…`, `#shell/…` and `#views/…`. They are plain Node [subpath imports](https://nodejs.org/api/packages.html#subpath-imports) set in `package.json`, so TypeScript, esbuild and the test runner all resolve them the same way.
 
 - **Planets** come from [Astronomy Engine](https://github.com/cosinekitty/astronomy) (MIT), accurate to well under an arcminute.

@@ -62,5 +62,6 @@ export interface ReadingCardProps {
   storageKey: string; // where the open sections are remembered
   open: string[]; // the sections unfolded on a first visit
   title: string; // the heading of a copied reading
+  link: () => string; // the address of this moment, added to a copied reading
   note: string;
 }
