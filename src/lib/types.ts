@@ -1,7 +1,7 @@
 // The shapes the page and its tabs agree on. Every tab implements ViewDef; every component that
 // draws a tab takes ViewProps. Strict type-checking of the page starts from this file.
 import type { ComponentChildren, FunctionComponent } from 'preact';
-import type { Aspect, Chart, HouseSystem, Point, Reading } from '#astro';
+import type { Aspect, Chart, GlossaryEntry, HouseSystem, Point, Reading } from '#astro';
 
 export interface Place {
   name: string;
@@ -64,4 +64,5 @@ export interface ReadingCardProps {
   title: string; // the heading of a copied reading
   link: () => string; // the address of this moment, added to a copied reading
   note: string;
+  glossary: GlossaryEntry[]; // the terms "Explain terms" can explain in this reading
 }

@@ -1,5 +1,5 @@
 // Vedic tab: the reading, the Panchang, muhurta times and the days ahead; the rashi chart, the grahas and the dasha.
-import { Vedic } from '#astro';
+import { Vedic, Glossary } from '#astro';
 import { useEffect, useState } from 'preact/hooks';
 import { background } from '#lib/background.ts';
 import { defineView } from '#lib/state.ts';
@@ -341,6 +341,7 @@ function VedicView({ moment, model }: ViewProps<Model>) {
     <div class="main" id="viewVedic" role="tabpanel" aria-labelledby="tabVedic">
       <div class="side">
         <ReadingCard
+          glossary={Glossary.VEDIC}
           id="vedicReadingCard"
           heading={<>Reading {dev('फल')}</>}
           reading={model.reading}

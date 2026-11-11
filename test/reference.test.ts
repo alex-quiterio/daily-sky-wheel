@@ -11,6 +11,7 @@ import {
   Hebrew as H,
   Vedic as V,
   VedicReading,
+  Glossary,
   Islamic as I,
 } from '#astro';
 
@@ -336,4 +337,57 @@ test('Vedic reading of the reference chart', () => {
   assert.match(sec('Graha by graha')[0].head, /^Surya \(Sun\) in Tula, 3rd house$/);
   assert.ok(sec('Graha by graha').every((i) => (i.more?.length ?? 0) >= 10));
   assert.ok(!/undefined|NaN/.test(r.text), r.text);
+});
+
+test('Explain terms finds the jargon in both readings, once per section', () => {
+  const asps = E.aspects(chart.pts);
+  const w = WesternReading.read({
+    chart,
+    asps,
+    pats: E.patterns(chart.pts, asps),
+    phase: E.moonPhase(by.Sun.lon, by.Moon.lon),
+    houseOf: (lon: number) => C.houseOf(chart.cusps, lon),
+  });
+  const g = V.grahas(when);
+  const v = VedicReading.read({
+    p: V.panchang(when, 40 + 43 / 60, -74, new Date(Date.UTC(2026, 10, 9, 5, 0))),
+    g,
+    lagna: V.sidereal(chart.asc, when),
+    vara: 0,
+    dashas: V.dashas(when, g.list.find((x) => x.key === 'Moon')!.sid),
+    rahuKaal: false,
+  });
+  const explained = (r: typeof w, glossary: Glossary.GlossaryEntry[]) =>
+    r.sections.map((sec) => {
+      const seen = new Set<string>();
+      return sec.items.flatMap((i) =>
+        Glossary.termsIn(`${i.head} ${i.text}`, glossary, sec.title, seen).map((t) => t.term),
+      );
+    });
+  const west = explained(w, Glossary.WESTERN),
+    vedic = explained(v, Glossary.VEDIC);
+  for (const t of ['Rising sign', 'Conjunction', 'Quincunx', 'Orb', 'Yod', 'Retrograde', 'Fall', 'Domicile'])
+    assert.ok(west.flat().includes(t), t);
+  for (const t of [
+    'Tithi',
+    'Vara',
+    'Nakshatra',
+    'Yoga of the day',
+    'Karana',
+    'Lagna',
+    'Dusthana',
+    'Upachaya',
+    'Combust',
+  ])
+    assert.ok(vedic.flat().includes(t), t);
+  // never twice in one section
+  for (const sec of [...west, ...vedic]) assert.strictEqual(new Set(sec).size, sec.length);
+  // a word that means something else inside a longer name
+  assert.ok(
+    !Glossary.termsIn('Grand Trine between Sun, Moon and Mars', Glossary.WESTERN, 'Patterns').some(
+      (t) => t.term === 'Trine',
+    ),
+  );
+  assert.ok(!Glossary.termsIn('T-square to Mars', Glossary.WESTERN, 'Patterns').some((t) => t.term === 'Square'));
+  assert.ok(!Glossary.termsIn('Rahu Kaal is over', Glossary.VEDIC, 'The day').some((t) => t.term === 'Rahu and Ketu'));
 });

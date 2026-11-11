@@ -90,8 +90,7 @@ A **"today across traditions"** strip at the top of the page, one line from each
 | Idea | What changes for the reader | Size |
 |---|---|---|
 | Click the wheel, land in the reading | Headings in the reading already light the wheel. The reverse is missing: clicking a planet should scroll to and open the lines about it. | S |
-| A glossary mode | A switch that adds one plain sentence under each term (trine, tithi, dusthana) for people new to astrology. Most of the sentences already exist in the tooltips. | M |
-| Open all, close all | The Vedic reading has 33 lines across six sections. Two buttons, and a small section index that stays in view on phones. | S |
+| A section index | The Vedic reading has 33 lines across six sections. A small index of the sections that stays in view on phones, next to Open all and Close all. | S |
 | Remember unfolded lines | Sections are remembered between visits; individual lines are not. | S |
 
 ### Moving through time

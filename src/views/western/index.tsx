@@ -2,7 +2,7 @@
 import * as Astronomy from 'astronomy-engine';
 import { background } from '#lib/background.ts';
 import { useEffect, useMemo, useState } from 'preact/hooks';
-import { Western } from '#astro';
+import { Western, Glossary } from '#astro';
 import type { Pattern, YearEvent } from '#astro';
 import { APPROX, ASPECT_COLOR, ASPECT_GLYPH, EL_VAR, LABEL, VS } from '#lib/constants.ts';
 import { isCompact } from '#lib/dom.ts';
@@ -523,6 +523,7 @@ function WesternView({ moment, model }: ViewProps<Model>) {
       {/* right: what it means, and when */}
       <div class="side">
         <ReadingCard
+          glossary={Glossary.WESTERN}
           id="readingCard"
           heading="Reading"
           reading={model.reading}

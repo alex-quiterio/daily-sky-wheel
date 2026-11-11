@@ -576,6 +576,57 @@ table.eph tr.approx td.nm::after {
 .rd-more .tr > span:first-child {
   color: var(--muted);
 }
+/* Open all, Close all and Explain terms, above the sections */
+.rd-tools {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 8px;
+}
+.rd-tools button {
+  font-size: 13px;
+  padding: 4px 12px;
+}
+.rd-explain {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: auto;
+  font-size: 14px;
+  color: var(--muted);
+  cursor: pointer;
+}
+.rd-explain input {
+  accent-color: var(--gold);
+}
+/* what a term means, under the first line that uses it */
+.rd-gloss {
+  margin: -2px 0 10px;
+  padding: 6px 10px;
+  border-left: 2px solid var(--gold);
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 0 8px 8px 0;
+  font-size: 14px;
+  line-height: 1.45;
+}
+.rd-gloss > div + div {
+  margin-top: 4px;
+}
+.rd-gloss dt {
+  display: inline;
+  font-weight: 600;
+  color: var(--gold);
+}
+.rd-gloss dt::after {
+  content: ' · ';
+  font-weight: 400;
+  color: var(--muted);
+}
+.rd-gloss dd {
+  display: inline;
+  margin: 0;
+}
 .rd-foot {
   display: flex;
   flex-wrap: wrap;
@@ -590,8 +641,6 @@ table.eph tr.approx td.nm::after {
   flex: 1 1 260px;
   font-size: 13px;
 }
-/* one column: wheel, then the reading and the day, then the tables */
-
 /* tooltips */
 .tipzone {
   cursor: help;
