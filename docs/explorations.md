@@ -65,10 +65,7 @@ A **"today across traditions"** strip at the top of the page, one line from each
 
 | Idea | Why it matters | Size |
 |---|---|---|
-| A real state store for the controls | The date, time and place are plain form fields that `shell/controls.ts` reads and writes by id, and the render loop reads them back. Holding them in one state object, with the inputs controlled by it and the address bar following it, would remove most of `controls.ts` and every `field('date').value` in the views. | L |
-| Tooltips as components | Tooltip contents are HTML strings set with `innerHTML` (each tab's `tips.ts`). They are the last place markup is built by hand. | M |
 | The wheel as JSX | The SVG drawings (each tab's `draw.ts`) are imperative functions wrapped in `<Drawing>`. Fine for now, but the wheel as components would let a planet be a thing that can be focused, tested and animated. Do this only if the wheel needs to change. | L |
-| Western styles out of `base.css` | The other five tabs have their stylesheet beside their view. The Western tab's rules are still mixed into `shell/base.css` with the shared ones, because moving them changes the cascade. Needs care and a visual check. | M |
 
 ### Tests that match how the project is checked
 
@@ -78,14 +75,12 @@ A **"today across traditions"** strip at the top of the page, one line from each
 | Golden readings | The reading tests check structure, not words. A saved copy of each reading for the reference chart would show every wording change in review. | S |
 | Component tests | `ReadingCard` has real behaviour (folding, remembered sections, the heading that opens a tooltip without folding). It deserves tests of its own. | M |
 | Expert review of the tables | The interpretive tables in `western-reading.ts` and `vedic-reading.ts` are one encoding of traditional rules. Someone who practises each tradition should read a handful of charts. | S, but needs the right person |
-| The service worker | It was rewritten for the bundle and has not been exercised. An offline load in the browser check would cover it. | S |
+| The service worker | It now keeps every bundle the build lists in `dist/files.json`, so each tab opens offline, but that has only been reasoned about, not tried. An offline load of all six tabs in the browser check would cover it. | S |
 
 ### Tooling
 
 | Idea | Why | Size |
 |---|---|---|
-| Load each tab on demand | All six traditions ship in one bundle of about 103 kB gzipped. A dynamic import per view would mean someone who only reads the Western tab downloads much less. | M |
-| An error boundary per tab | If one tab's calculation throws, the whole page goes blank. Each view should fail on its own and say so. | S |
 | Text separate from logic | The readings mix rules and English sentences. Moving the phrases into data would make translation possible (Portuguese, Dutch) and wording changes safer. | L |
 
 ## 3. Usability: making it easier to use and to understand
