@@ -165,15 +165,15 @@ async function render(): Promise<Blob> {
 }
 
 // Share the picture where the device can, save it where it cannot. Says which happened.
-// `date` and `view` name the file; `link` goes along with a shared image
+// `date` and `view` name the file.
+// Only the file is shared. With a title or a link beside it, the share sheet hands over several items, and
+// "Copy" puts all of them on the clipboard: pasted, the link becomes a preview, a second picture.
 export async function shareImage({
   date,
   view,
-  link: linkOf,
 }: {
   date: string;
   view: string;
-  link: () => string;
 }): Promise<'shared' | 'saved' | 'cancelled'> {
   const blob = await render();
   const file = new File([blob], `sky-wheel-${date}-${view}.jpg`, {
@@ -181,7 +181,7 @@ export async function shareImage({
   });
   if (navigator.canShare && navigator.canShare({ files: [file] })) {
     try {
-      await navigator.share({ files: [file], title: $('title').textContent ?? 'Daily Sky Wheel', text: linkOf() });
+      await navigator.share({ files: [file] });
       return 'shared';
     } catch (e) {
       if (e instanceof DOMException && e.name === 'AbortError') return 'cancelled';

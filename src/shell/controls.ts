@@ -324,7 +324,7 @@ export function shareAsImage() {
   };
   btn.disabled = true;
   flash(btn, 'Making image…', 0);
-  shareImage({ ...controls.get(), link: shareURL }).then(
+  shareImage(controls.get()).then(
     (how) => say(how === 'saved' ? 'Image saved' : how === 'shared' ? 'Shared' : ''),
     () => say('Could not make it'),
   );
