@@ -1,7 +1,7 @@
 // The moment and the place: date, time and place controls, links, tabs, the quick bar and Play.
 import { HOUSE_ALIASES, PLACES, VIEWS } from '#lib/constants.ts';
 import { shareImage } from '#shell/share.ts';
-import { $, field, isCompact, one } from '#lib/dom.ts';
+import { $, field, isCompact, one, flash, unflash } from '#lib/dom.ts';
 import { pad, slug } from '#lib/format.ts';
 import { render, state as st } from '#lib/state.ts';
 import { store } from '#lib/storage.ts';
@@ -43,7 +43,6 @@ function initControls() {
 // ---------- current location ----------
 function locate() {
   const btn = $<HTMLButtonElement>('locate'),
-    label = one('span', btn),
     note = $('urlnote');
   if (!navigator.geolocation) {
     note.textContent = "This browser can't share its location. Pick a place or enter coordinates under Custom.";
@@ -51,11 +50,11 @@ function locate() {
     return;
   }
   btn.disabled = true;
-  label.textContent = 'Locating…';
+  flash(btn, 'Locating…', 0);
   navigator.geolocation.getCurrentPosition(
     (pos) => {
       btn.disabled = false;
-      label.textContent = 'My location';
+      unflash(btn);
       note.hidden = true;
       st.urlSync = true;
       st.fromGeo = true;
@@ -67,7 +66,7 @@ function locate() {
     },
     (err) => {
       btn.disabled = false;
-      label.textContent = 'My location';
+      unflash(btn);
       note.textContent =
         err.code === 1
           ? 'Location access was blocked. Allow it for this site in the browser, or pick a place from the list.'
@@ -339,8 +338,7 @@ function setPlaying(on: boolean) {
     b.setAttribute('aria-pressed', String(on));
     b.classList.toggle('on', on);
   });
-  one('.play-label', $('play')).textContent = on ? 'Pause' : 'Play 24 h';
-  $('play').title = $('mPlay').ariaLabel = on ? 'Pause' : 'Play the next 24 hours';
+  $('play').title = $('play').ariaLabel = $('mPlay').ariaLabel = on ? 'Pause' : 'Play the next 24 hours';
 }
 function stopPlay() {
   if (play) {
@@ -389,12 +387,7 @@ function wireControls() {
   $('copylink').addEventListener('click', () => {
     const url = shareURL(),
       btn = $('copylink');
-    const done = (ok: boolean) => {
-      btn.textContent = ok ? 'Link copied' : 'Copy failed';
-      setTimeout(() => {
-        btn.textContent = 'Copy link';
-      }, 1600);
-    };
+    const done = (ok: boolean) => flash(btn, ok ? 'Link copied' : 'Copy failed');
     if (navigator.clipboard && navigator.clipboard.writeText)
       navigator.clipboard.writeText(url).then(
         () => done(true),
@@ -406,15 +399,13 @@ function wireControls() {
     const btn = $<HTMLButtonElement>('shareimage');
     const say = (text: string) => {
       btn.disabled = false;
-      btn.textContent = text;
-      setTimeout(() => {
-        btn.textContent = 'Share image';
-      }, 1800);
+      if (text) flash(btn, text);
+      else unflash(btn);
     };
     btn.disabled = true;
-    btn.textContent = 'Making image…';
+    flash(btn, 'Making image…', 0);
     shareImage().then(
-      (how) => say(how === 'saved' ? 'Image saved' : how === 'shared' ? 'Shared' : 'Share image'),
+      (how) => say(how === 'saved' ? 'Image saved' : how === 'shared' ? 'Shared' : ''),
       () => say('Could not make it'),
     );
   });

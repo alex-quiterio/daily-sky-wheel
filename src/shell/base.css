@@ -1115,6 +1115,43 @@ table.eph .hcell:focus-visible {
   color: var(--gold);
   flex: none;
 }
+/* a button that is only an icon: square, with its name in the tooltip */
+.iconbtn:not(:has(span)) {
+  justify-content: center;
+  min-width: 40px;
+  padding-inline: 8px;
+}
+.iconbtn.primary svg {
+  color: var(--gold-bright);
+}
+/* what the button just did, shown under it for a moment */
+button[data-flash] {
+  position: relative;
+}
+button[data-flash]::after {
+  content: attr(data-flash);
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  z-index: 6;
+  white-space: nowrap;
+  padding: 3px 10px;
+  border-radius: 99px;
+  border: 1px solid var(--gold);
+  background: var(--sheet-solid);
+  color: var(--gold-bright);
+  font-size: 13.5px;
+  pointer-events: none;
+}
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
 button:disabled {
   opacity: 0.6;
   cursor: progress;

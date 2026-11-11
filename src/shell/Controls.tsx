@@ -1,5 +1,6 @@
 // The date, time and place form. The fields are plain inputs; shell/controls.ts reads and drives them.
 import { PLACES } from '#lib/constants.ts';
+import { Icon } from '#components/Icon.tsx';
 import { ZONES } from '#shell/controls.ts';
 
 export function Controls() {
@@ -21,9 +22,15 @@ export function Controls() {
         <span>Time</span>
         <input type="time" id="time" step="60" />
       </label>
-      <button type="button" id="play" class="playbtn" aria-pressed="false" title="Play the next 24 hours">
+      <button
+        type="button"
+        id="play"
+        class="playbtn"
+        aria-pressed="false"
+        title="Play the next 24 hours"
+        aria-label="Play the next 24 hours"
+      >
         <span class="play-ico" aria-hidden="true"></span>
-        <span class="play-label">Play 24 h</span>
       </button>
       <label class="field">
         <span>Place</span>
@@ -53,34 +60,32 @@ export function Controls() {
         </label>
       </div>
       <div class="spacer"></div>
-      <button type="button" id="locate" class="iconbtn">
-        <svg viewBox="0 0 24 24" aria-hidden="true" width="16" height="16">
-          <circle cx="12" cy="12" r="3.2" fill="currentColor" />
-          <circle cx="12" cy="12" r="7.5" fill="none" stroke="currentColor" stroke-width="1.6" />
-          <path
-            d="M12 1.5v3.5M12 19v3.5M1.5 12H5M19 12h3.5"
-            stroke="currentColor"
-            stroke-width="1.6"
-            stroke-linecap="round"
-          />
-        </svg>
-        <span>My location</span>
+      <button type="button" id="locate" class="iconbtn" title="My location" aria-label="My location">
+        <Icon name="locate" />
       </button>
-      <button type="button" id="now">
-        Now
+      <button type="button" id="now" class="iconbtn" title="Now: this minute, where you are" aria-label="Now">
+        <Icon name="now" />
       </button>
-      <button type="button" id="copylink">
-        Copy link
+      <button type="button" id="copylink" class="iconbtn" title="Copy link" aria-label="Copy link">
+        <Icon name="link" />
       </button>
-      <button type="button" id="shareimage" title="The open tab as a picture, to share or save">
-        Share image
+      <button
+        type="button"
+        id="shareimage"
+        class="iconbtn"
+        title="Share image: the open tab as a picture"
+        aria-label="Share image"
+      >
+        <Icon name="share" />
       </button>
-      <button type="button" id="print">
-        Print
+      <button type="button" id="print" class="iconbtn" title="Print" aria-label="Print">
+        <Icon name="print" />
       </button>
-      <button type="button" id="install" class="primary" hidden>
-        Install app
+      <button type="button" id="install" class="iconbtn primary" hidden title="Install app" aria-label="Install app">
+        <Icon name="install" />
       </button>
+      {/* what a button just did, for screen readers; sighted readers see it under the button */}
+      <p class="sr-only" id="status" role="status"></p>
       {/* the chosen house system; no value here, so a repaint never resets it */}
       <input type="hidden" id="hsys" />
       <p class="urlnote" id="urlnote" role="status" hidden></p>

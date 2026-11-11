@@ -82,6 +82,10 @@
   align-items: center;
   gap: 8px;
 }
+.playbtn {
+  justify-content: center;
+  min-width: 40px;
+}
 .play-ico {
   width: 0;
   height: 0;

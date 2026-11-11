@@ -21,6 +21,25 @@ export const field = (id: string) => $<HTMLInputElement>(id);
 export const hit = (e: Event, selector: string) =>
   e.target instanceof Element ? e.target.closest<HTMLElement>(selector) : null;
 
+// A short message under a button that has no words of its own ("Link copied"), also read out to screen readers.
+// It clears itself after `ms`; pass 0 to keep it until the next flash or unflash.
+const fading = new WeakMap<HTMLElement, ReturnType<typeof setTimeout>>();
+export function flash(el: HTMLElement, message: string, ms = 1800) {
+  clearTimeout(fading.get(el));
+  el.dataset.flash = message;
+  const status = document.getElementById('status');
+  if (status) status.textContent = message;
+  if (ms)
+    fading.set(
+      el,
+      setTimeout(() => unflash(el), ms),
+    );
+}
+export function unflash(el: HTMLElement) {
+  clearTimeout(fading.get(el));
+  delete el.dataset.flash;
+}
+
 export const NS = 'http://www.w3.org/2000/svg';
 
 export function el(
