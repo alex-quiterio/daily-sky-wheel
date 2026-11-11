@@ -1,0 +1,260 @@
+/* ---------- Vedic theme: saffron, marigold and vermilion on deep maroon-indigo ---------- */
+:root.theme-vedic {
+  --void: #12050c;
+  --nebula-1: #6a1e2a;
+  --nebula-2: #2a1458;
+  --nebula-3: #7a3a08;
+  --sheet: rgba(44, 12, 26, 0.7);
+  --sheet-solid: #240a16;
+  --ink: #fdf0dc;
+  --muted: #d6aa8c;
+  --rule: rgba(255, 170, 70, 0.24);
+  --gold: #f4a93a;
+  --gold-bright: #ffd27a;
+  --violet: #ff8a3d;
+  --title-end: #ff5e3a;
+  --glow: rgba(255, 150, 50, 0.5);
+  --wheel-bg: #22080f;
+  --wheel-core: #16050a;
+  --fire: #ff6b5a;
+}
+.dev {
+  font-family: var(--f-dev);
+  letter-spacing: 0;
+  text-transform: none;
+}
+section.card h2 .dev {
+  font-size: 17px;
+  color: var(--muted);
+  font-weight: 400;
+}
+.tabs .dev {
+  font-size: 16px;
+}
+.theme-vedic body::before {
+  background:
+    radial-gradient(34vmax 24vmax at 22% 25%, rgba(200, 60, 40, 0.3), transparent 70%),
+    radial-gradient(28vmax 22vmax at 80% 72%, rgba(90, 40, 170, 0.22), transparent 70%);
+}
+.theme-vedic body::after {
+  background:
+    radial-gradient(26vmax 18vmax at 60% 18%, rgba(255, 170, 40, 0.16), transparent 70%),
+    radial-gradient(22vmax 16vmax at 28% 86%, rgba(255, 120, 40, 0.1), transparent 70%);
+}
+.theme-vedic section.card,
+.theme-vedic .controls,
+.theme-vedic .wheelbox,
+.theme-vedic .tabs {
+  background: linear-gradient(165deg, rgba(70, 18, 34, 0.7), rgba(24, 6, 14, 0.8));
+  border-color: rgba(255, 170, 70, 0.3);
+}
+/* temple-border band on Vedic panels */
+.theme-vedic #viewVedic section.card {
+  position: relative;
+}
+.theme-vedic #viewVedic section.card::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 4px;
+  border-radius: 16px 16px 0 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(90deg, #ff9a2e 0 10px, #c8341f 10px 14px, #ffd27a 14px 18px, #c8341f 18px 22px);
+  opacity: 0.8;
+}
+.theme-vedic .tabs button[aria-selected='true'] {
+  color: #2a0a12;
+  background: linear-gradient(180deg, #ffc35a, #f08a1e);
+  box-shadow:
+    0 0 0 1px #ffe2a8 inset,
+    0 0 20px -4px rgba(255, 150, 40, 0.75);
+}
+.theme-vedic .eyebrow {
+  color: #ff9a5a;
+}
+.theme-vedic h1 {
+  text-shadow: 0 0 40px rgba(255, 120, 50, 0.25);
+}
+.theme-vedic .logo {
+  display: none;
+}
+.vd-emblem {
+  display: none;
+}
+.theme-vedic .vd-emblem {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: clamp(60px, 8vw, 84px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(circle at 50% 45%, #ffe7a8 0%, #ffb23c 40%, #d9541e 75%, #6a1420 100%);
+  box-shadow:
+    0 0 0 2px rgba(255, 210, 120, 0.7),
+    0 0 40px -4px rgba(255, 140, 40, 0.8);
+}
+.theme-vedic .vd-emblem span {
+  font-family: var(--f-dev);
+  font-size: clamp(34px, 4.6vw, 48px);
+  line-height: 1;
+  color: #5a0f18;
+  margin-top: 4px;
+}
+
+/* Vedic panel pieces */
+.vd-head {
+  text-align: center;
+  padding-bottom: 10px;
+  margin-bottom: 4px;
+  border-bottom: 1px solid var(--rule);
+}
+.vd-big {
+  font-family: var(--f-display);
+  font-size: 22px;
+  letter-spacing: 0.03em;
+  color: var(--gold-bright);
+}
+.vd-limb {
+  display: grid;
+  grid-template-columns: 82px minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: baseline;
+  padding: 6px 0;
+  border-top: 1px solid var(--rule);
+}
+.vd-limb:first-of-type {
+  border-top: 0;
+}
+.vd-l {
+  color: var(--muted);
+}
+.vd-v small {
+  display: block;
+  color: var(--muted);
+  font-size: 13px;
+}
+.vd-e {
+  font-family: var(--f-data);
+  font-size: 11.5px;
+  color: var(--muted);
+  white-space: nowrap;
+}
+#vdTimes .tr,
+#vdDasha .tr {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 5px 0;
+  border-top: 1px solid var(--rule);
+}
+#vdTimes .tr > span:first-child,
+#vdDasha .tr > span:first-child {
+  color: var(--muted);
+}
+.vd-per.bad > span:last-child {
+  color: #ff9a8a;
+}
+.vd-per.good > span:last-child {
+  color: #9fe0a8;
+}
+.vd-per.now {
+  background: rgba(255, 170, 70, 0.1);
+  border-radius: 6px;
+  padding-inline: 6px;
+}
+.vd-now {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--gold-bright);
+}
+.vd-first > span:first-child {
+  color: var(--gold-bright) !important;
+}
+#vdGrahas td {
+  font-size: 14px;
+}
+#vdGrahas .g.dev {
+  font-size: 15px;
+  width: 50px;
+  text-align: left;
+  color: var(--gold-bright);
+}
+.vd-dig {
+  font-size: 11px;
+  padding: 0 6px;
+  border-radius: 99px;
+  border: 1px solid var(--rule);
+}
+.vd-dig.up {
+  color: var(--gold-bright);
+  border-color: var(--gold);
+}
+.vd-dig.down {
+  color: var(--fire);
+  border-color: var(--fire);
+}
+.vd-lagna td {
+  color: var(--gold-bright);
+}
+#vdChart {
+  display: block;
+  width: 100%;
+  max-width: 420px;
+  height: auto;
+  margin: 6px auto 0;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .theme-vedic .sky-ring-vedic {
+    animation: ring-turn 640s linear infinite;
+  }
+  .theme-vedic .vd-emblem {
+    animation: seal-in 0.6s cubic-bezier(0.2, 1.4, 0.4, 1) both;
+  }
+}
+@media (max-width: 599px) {
+  .vd-limb {
+    grid-template-columns: 72px minmax(0, 1fr);
+  }
+  .vd-e {
+    grid-column: 2;
+  }
+}
+
+/* Vedic days ahead */
+.vd-item {
+  grid-template-columns: 74px 14px minmax(0, 1fr) auto;
+}
+.vd-ico {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--muted);
+  justify-self: center;
+}
+.vd-festival .vd-ico {
+  background: radial-gradient(circle, #ffe08a, #ff8a1e);
+  box-shadow: 0 0 10px rgba(255, 160, 40, 0.8);
+}
+.vd-festival .yt {
+  color: var(--gold-bright);
+  font-weight: 600;
+}
+.vd-ekadashi .vd-ico {
+  background: #9fe0a8;
+}
+.vd-moon .vd-ico {
+  background: #f4ecd0;
+}
+.vd-sankranti .vd-ico {
+  background: #ff6b5a;
+  border-radius: 2px;
+  transform: rotate(45deg);
+}
+@media (max-width: 599px) {
+  .vd-item {
+    grid-template-columns: 66px 12px minmax(0, 1fr);
+  }
+}

@@ -1,0 +1,253 @@
+/* ---------- Kabbalah theme: sapphire, white light and gold ---------- */
+:root.theme-kab {
+  --void: #040820;
+  --nebula-1: #142a7a;
+  --nebula-2: #2a1a6e;
+  --nebula-3: #0a3a6a;
+  --sheet: rgba(14, 22, 64, 0.66);
+  --sheet-solid: #0e1640;
+  --ink: #f2f0ff;
+  --muted: #a9b2d8;
+  --rule: rgba(190, 205, 255, 0.2);
+  --gold: #e6c36e;
+  --gold-bright: #fff0b8;
+  --violet: #8fb0ff;
+  --title-end: #b9cbff;
+  --glow: rgba(170, 195, 255, 0.55);
+  --wheel-bg: #0b1238;
+  --wheel-core: #070c28;
+  --kb-path: rgba(200, 215, 255, 0.28);
+}
+.he {
+  font-family: var(--f-he);
+  letter-spacing: 0;
+  text-transform: none;
+}
+.tabs .he {
+  font-size: 15px;
+}
+.theme-kab body::before {
+  background:
+    radial-gradient(34vmax 26vmax at 50% 18%, rgba(120, 150, 255, 0.28), transparent 70%),
+    radial-gradient(26vmax 20vmax at 15% 75%, rgba(80, 60, 200, 0.22), transparent 70%);
+}
+.theme-kab body::after {
+  background:
+    radial-gradient(20vmax 14vmax at 50% 8%, rgba(255, 245, 210, 0.16), transparent 70%),
+    radial-gradient(22vmax 16vmax at 85% 80%, rgba(230, 195, 110, 0.08), transparent 70%);
+}
+.theme-kab section.card,
+.theme-kab .controls,
+.theme-kab .wheelbox,
+.theme-kab .tabs {
+  background: linear-gradient(170deg, rgba(24, 36, 96, 0.68), rgba(8, 12, 40, 0.8));
+  border-color: rgba(190, 205, 255, 0.24);
+}
+.theme-kab #viewKabbalah section.card {
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.03) inset,
+    0 0 40px -24px rgba(170, 195, 255, 0.6);
+}
+.theme-kab .tabs button[aria-selected='true'] {
+  color: #10164a;
+  background: linear-gradient(180deg, #fff6d6, #d9c07a);
+  box-shadow:
+    0 0 0 1px #fffbe8 inset,
+    0 0 20px -4px rgba(255, 240, 190, 0.7);
+}
+.theme-kab .eyebrow {
+  color: #b9cbff;
+}
+.theme-kab h1 {
+  text-shadow: 0 0 40px rgba(185, 203, 255, 0.25);
+}
+.theme-kab .logo {
+  display: none;
+}
+.kb-emblem {
+  display: none;
+}
+.theme-kab .kb-emblem {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: clamp(60px, 8vw, 84px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(circle at 50% 40%, #fffbe8 0%, #f2dc9a 28%, #3a52b8 62%, #0b1238 100%);
+  box-shadow:
+    0 0 0 1px rgba(255, 240, 190, 0.7),
+    0 0 40px -4px rgba(170, 195, 255, 0.7);
+}
+.theme-kab .kb-emblem span {
+  font-family: var(--f-he);
+  font-weight: 700;
+  font-size: clamp(34px, 4.6vw, 48px);
+  line-height: 1;
+  color: #10164a;
+}
+
+/* Kabbalah panel pieces */
+.kb-hero {
+  text-align: center;
+  padding: 4px 0 12px;
+  border-bottom: 1px solid var(--rule);
+  margin-bottom: 6px;
+}
+.kb-he {
+  font-family: var(--f-he);
+  font-size: clamp(30px, 4.4vw, 44px);
+  line-height: 1.2;
+  color: var(--gold-bright);
+  text-shadow: 0 0 24px rgba(255, 240, 184, 0.35);
+}
+.kb-en {
+  font-family: var(--f-display);
+  font-size: 18px;
+  letter-spacing: 0.03em;
+}
+.kb-hol {
+  margin: 8px 0;
+  padding: 6px 10px;
+  border-radius: 9px;
+  border: 1px solid var(--gold);
+  color: var(--gold-bright);
+  text-align: center;
+  background: rgba(230, 195, 110, 0.08);
+}
+#kbDate .tr,
+#kbMonth .tr {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 5px 0;
+  border-top: 1px solid var(--rule);
+}
+#kbDate .tr > span:first-child,
+#kbMonth .tr > span:first-child {
+  color: var(--muted);
+  flex: none;
+}
+.kb-month {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 14px;
+  align-items: center;
+  margin-bottom: 8px;
+}
+.kb-letter {
+  font-family: var(--f-he);
+  font-weight: 700;
+  font-size: 56px;
+  line-height: 1;
+  color: var(--gold-bright);
+  width: 76px;
+  height: 76px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  border: 1px solid var(--gold);
+  background: radial-gradient(circle, rgba(255, 240, 184, 0.16), transparent 70%);
+  text-shadow: 0 0 22px rgba(255, 240, 184, 0.5);
+}
+.kb-coming {
+  all: unset;
+  box-sizing: border-box;
+  cursor: pointer;
+  width: 100%;
+  display: grid;
+  grid-template-columns: 96px minmax(0, 1fr);
+  gap: 10px;
+  padding: 7px 6px;
+  border-top: 1px solid var(--rule);
+  border-radius: 8px;
+}
+.kb-coming:first-child {
+  border-top: 0;
+}
+.kb-coming:hover,
+.kb-coming:focus-visible {
+  background: rgba(230, 195, 110, 0.08);
+  outline: none;
+}
+.kb-c-d {
+  font-family: var(--f-data);
+  font-size: 12.5px;
+  color: var(--gold);
+}
+.kb-coming small {
+  display: block;
+  color: var(--muted);
+  font-size: 12.5px;
+}
+#kbTree {
+  display: block;
+  width: 100%;
+  max-width: 380px;
+  height: auto;
+  margin: 0 auto;
+  overflow: visible;
+}
+.kb-dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--kb-orb-on);
+  box-shadow: 0 0 8px var(--gold-bright);
+  margin-right: 6px;
+  vertical-align: middle;
+}
+.kb-sef {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 14px;
+  align-items: center;
+  margin-bottom: 4px;
+}
+.kb-sef-he {
+  font-family: var(--f-he);
+  font-size: 40px;
+  color: var(--gold-bright);
+  text-shadow: 0 0 20px rgba(255, 240, 184, 0.4);
+}
+.kb-omer {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 14px;
+  align-items: center;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--rule);
+}
+.kb-omer-n {
+  font-family: var(--f-display);
+  font-size: 40px;
+  color: var(--gold-bright);
+  width: 64px;
+  text-align: center;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .theme-kab .sky-ring-kab {
+    animation: ring-turn 700s linear infinite;
+  }
+  .theme-kab .kb-emblem {
+    animation: seal-in 0.6s cubic-bezier(0.2, 1.4, 0.4, 1) both;
+  }
+  #kbTree .kb-pulse {
+    animation: kb-pulse 3.5s ease-in-out infinite;
+    transform-box: fill-box;
+    transform-origin: center;
+  }
+}
+@keyframes kb-pulse {
+  0%,
+  100% {
+    opacity: 0.7;
+    transform: scale(0.92);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.08);
+  }
+}

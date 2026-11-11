@@ -1,0 +1,19 @@
+// Maya tab: everything worked out for one moment, as plain data. No markup here.
+import { Maya } from '#astro';
+import type { Moment } from '#lib/types.ts';
+import type { Model } from '#views/maya/types.ts';
+
+export function build({ local }: Moment): Model {
+  const r = Maya.mayaDate(local.y, local.m, local.d);
+  return {
+    r,
+  };
+}
+
+export const utcDate = (d: Date, year = false) =>
+  new Intl.DateTimeFormat('en-GB', {
+    timeZone: 'UTC',
+    day: 'numeric',
+    month: 'short',
+    ...(year ? { year: 'numeric' } : {}),
+  }).format(d);

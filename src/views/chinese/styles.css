@@ -1,0 +1,384 @@
+/* Chinese view */
+.pillars {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+.pcol {
+  display: grid;
+  gap: 6px;
+  text-align: center;
+  padding: 8px 4px;
+  border-radius: 12px;
+  border: 1px solid var(--rule);
+  background: rgba(255, 255, 255, 0.02);
+  min-width: 0;
+}
+.pcol-dm {
+  border-color: var(--gold);
+  box-shadow: 0 0 20px -10px var(--gold);
+  background: rgba(216, 180, 106, 0.06);
+}
+.pc-head {
+  font-family: var(--f-display);
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+.pc-stem,
+.pc-branch {
+  display: grid;
+  gap: 1px;
+  justify-items: center;
+  padding: 4px 2px;
+  border-radius: 8px;
+}
+.pc-stem {
+  border-bottom: 1px dashed var(--rule);
+  padding-bottom: 8px;
+}
+.pc-stem:hover,
+.pc-branch:hover {
+  background: rgba(216, 180, 106, 0.07);
+}
+.pc-god {
+  font-size: 12px;
+  color: var(--muted);
+  font-style: italic;
+  min-height: 1.3em;
+}
+.pcol-dm .pc-god {
+  color: var(--gold-bright);
+  font-style: normal;
+  font-weight: 600;
+}
+.pc-ch {
+  font-family: var(--f-zh);
+  font-size: clamp(34px, 4.4vw, 46px);
+  line-height: 1.1;
+  font-weight: 500;
+  text-shadow: 0 0 18px currentColor;
+}
+.pc-py {
+  font-size: 14px;
+}
+.pc-el {
+  font-size: 12.5px;
+  color: var(--muted);
+}
+.pc-hidden {
+  display: flex;
+  gap: 4px;
+  justify-content: center;
+  font-family: var(--f-zh);
+  font-size: 15px;
+  margin-top: 2px;
+}
+.cn-note {
+  color: var(--muted);
+  font-size: 13.5px;
+  font-style: italic;
+  margin: 10px 0 0;
+}
+.cn-dm {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--rule);
+}
+.cn-dm-head {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 14px;
+  align-items: center;
+}
+.cn-dm-head p {
+  margin: 2px 0 0;
+}
+.cn-dm .pc-ch {
+  font-size: 52px;
+}
+.cn-year {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 14px;
+  align-items: center;
+  margin-bottom: 10px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--rule);
+}
+.cn-year-ch {
+  font-family: var(--f-zh);
+  font-size: 44px;
+  line-height: 1;
+  color: var(--gold-bright);
+  text-shadow: 0 0 22px rgba(244, 220, 156, 0.4);
+}
+.cn-year-name {
+  font-family: var(--f-display);
+  font-size: 18px;
+  letter-spacing: 0.04em;
+}
+#cnCal .tr {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 5px 0;
+  border-top: 1px solid var(--rule);
+}
+#cnCal .tr > span:first-child {
+  color: var(--muted);
+  flex: none;
+}
+#cnCal .tr > span:last-child {
+  text-align: right;
+}
+#cnCal .muted {
+  color: var(--muted);
+}
+#cnWheel {
+  display: block;
+  width: 100%;
+  max-width: 440px;
+  height: auto;
+  margin: 0 auto;
+}
+#cnLegend b {
+  color: var(--gold-bright);
+  font-family: var(--f-data);
+}
+@media (max-width: 599px) {
+  .pillars {
+    gap: 5px;
+  }
+  .pcol {
+    padding: 6px 2px;
+  }
+  .pc-py {
+    font-size: 12.5px;
+  }
+  .pc-el,
+  .pc-god {
+    font-size: 11px;
+  }
+  .tabs button {
+    padding: 6px 16px;
+  }
+}
+
+/* ---------- Chinese theme: black lacquer, cinnabar, jade and gold ---------- */
+:root.theme-cn {
+  --void: #0c0405;
+  --nebula-1: #6a1016;
+  --nebula-2: #0d3d33;
+  --nebula-3: #4a2208;
+  --sheet: rgba(34, 10, 12, 0.7);
+  --sheet-solid: #1f0a0c;
+  --ink: #f7ead3;
+  --muted: #c9a98c;
+  --rule: rgba(224, 176, 79, 0.24);
+  --gold: #e3b14f;
+  --gold-bright: #ffdc8f;
+  --violet: #62c7a8;
+  --title-end: #ff6a48;
+  --glow: rgba(255, 128, 80, 0.5);
+  --wheel-bg: #1c0708;
+  --wheel-core: #120304;
+  --fire: #ff7b5c;
+  --wood: #6fd3a8;
+  --metal: #f1e6d0;
+  --water-el: #7fb2ff;
+  --earth-el: #e9b26a;
+}
+.seal {
+  display: none;
+}
+.theme-cn .logo {
+  display: none;
+}
+.theme-cn .seal {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: clamp(60px, 8vw, 84px);
+  aspect-ratio: 1;
+  border-radius: 10px;
+  background: radial-gradient(circle at 30% 25%, #e0473a, #a8161a 70%);
+  box-shadow:
+    0 0 0 3px rgba(168, 22, 26, 0.35),
+    0 0 30px -6px rgba(255, 80, 60, 0.6),
+    inset 0 0 0 3px rgba(255, 220, 190, 0.85),
+    inset 0 0 0 5px #b81c1f;
+  transform: rotate(-4deg);
+}
+.theme-cn .seal span {
+  font-family: var(--f-brush);
+  font-size: clamp(40px, 5.6vw, 58px);
+  line-height: 1;
+  color: #fff3e0;
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.25);
+}
+.theme-cn .eyebrow {
+  color: #ff8a66;
+}
+.theme-cn h1 {
+  text-shadow: 0 0 40px rgba(255, 106, 72, 0.22);
+}
+
+/* backgrounds: swap the zodiac ring for branches and trigrams */
+.sky-ring-cn {
+  display: none;
+  color: #ff8a5c;
+}
+.sky-ring-maya {
+  display: none;
+  color: #7fe0b8;
+}
+.sky-ring-kab {
+  display: none;
+  color: #cfdcff;
+}
+.sky-ring-vedic {
+  display: none;
+  color: #ffb347;
+}
+.sky-ring-islamic {
+  display: none;
+  color: #e9cf86;
+}
+.theme-cn .sky-ring,
+.theme-maya .sky-ring,
+.theme-kab .sky-ring,
+.theme-vedic .sky-ring,
+.theme-islamic .sky-ring {
+  display: none;
+}
+.theme-islamic .sky-ring-islamic {
+  display: block;
+  opacity: 0.07;
+}
+.theme-vedic .sky-ring-vedic {
+  display: block;
+  opacity: 0.075;
+}
+.theme-kab .sky-ring-kab {
+  display: block;
+  opacity: 0.07;
+}
+.theme-maya .sky-ring-maya {
+  display: block;
+  opacity: 0.075;
+}
+.theme-cn .sky-ring-cn {
+  display: block;
+  opacity: 0.075;
+}
+.theme-cn body::before {
+  background:
+    radial-gradient(32vmax 24vmax at 20% 28%, rgba(190, 30, 36, 0.32), transparent 70%),
+    radial-gradient(28vmax 22vmax at 80% 70%, rgba(20, 120, 96, 0.2), transparent 70%);
+}
+.theme-cn body::after {
+  background:
+    radial-gradient(24vmax 18vmax at 65% 22%, rgba(255, 150, 60, 0.12), transparent 70%),
+    radial-gradient(22vmax 16vmax at 30% 85%, rgba(227, 177, 79, 0.1), transparent 70%);
+}
+
+/* lacquer panels with lattice corners */
+.theme-cn section.card,
+.theme-cn .controls,
+.theme-cn .wheelbox,
+.theme-cn .tabs {
+  background: linear-gradient(160deg, rgba(58, 14, 16, 0.72), rgba(22, 6, 8, 0.78));
+  border-color: rgba(227, 177, 79, 0.32);
+}
+.theme-cn #viewChinese section.card {
+  position: relative;
+}
+.theme-cn #viewChinese section.card::before,
+.theme-cn #viewChinese section.card::after {
+  content: '';
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  pointer-events: none;
+  border: 2px solid var(--gold);
+  opacity: 0.7;
+}
+.theme-cn #viewChinese section.card::before {
+  top: 5px;
+  left: 5px;
+  border-right: 0;
+  border-bottom: 0;
+  border-top-left-radius: 4px;
+  box-shadow: inset 4px 4px 0 -2px rgba(227, 177, 79, 0.35);
+}
+.theme-cn #viewChinese section.card::after {
+  bottom: 5px;
+  right: 5px;
+  border-left: 0;
+  border-top: 0;
+  border-bottom-right-radius: 4px;
+  box-shadow: inset -4px -4px 0 -2px rgba(227, 177, 79, 0.35);
+}
+.theme-cn section.card h2 {
+  color: var(--gold);
+}
+.theme-cn section.card h2::after {
+  background: linear-gradient(90deg, rgba(227, 177, 79, 0.5), transparent);
+}
+
+/* brush characters */
+.theme-cn .pc-ch,
+.theme-cn .cn-year-ch {
+  font-family: var(--f-brush);
+  font-weight: 400;
+}
+.theme-cn .pc-ch {
+  font-size: clamp(40px, 5vw, 54px);
+}
+.theme-cn .cn-year-ch {
+  font-size: 54px;
+  color: #ff7b5c;
+  text-shadow: 0 0 24px rgba(255, 106, 72, 0.45);
+}
+.theme-cn .pcol {
+  background: rgba(255, 240, 220, 0.025);
+}
+.theme-cn .pcol-dm {
+  border-color: #ff7b5c;
+  box-shadow: 0 0 24px -10px #ff6a48;
+  background: rgba(255, 106, 72, 0.07);
+}
+.theme-cn .pcol-dm .pc-god {
+  color: #ff9a7a;
+}
+.theme-cn .tabs button[aria-selected='true'] {
+  color: #fff1dc;
+  background: linear-gradient(180deg, #c62a24, #8e1418);
+  box-shadow:
+    0 0 0 1px #ffb38a inset,
+    0 0 18px -4px rgba(255, 80, 60, 0.7);
+}
+.theme-cn .chips button[aria-pressed='true'],
+.theme-cn .seg input:checked + span {
+  color: var(--gold-bright);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .theme-cn .sky-ring-cn {
+    animation: ring-turn 600s linear infinite reverse;
+  }
+  .theme-cn .seal {
+    animation: seal-in 0.6s cubic-bezier(0.2, 1.4, 0.4, 1) both;
+  }
+}
+@keyframes seal-in {
+  from {
+    transform: rotate(-14deg) scale(1.35);
+    opacity: 0;
+  }
+  to {
+    transform: rotate(-4deg) scale(1);
+    opacity: 1;
+  }
+}

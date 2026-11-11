@@ -1,0 +1,8 @@
+dist
+node_modules
+package-lock.json
+assets
+docs
+# hand-set markup and prose: the inline SVG and the README tables read better as written
+index.html
+*.md

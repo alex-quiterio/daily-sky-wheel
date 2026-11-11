@@ -11,8 +11,8 @@
 [![Open the wheel](https://img.shields.io/badge/open_the_wheel-alex--quiterio.github.io-d8b46a?style=for-the-badge&labelColor=07061a)](https://alex-quiterio.github.io/daily-sky-wheel/)
 <br>
 [![tests](https://github.com/alex-quiterio/daily-sky-wheel/actions/workflows/test.yml/badge.svg)](https://github.com/alex-quiterio/daily-sky-wheel/actions/workflows/test.yml)
-![no build step](https://img.shields.io/badge/build_step-none-a58bff?labelColor=15112f)
-![dependencies](https://img.shields.io/badge/runtime_deps-1-a58bff?labelColor=15112f)
+![TypeScript](https://img.shields.io/badge/TypeScript-strict_core-a58bff?labelColor=15112f)
+![dependencies](https://img.shields.io/badge/runtime_deps-2-a58bff?labelColor=15112f)
 
 <br>
 
@@ -36,11 +36,12 @@ Pick a day, a time and a place and the sky comes back as a chart.
 | **中 Chinese tab** | Four Pillars (BaZi) for the moment: stems, branches, hidden stems and Ten Gods around the Day Master; the Five Elements balance; the Chinese lunar date with leap months; the year's animal (turning at Chinese New Year); the current and next solar term; the day's clash; and a wheel of the twelve animals marking the year, month, day and hour. Add `view=chinese` to a link to open on it. The tab has its own theme: black lacquer, cinnabar and jade, brush-calligraphy characters, a seal of the year's animal, drifting lanterns and a turning ring of the branches and trigrams. |
 | **◎ Maya tab** | The Tzolk'in day (number and day sign with meaning, direction and colour), the trecena, the day of the 260-day count, the Lord of the Night, the Long Count in bar-and-dot numerals, the Haab' date and year bearer, the next 20 days, and the 13 and 20 calendar gears turning to the selected day. GMT correlation. Its theme is jungle jade and turquoise, with a carved jade emblem, a pyramid skyline and fireflies. Open with `view=maya`. |
 | **א Kabbalah tab** | The Hebrew date in Hebrew letters, with the day turning at local sunset; holy days; sunset, nightfall, and Shabbat candle-lighting and Havdalah times for the place; the month's letter, sign, tribe and sense from Sefer Yetzirah; the coming holy days; the sefira and planet of the weekday; the Counting of the Omer in season; and the Tree of Life with the day's sefirot lit. Its theme is sapphire and white-gold light, with Hebrew letters and rising sparks. Open with `view=kabbalah`. |
-| **ॐ Vedic tab** | Jyotish with the Lahiri ayanamsa. The Panchang shows tithi, vara, nakshatra, yoga and karana, each with the time it ends, plus the amanta month with adhika months. It also shows sunrise and sunset, Rahu Kaal, Yamaganda, Gulika and Abhijit muhurta; a North or South Indian rashi chart (whole-sign houses from the Lagna); the grahas with nakshatra, pada, house and dignity; the Vimshottari dasha for someone born at that moment; and the **days ahead**, a year of festivals, Ekadashis, Purnimas, Amavasyas and Sankrantis, each placed by its traditional observance rule (the tithi at sunrise, midday, afternoon, pradosh or midnight, with skipped tithis, Bhadra for Holika Dahan, and no festivals in an adhika month). Its theme is saffron and marigold, with a lotus and a nakshatra ring, falling petals and Devanagari lettering. Open with `view=vedic`. |
+| **ॐ Vedic tab** | Jyotish with the Lahiri ayanamsa. The Panchang shows tithi, vara, nakshatra, yoga and karana, each with the time it ends, plus the amanta month with adhika months. It also shows sunrise and sunset, Rahu Kaal, Yamaganda, Gulika and Abhijit muhurta; a North or South Indian rashi chart (whole-sign houses from the Lagna); the grahas with nakshatra, pada, house and dignity; the Vimshottari dasha for someone born at that moment; a **reading** that leads the tab, with the day's five limbs explained (tithi group, the nakshatra's nature and gana, auspicious and inauspicious yogas, Vishti karana), the Lagna, Moon and Sun, classical yogas (Gajakesari, Budha-Aditya, the five Mahapurusha yogas, Kala Sarpa, Kemadruma, combustion, vargottama and more), then every graha and every house as a line that unfolds into its sign lord, nakshatra, navamsa, aspects cast and received, and condition; and the **days ahead**, a year of festivals, Ekadashis, Purnimas, Amavasyas and Sankrantis, each placed by its traditional observance rule (the tithi at sunrise, midday, afternoon, pradosh or midnight, with skipped tithis, Bhadra for Holika Dahan, and no festivals in an adhika month). Its theme is saffron and marigold, with a lotus and a nakshatra ring, falling petals and Devanagari lettering. Open with `view=vedic`. |
 | **هـ Islamic tab** | The Hijri date in Arabic, with months by the Umm al-Qura rule and the day turning at Maghrib. Prayer times for the place: five methods, a Shafi'i or Hanafi Asr, the current prayer and a countdown to the next, and a high-latitude fallback. Also the Qibla compass and distance, Islamic dates ahead, and the Moon's age with tonight's crescent visibility. The Arab lunar mansions are shown as heritage sky-lore. Its theme is night teal and gold, with an eight-pointed star tiling, arched panels and Amiri lettering. Open with `view=islamic`. |
 | **♄ Planetary hours** | The 24 unequal hours from sunrise to the next sunrise, in Chaldean order from the weekday's ruler. Shows the day ruler, the current hour with a countdown, every hour's start time, and each planet's traditional uses. Click an hour to cast the chart for its start. |
 | **✶ Positions** | Degree, sign and minute for every body, with retrograde flags and the house each one falls in. |
 | **△ Balance and patterns** | Counts by element and mode, the chart ruler, and any Yod, T-square, Grand Trine or stellium. |
+| **❋ Reading** | Beside the wheel: a short summary of the chart in plain words, what the moment is **good for** and what to **go easy on**, then sections that fold open. Sun, Moon, phase and rising sign; the five tightest aspects; patterns; the balance of elements and modes; planets strong or strained by sign; retrogrades; and crowded houses. Each line's heading opens the matching tooltip and lights that planet or aspect on the wheel. **Copy reading** copies it with a link to the moment. |
 | **⌂ Houses** | Placidus, Whole sign, Equal, or Natural (Aries on the 1st), switched from the toggle above the wheel. |
 | **✧ Hover anything** | Every symbol has a tooltip. **Houses** open with a plain-language line on what that house covers, for anyone new to astrology. **Planets** show position to the arcsecond, house, daily motion, latitude, declination (flagged when out of bounds), dignity, the houses they rule, antiscia, and each aspect with its orb and whether it's applying or separating. **Signs** show element, mode, polarity, rulers, exaltation, detriment and fall, and which cusps and bodies fall in them. **Houses** show the cusp, size, the cusp ruler and where it sits, interceptions and the bodies inside. **Angles and aspect lines** have their own details. Hovering a planet lights up its aspects. Click or tap a symbol to pin its tooltip, and press Esc to close it. |
 
@@ -78,15 +79,25 @@ If part of a link can't be read, the page says which part and uses its default f
 
 ## ✦ Start
 
-It's a static page with no build step.
+It's a static page built with TypeScript and Preact. esbuild bundles `src/` into `dist/app.js` and `dist/app.css`.
 
 ```sh
 git clone https://github.com/alex-quiterio/daily-sky-wheel.git
 cd daily-sky-wheel
-npm start            # → http://localhost:3000
+npm install
+npm run dev          # rebuilds on every save → http://localhost:8000
 ```
 
-Opening `index.html` directly works too.
+| Command | What it does |
+|---|---|
+| `npm run dev` | Serve the page and rebuild the bundle on every save |
+| `npm run build` | Write the minified bundle to `dist/` |
+| `npm start` | Build once, then serve on http://localhost:3000 |
+| `npm test` | Run the reference tests (Node 24 runs the TypeScript directly) |
+| `npm run typecheck` | Type-check everything, then `src/astro` again in strict mode |
+| `npm run lint` | Lint with ESLint |
+| `npm run format` | Format with Prettier |
+| `npm run check` | Type-check, lint, test and check formatting in one go |
 
 ## ☿ Proven against a real chart
 
@@ -117,26 +128,57 @@ GitHub Actions runs the tests on every push.
 ## ♄ How it works
 
 ```
-index.html         the page
-src/core.js        positions, houses, Ascendant / MC / Vertex
-src/events.js      aspects, patterns, element balance, Moon phase, the day's events, the year ahead
-src/chinese.js     Four Pillars, solar terms, Chinese lunar calendar
-src/maya.js        Long Count, Tzolk'in, Haab', Lords of the Night
-src/hebrew.js      Hebrew calendar, holy days, Omer, Sefer Yetzirah correspondences
-src/vedic.js       Lahiri sidereal positions, nakshatras, Panchang, Rahu Kaal, lunar month, dasha
-src/islamic.js     Hijri calendar (Umm al-Qura rule), prayer times, Qibla, crescent, lunar mansions
-src/app.js         controls, time zones, the SVG wheel
-src/stars.js       the twinkling sky behind it all
-src/styles.css     the night theme
-assets/logo.svg    the logo, also the browser tab icon
-assets/icons/      app icons
+index.html               the head, the sky canvas and the mount point
+src/app.tsx              start-up, the render loop and the <App> component
+src/astro/               the calculations: no DOM, strict TypeScript, tested with node
+  index.ts               one namespace per tradition: Core, Western, Chinese, Vedic, Maya, Hebrew, Islamic
+  reading.ts             the shape both readings produce
+  core.ts                positions, houses, Ascendant / MC / Vertex (Chart, Point)
+  western.ts             aspects, patterns, balance, Moon phase, the day's events, the year ahead, planetary hours
+  western-reading.ts     the Western reading, in plain words
+  chinese.ts             Four Pillars, solar terms, Chinese lunar calendar
+  vedic.ts               Lahiri sidereal positions, nakshatras, Panchang, Rahu Kaal, lunar month, dasha, festivals
+  vedic-reading.ts       the Jyotish reading: the day, yogas, every graha and every house
+  maya.ts                Long Count, Tzolk'in, Haab', Lords of the Night
+  hebrew.ts              Hebrew calendar, holy days, Omer, Sefer Yetzirah correspondences
+  islamic.ts             Hijri calendar (Umm al-Qura rule), prayer times, Qibla, crescent, lunar mansions
+src/lib/                  what the page shares that is not a component
+  types.ts               the contract between the page and its tabs: ViewDef, ViewProps, Moment, Place, HeaderInfo
+  constants.ts           glyphs, colours, the preset places, the tabs
+  state.ts               the current view and moment; where tabs and tooltips register
+  dom.ts                 form fields by id, the SVG helper, the phone breakpoint
+  format.ts              positions, glyphs and labels as text
+  time.ts                local time at a place
+  storage.ts             the choices remembered between visits
+src/components/          reusable pieces, one per file
+  Card, Row, Bars, Chips, Drawing, ReadingCard, Tooltip, useStored
+src/shell/               the page around the tabs
+  Tabs, Header, Controls, MiniBar, MethodNotes
+  controls.ts            reads and drives the date, time and place fields; links, the quick bar, Play
+  stars.ts               the twinkling sky behind it all
+  base.css, shell.css    the night theme and page layout
+src/views/<tab>/         one folder per tab: western, chinese, vedic, maya, kabbalah, islamic
+  index.tsx              the components, and nothing else
+  model.ts               build(moment): everything worked out for one moment, as plain data
+  types.ts               the model's shape
+  constants.ts           the tab's fixed lists and colours
+  draw.ts                its SVG drawing (the wheel, the gears, the Tree of Life, ...)
+  tips.ts                what its tooltips say
+  styles.css             its theme
+assets/                  the logo and app icons
 manifest.webmanifest, sw.js   install as an app, work offline
 ```
+
+The page is built with [Preact](https://preactjs.com). A tab registers three things under its name, and `ViewDef` in `lib/types.ts` is the contract: `build(moment)` works everything out for the chosen moment and place as plain data, `header(model)` says what the page header shows, and a `View` component draws the model. The render loop in `app.tsx` reads the controls, casts the chart once, and publishes the `moment`; `<App>` hands it to the open tab. The larger SVG drawings are plain drawing functions wrapped in a `<Drawing>` component.
+
+Imports use aliases instead of relative paths: `#astro` for the calculations, then `#lib/…`, `#components/…`, `#shell/…` and `#views/…`. They are plain Node [subpath imports](https://nodejs.org/api/packages.html#subpath-imports) set in `package.json`, so TypeScript, esbuild and the test runner all resolve them the same way.
 
 - **Planets** come from [Astronomy Engine](https://github.com/cosinekitty/astronomy) (MIT), accurate to well under an arcminute.
 - **Houses and angles** are computed from sidereal time and the true obliquity of the ecliptic.
 - **The day's events** are found by sampling the sky every hour, then bisecting each crossing to within 30 seconds.
 - **Time zones** use the browser's own `Intl` database, so daylight-saving changes come out right.
+
+Ideas for where the project could go next, in depth, code quality and usability, are in [docs/explorations.md](docs/explorations.md).
 
 ## ⚷ Accuracy
 

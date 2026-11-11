@@ -4,10 +4,40 @@
   "private": true,
   "description": "A daily astrology chart wheel in the browser: positions, houses, aspects, patterns and the day's sky events.",
   "scripts": {
-    "start": "npx --yes serve@14.2.4 .",
-    "test": "node --test"
+    "dev": "esbuild src/app.tsx --bundle --format=iife --target=es2022 --sourcemap --outfile=dist/app.js --servedir=. --watch",
+    "build": "esbuild src/app.tsx --bundle --format=iife --target=es2022 --minify --sourcemap --outfile=dist/app.js",
+    "start": "npm run build && npx --yes serve@14.2.4 .",
+    "typecheck": "tsc --noEmit && tsc -p tsconfig.astro.json",
+    "test": "node --test",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "check": "npm run typecheck && npm run lint && npm test && npm run format:check",
+    "lint": "eslint ."
   },
   "devDependencies": {
-    "astronomy-engine": "2.1.19"
+    "@types/node": "^24.19.2",
+    "astronomy-engine": "^2.1.19",
+    "esbuild": "^0.28.2",
+    "eslint": "^9.39.5",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "prettier": "^3.9.10",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.72.2"
+  },
+  "type": "module",
+  "imports": {
+    "#astro": "./src/astro/index.ts",
+    "#astro/*": "./src/astro/*",
+    "#lib/*": "./src/lib/*",
+    "#components/*": "./src/components/*",
+    "#shell/*": "./src/shell/*",
+    "#views/*": "./src/views/*"
+  },
+  "engines": {
+    "node": ">=24"
+  },
+  "dependencies": {
+    "preact": "^10.29.8"
   }
 }

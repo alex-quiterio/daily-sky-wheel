@@ -1,0 +1,191 @@
+/* Loaded last, so these rules hold in every theme: the tab row, the header on phones, Play and the quick bar. */
+/* phones: nothing may widen the page; the six tabs become a 3 × 2 grid */
+.wrap > * {
+  min-width: 0;
+}
+.tabs {
+  max-width: 100%;
+}
+/* tabs lead the page; on narrower screens they become one row you swipe */
+.tabs {
+  margin-bottom: 2px;
+}
+.tabs button {
+  white-space: nowrap;
+}
+@media (max-width: 960px) {
+  .tabs {
+    display: flex;
+    justify-self: stretch;
+    width: 100%;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x proximity;
+    scrollbar-width: none;
+    border-radius: 99px;
+    gap: 2px;
+    -webkit-mask: linear-gradient(90deg, transparent 0, #000 14px, #000 calc(100% - 14px), transparent 100%);
+    mask: linear-gradient(90deg, transparent 0, #000 14px, #000 calc(100% - 14px), transparent 100%);
+  }
+  .tabs::-webkit-scrollbar {
+    display: none;
+  }
+  .tabs button {
+    flex: none;
+    scroll-snap-align: center;
+    padding: 7px 14px;
+    font-size: 12px;
+    letter-spacing: 0.12em;
+    white-space: nowrap;
+  }
+  .tabs button:first-child {
+    margin-left: 6px;
+  }
+  .tabs button:last-child {
+    margin-right: 6px;
+  }
+}
+@media (max-width: 599px) {
+  h1 {
+    font-size: clamp(24px, 7.4vw, 32px);
+    overflow-wrap: anywhere;
+  }
+  .brand {
+    gap: 10px;
+  }
+  .logo,
+  .seal,
+  .emblem,
+  .kb-emblem,
+  .vd-emblem,
+  .is-emblem {
+    width: 56px !important;
+  }
+  .theme-cn .seal span {
+    font-size: 38px;
+  }
+  .theme-kab .kb-emblem span,
+  .theme-vedic .vd-emblem span {
+    font-size: 32px;
+  }
+  .theme-islamic .is-emblem span {
+    font-size: 22px;
+  }
+  .sub {
+    font-size: 14px;
+  }
+}
+
+/* play button */
+.playbtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.play-ico {
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 6px 0 6px 10px;
+  border-color: transparent transparent transparent var(--gold-bright);
+}
+.playbtn.on .play-ico {
+  width: 10px;
+  height: 12px;
+  border: 0;
+  border-left: 3.5px solid var(--gold-bright);
+  border-right: 3.5px solid var(--gold-bright);
+}
+.playbtn.on {
+  border-color: var(--gold);
+  background: rgba(216, 180, 106, 0.16);
+  box-shadow: 0 0 16px -6px var(--gold);
+}
+
+/* sticky quick bar */
+.minibar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+  z-index: 30;
+  padding: calc(env(safe-area-inset-top, 0px) + 8px) max(12px, env(safe-area-inset-right, 0px)) 8px
+    max(12px, env(safe-area-inset-left, 0px));
+  background: color-mix(in srgb, var(--sheet-solid) 88%, transparent);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--rule);
+  box-shadow: 0 10px 30px -18px rgba(0, 0, 0, 0.9);
+  transform: translateY(-110%);
+  transition: transform 0.25s ease;
+  visibility: hidden;
+}
+.minibar.show {
+  transform: none;
+  visibility: visible;
+}
+.mb-row {
+  max-width: 1180px;
+  margin: 0 auto;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+  justify-content: center;
+}
+.minibar input,
+.minibar select,
+.minibar button {
+  min-height: 34px;
+  padding: 4px 8px;
+  font-size: 15px;
+}
+.minibar button {
+  min-width: 34px;
+  justify-content: center;
+}
+.minibar #mDate {
+  width: 9.2em;
+}
+.minibar #mTime {
+  width: 6.2em;
+}
+.minibar #mPlace {
+  min-width: 0;
+}
+@media (max-width: 599px) {
+  .mb-row {
+    gap: 5px;
+  }
+  .minibar #mDate {
+    width: 8.1em;
+    padding-inline: 6px;
+  }
+  .minibar #mTime {
+    width: 5.3em;
+    padding-inline: 6px;
+  }
+  .minibar button {
+    min-width: 32px;
+    padding-inline: 6px;
+  }
+  .minibar #mPlace {
+    flex: 1 1 100%;
+    min-height: 30px;
+    font-size: 15px;
+  }
+  .minibar input,
+  .minibar select,
+  .minibar button {
+    font-size: 16px;
+  }
+  .controls .playbtn {
+    flex: 1 1 100%;
+    justify-content: center;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .minibar {
+    transition: none;
+  }
+}
