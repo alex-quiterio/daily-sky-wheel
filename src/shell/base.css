@@ -252,20 +252,6 @@ button:hover {
     text-align: left;
   }
 }
-.wheelbox {
-  padding: 12px;
-}
-.wheelbox svg {
-  display: block;
-  width: 100%;
-  height: auto;
-  max-width: 720px;
-  margin: 0 auto;
-  overflow: visible;
-}
-.wheelbox svg .planets text {
-  filter: drop-shadow(0 0 5px var(--glow));
-}
 .legend {
   display: flex;
   flex-wrap: wrap;
@@ -282,9 +268,6 @@ button:hover {
   border-top: 2px solid;
   vertical-align: middle;
   margin-right: 6px;
-}
-.legend i.dash {
-  border-top-style: dashed;
 }
 
 .side {
@@ -313,71 +296,6 @@ section.card h2::after {
   flex: 1;
   height: 1px;
   background: linear-gradient(90deg, var(--rule), transparent);
-}
-.today-head {
-  display: flex;
-  gap: 16px;
-  align-items: center;
-}
-.moonpic {
-  flex: none;
-  filter: drop-shadow(0 0 12px rgba(245, 236, 208, 0.35));
-}
-.today-head .ph {
-  font-family: var(--f-display);
-  font-size: 19px;
-  letter-spacing: 0.03em;
-  line-height: 1.25;
-}
-.today-head .meta {
-  color: var(--muted);
-  font-size: 14px;
-  font-style: italic;
-  font-variant-numeric: tabular-nums;
-}
-ul.events {
-  list-style: none;
-  margin: 12px 0 0;
-  padding: 0;
-  display: grid;
-  gap: 2px;
-}
-ul.events li {
-  display: grid;
-  grid-template-columns: 52px 22px minmax(0, 1fr);
-  gap: 6px;
-  align-items: baseline;
-  padding: 5px 0;
-  border-top: 1px solid var(--rule);
-}
-ul.events li:first-child {
-  border-top: 0;
-}
-ul.events .t {
-  font-family: var(--f-data);
-  font-size: 12px;
-  color: var(--gold);
-}
-ul.events .g {
-  font-family: var(--f-glyph);
-  text-align: center;
-  color: var(--violet);
-}
-ul.events li.big .txt {
-  font-weight: 600;
-  color: var(--gold-bright);
-}
-ul.events button {
-  all: unset;
-  cursor: pointer;
-  text-decoration: underline;
-  text-decoration-color: transparent;
-  text-underline-offset: 3px;
-  transition: text-decoration-color 0.2s;
-}
-ul.events button:hover,
-ul.events button:focus-visible {
-  text-decoration-color: var(--gold);
 }
 .empty {
   color: var(--muted);
@@ -425,11 +343,6 @@ table.eph tr.approx td.nm::after {
   content: ' ≈';
   color: var(--muted);
 }
-.grid2 {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: 12px 18px;
-}
 .bars {
   display: grid;
   gap: 5px;
@@ -456,33 +369,6 @@ table.eph tr.approx td.nm::after {
   font-family: var(--f-data);
   font-size: 12px;
   text-align: right;
-}
-.pill {
-  display: inline-block;
-  font-size: 14px;
-  padding: 2px 10px;
-  border-radius: 99px;
-  border: 1px solid var(--gold);
-  color: var(--gold-bright);
-  margin: 2px 4px 2px 0;
-  box-shadow: 0 0 14px -6px var(--gold);
-}
-.asplist {
-  font-size: 15px;
-}
-.asplist div {
-  display: flex;
-  gap: 6px;
-  padding: 1px 0;
-}
-.asplist .gl {
-  font-family: var(--f-glyph);
-}
-.asplist .o {
-  margin-left: auto;
-  font-family: var(--f-data);
-  font-size: 12px;
-  color: var(--muted);
 }
 .note {
   color: var(--muted);
@@ -537,9 +423,6 @@ table.eph tr.approx td.nm::after {
 .method .approx-mark {
   color: var(--gold);
   letter-spacing: 0;
-}
-#patterns .note {
-  font-size: 13px;
 }
 
 /* reading: the first card beside the wheel */
@@ -708,38 +591,6 @@ table.eph tr.approx td.nm::after {
   font-size: 13px;
 }
 /* one column: wheel, then the reading and the day, then the tables */
-@media (max-width: 900px) {
-  #viewWestern {
-    gap: 16px;
-  }
-  #viewWestern > .side {
-    display: contents;
-  }
-  #viewWestern .wheelbox {
-    order: 1;
-  }
-  #readingCard {
-    order: 2;
-  }
-  #todayCard {
-    order: 3;
-  }
-  #positionsCard {
-    order: 4;
-  }
-  #aspectsCard {
-    order: 5;
-  }
-  #balanceCard {
-    order: 6;
-  }
-  #hoursCard {
-    order: 7;
-  }
-  #yearCard {
-    order: 8;
-  }
-}
 
 /* tooltips */
 .tipzone {
@@ -753,27 +604,6 @@ tr.tipzone:focus-visible,
 .asplist .tipzone:focus-visible {
   outline: 1px solid var(--gold);
   outline-offset: -1px;
-}
-#wheel text.tipzone:focus {
-  outline: none;
-}
-#wheel text.tipzone:focus-visible {
-  fill: var(--gold-bright);
-}
-#wheel .asp {
-  transition:
-    stroke-opacity 0.15s,
-    stroke-width 0.15s;
-}
-#wheel.focusing .asp {
-  stroke-opacity: 0.1;
-}
-#wheel.focusing .asp.on {
-  stroke-opacity: 1;
-  stroke-width: 2.2;
-}
-#wheel .pglyph.on {
-  fill: var(--gold-bright);
 }
 #tip {
   position: fixed;
@@ -804,14 +634,6 @@ tr.tipzone:focus-visible,
   color: var(--gold-bright);
   margin-bottom: 2px;
 }
-#tip .tpos {
-  font-family: var(--f-data);
-  font-size: 13px;
-  margin-bottom: 6px;
-}
-#tip .tg {
-  font-family: var(--f-glyph);
-}
 #tip .tr {
   display: flex;
   justify-content: space-between;
@@ -825,16 +647,6 @@ tr.tipzone:focus-visible,
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
-#tip .tsub {
-  font-family: var(--f-display);
-  font-size: 10.5px;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: var(--gold);
-  margin: 8px 0 2px;
-  padding-top: 6px;
-  border-top: 1px solid var(--rule);
-}
 #tip .muted {
   color: var(--muted);
 }
@@ -842,18 +654,6 @@ tr.tipzone:focus-visible,
   font-size: 12.5px;
   font-style: italic;
   margin-top: 6px;
-}
-#tip .badge {
-  font-family: var(--f-body);
-  font-size: 11px;
-  padding: 0 6px;
-  border-radius: 99px;
-  border: 1px solid var(--rule);
-  color: var(--muted);
-}
-#tip .badge.warn {
-  border-color: var(--fire);
-  color: var(--fire);
 }
 
 /* background motion */
@@ -895,9 +695,6 @@ body::after {
   display: block;
   overflow: visible;
 }
-#wheel .halo {
-  transform-origin: 320px 320px;
-}
 h1 {
   background-size: 220% 100%;
 }
@@ -912,18 +709,8 @@ h1 {
   .sky-ring {
     animation: ring-turn 480s linear infinite;
   }
-  #wheel .halo {
-    animation: ring-spin 140s linear infinite;
-  }
-  #wheel .halo.rev {
-    animation-duration: 200s;
-    animation-direction: reverse;
-  }
   h1 {
     animation: shimmer 14s ease-in-out infinite alternate;
-  }
-  .moonpic {
-    animation: moon-breathe 6s ease-in-out infinite alternate;
   }
 }
 @keyframes nebula-a {
@@ -967,14 +754,6 @@ h1 {
     background-position: 100% 50%;
   }
 }
-@keyframes moon-breathe {
-  from {
-    filter: drop-shadow(0 0 8px rgba(245, 236, 208, 0.22));
-  }
-  to {
-    filter: drop-shadow(0 0 18px rgba(245, 236, 208, 0.5));
-  }
-}
 
 .urlnote {
   flex-basis: 100%;
@@ -991,13 +770,6 @@ h1 {
   justify-content: center;
   gap: 8px 12px;
   padding: 4px 4px 2px;
-}
-.wheelbar-label {
-  font-family: var(--f-display);
-  font-size: 10.5px;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: var(--gold);
 }
 .seg {
   display: inline-flex;
@@ -1054,17 +826,6 @@ h1 {
   border-left: 2px solid var(--gold);
   background: rgba(216, 180, 106, 0.07);
   border-radius: 0 6px 6px 0;
-}
-table.eph .hcell {
-  padding: 1px 4px;
-  border-radius: 5px;
-  border-bottom: 1px dotted var(--rule);
-}
-table.eph .hcell:hover,
-table.eph .hcell:focus-visible {
-  color: var(--gold-bright);
-  background: rgba(216, 180, 106, 0.1);
-  outline: none;
 }
 
 /* logo */
@@ -1166,55 +927,6 @@ button.primary {
   color: var(--gold-bright);
   border-color: var(--gold);
 }
-
-.infobtn {
-  width: 26px;
-  height: 26px;
-  min-height: 0;
-  padding: 0;
-  border-radius: 50%;
-  font-family: var(--f-body);
-  font-style: italic;
-  font-size: 16px;
-  font-weight: 600;
-  line-height: 1;
-  color: var(--gold);
-  border: 1px solid var(--gold);
-  background: rgba(216, 180, 106, 0.08);
-  cursor: help;
-}
-.seg label[data-tip] {
-  cursor: pointer;
-}
-#tip.wide {
-  max-width: min(460px, calc(100vw - 16px));
-}
-#tip .hlist {
-  display: grid;
-  gap: 6px;
-}
-#tip .hlist > div {
-  display: grid;
-  grid-template-columns: 22px minmax(0, 1fr);
-  gap: 8px;
-  align-items: baseline;
-}
-#tip .hlist b {
-  font-family: var(--f-display);
-  color: var(--gold-bright);
-  text-align: right;
-}
-#tip .hlist .ht {
-  display: block;
-  color: var(--ink);
-  font-weight: 600;
-}
-#tip .hlist .hp {
-  display: block;
-  color: var(--muted);
-  font-size: 13.5px;
-  line-height: 1.4;
-}
 #tip {
   max-height: calc(100vh - 16px);
   overflow-y: auto;
@@ -1260,10 +972,6 @@ button.primary {
   .controls #place {
     width: 100%;
   }
-  .wheelbox {
-    padding: 8px 4px;
-    border-radius: 14px;
-  }
   .wheelbar {
     padding-inline: 4px;
   }
@@ -1292,9 +1000,6 @@ button.primary {
     border-radius: 16px;
     pointer-events: auto;
     font-size: 15px;
-  }
-  #tip.wide {
-    max-width: none;
   }
   .tipclose {
     display: grid;
@@ -1394,21 +1099,6 @@ button.primary {
   font-size: 11px;
   color: var(--muted);
 }
-.yg {
-  font-family: var(--f-glyph);
-  font-size: 16px;
-  white-space: nowrap;
-  color: var(--gold-bright);
-  display: flex;
-  align-items: center;
-  gap: 1px;
-}
-.yg-s {
-  font-family: var(--f-data);
-  font-size: 11px;
-  color: var(--muted);
-  padding-inline: 1px;
-}
 .yt {
   min-width: 0;
   line-height: 1.3;
@@ -1423,26 +1113,6 @@ button.primary {
   font-size: 11px;
   color: var(--muted);
   white-space: nowrap;
-}
-.y-eclipse .yt {
-  color: var(--gold-bright);
-  font-weight: 600;
-}
-.ecl {
-  display: inline-block;
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-}
-.ecl-sun {
-  background: var(--wheel-core);
-  box-shadow:
-    0 0 0 1.5px var(--gold-bright),
-    0 0 10px 2px rgba(244, 220, 156, 0.6);
-}
-.ecl-moon {
-  background: radial-gradient(circle at 35% 35%, #c9744f, #6b2a22 70%);
-  box-shadow: 0 0 8px rgba(255, 138, 120, 0.5);
 }
 @media (max-width: 599px) {
   .yearlist {

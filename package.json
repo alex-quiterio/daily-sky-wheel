@@ -4,8 +4,8 @@
   "private": true,
   "description": "A daily astrology chart wheel in the browser: positions, houses, aspects, patterns and the day's sky events.",
   "scripts": {
-    "dev": "esbuild src/app.tsx src/worker.ts --bundle --format=iife --target=es2022 --sourcemap --outdir=dist --servedir=. --watch",
-    "build": "esbuild src/app.tsx src/worker.ts --bundle --format=iife --target=es2022 --minify --sourcemap --outdir=dist",
+    "dev": "node scripts/build.mjs --serve",
+    "build": "node scripts/build.mjs",
     "start": "npm run build && npx --yes serve@14.2.4 .",
     "typecheck": "tsc --noEmit",
     "test": "node --test",

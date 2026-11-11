@@ -10,7 +10,7 @@ import { EL_COLOR } from '#views/chinese/constants.ts';
 import { drawAnimalWheel } from '#views/chinese/draw.ts';
 import { build, polarity } from '#views/chinese/model.ts';
 import type { Model } from '#views/chinese/types.ts';
-import '#views/chinese/tips.ts';
+import '#views/chinese/tips.tsx';
 import '#views/chinese/styles.css';
 
 const zh = (text: string) => <span class="zh">{text}</span>;

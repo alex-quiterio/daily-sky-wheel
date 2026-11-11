@@ -1,10 +1,9 @@
-// What several files share: the current view and moment, and the registries that views and tooltips add themselves to.
+// What several files share: the cast chart, and the registries that views and tooltips add themselves to.
+// What the controls show (the moment, the place, the open tab) is in the controls store, shell/controls.ts.
+import type { ComponentChildren } from 'preact';
 import type { ChartContext, Moment, ViewDef } from '#lib/types.ts';
 
 export const state = {
-  view: 'western',
-  urlSync: false, // true once the address bar should follow the controls
-  fromGeo: false, // the custom place came from the device's location
   ctx: null as ChartContext | null, // the chart the tooltips describe
   lastWhen: null as Date | null,
 };
@@ -20,7 +19,8 @@ export const views: Record<string, ViewDef> = {}; // tab name -> view
 export function defineView<M>(name: string, def: ViewDef<M>) {
   views[name] = def as unknown as ViewDef;
 }
-export const tips: Record<string, (value: string) => string> = {}; // tooltip kind -> html maker
+// tooltip kind -> what the tooltip says for a value ('planet:Mars' -> tips.planet('Mars')); null says nothing
+export const tips: Record<string, (value: string) => ComponentChildren> = {};
 
 // app.tsx owns the render loop; everything else asks for a repaint through render()
 let renderer: () => void = () => {};

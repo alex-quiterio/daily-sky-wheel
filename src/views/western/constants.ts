@@ -1,7 +1,8 @@
 // Western tab: fixed lists and colours.
+import type { HouseSystem } from '#astro';
 
 // ---------- the wheel ----------
-export const SYSTEMS: [value: string, label: string][] = [
+export const SYSTEMS: [value: HouseSystem, label: string][] = [
   ['placidus', 'Placidus'],
   ['whole', 'Whole sign'],
   ['equal', 'Equal'],

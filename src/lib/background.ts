@@ -3,10 +3,8 @@
 import { runJob } from '#lib/jobs.ts';
 import type { JobName, JobReply, JobRequest, Jobs } from '#lib/jobs.ts';
 
-// The worker bundle sits next to the page bundle and carries the same version stamp.
-// This has to be read while the page's script is first running, which is when this module loads.
-const page = document.currentScript instanceof HTMLScriptElement ? document.currentScript.src : '';
-const workerURL = /app\.js/.test(page) ? page.replace('app.js', 'worker.js') : '';
+// The worker bundle sits next to the page's bundles in dist/ (every bundle is written there, flat).
+const workerURL = /\/dist\//.test(import.meta.url) ? new URL('worker.js', import.meta.url).href : '';
 
 interface Waiting {
   resolve: (result: unknown) => void;

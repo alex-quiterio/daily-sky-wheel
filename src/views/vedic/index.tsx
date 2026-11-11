@@ -16,7 +16,7 @@ import { AHEAD_CATS } from '#views/vedic/constants.ts';
 import { drawRashi } from '#views/vedic/draw.ts';
 import { build, degMin, isNode } from '#views/vedic/model.ts';
 import type { Model } from '#views/vedic/types.ts';
-import '#views/vedic/tips.ts';
+import '#views/vedic/tips.tsx';
 import '#views/vedic/styles.css';
 
 export const dev = (text: string) => <span class="dev">{text}</span>;

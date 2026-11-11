@@ -81,7 +81,7 @@ If part of a link can't be read, the page says which part and uses its default f
 
 ## ✦ Start
 
-It's a static page built with TypeScript and Preact. esbuild bundles `src/` into `dist/app.js`, `dist/app.css` and `dist/worker.js`.
+It's a static page built with TypeScript and Preact. `scripts/build.mjs` runs esbuild over `src/`: the page (`dist/app.js`, `dist/app.css`), one bundle per tab (`dist/view-<tab>.js` and `.css`, loaded the first time the tab is opened), the chunks they share, and `dist/worker.js`. Each tab sits behind its own error boundary, so a tab that fails to load or draw shows a Try again card and leaves the rest of the page working.
 
 ```sh
 git clone https://github.com/alex-quiterio/daily-sky-wheel.git
@@ -131,7 +131,7 @@ GitHub Actions runs the tests on every push.
 
 ```
 index.html               the head, the sky canvas and the mount point
-src/app.tsx              start-up, the render loop and the <App> component
+src/app.tsx              start-up, the render loop, loading each tab on demand, and the <App> component
 src/worker.ts            the Web Worker: runs the slow calculations away from the page
 src/astro/               the calculations: no DOM, tested with node
   index.ts               one namespace per tradition: Core, Western, Chinese, Vedic, Maya, Hebrew, Islamic
@@ -156,10 +156,10 @@ src/lib/                  what the page shares that is not a component
   jobs.ts                the slow calculations, as jobs that take and return plain data
   background.ts          runs a job in the worker, or on the main thread if the worker cannot start
 src/components/          reusable pieces, one per file
-  Card, Row, Bars, Chips, Drawing, ReadingCard, Tooltip, useStored
+  Card, Row, Bars, Chips, Drawing, ReadingCard, Tooltip, Tip, TabBoundary, useStored
 src/shell/               the page around the tabs
   Tabs, Header, Controls, MiniBar, MethodNotes
-  controls.ts            reads and drives the date, time and place fields; links, the quick bar, Play
+  controls.ts            the controls store (date, time, place, houses, open tab) and every action on it; links, Play
   stars.ts               the twinkling sky behind it all
   share.ts               the open tab as a picture, to share or save
   base.css, shell.css    the night theme and page layout
@@ -170,7 +170,7 @@ src/views/<tab>/         one folder per tab: western, chinese, vedic, maya, kabb
   types.ts               the model's shape
   constants.ts           the tab's fixed lists and colours
   draw.ts                its SVG drawing (the wheel, the gears, the Tree of Life, ...)
-  tips.ts                what its tooltips say
+  tips.tsx               what its tooltips say, as components
   styles.css             its theme
 assets/                  the logo and app icons
 manifest.webmanifest, sw.js   install as an app, work offline

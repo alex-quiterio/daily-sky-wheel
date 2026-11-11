@@ -92,6 +92,11 @@ export default tseslint.config(
   },
   ...BOUNDARIES,
   {
+    // the build script runs in Node
+    files: ['scripts/**'],
+    languageOptions: { globals: { process: 'readonly', console: 'readonly' } },
+  },
+  {
     // the service worker runs in its own global scope
     files: ['sw.js'],
     languageOptions: {

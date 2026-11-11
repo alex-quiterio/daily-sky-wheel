@@ -21,7 +21,7 @@ import { SYSTEMS, YEAR_CATS } from '#views/western/constants.ts';
 import { drawMoon, drawWheel } from '#views/western/draw.ts';
 import { build } from '#views/western/model.ts';
 import type { Model } from '#views/western/types.ts';
-import '#views/western/tips.ts';
+import '#views/western/tips.tsx';
 import '#views/western/styles.css';
 
 function Wheel({ moment }: { moment: Moment }) {

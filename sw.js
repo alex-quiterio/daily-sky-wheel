@@ -1,4 +1,5 @@
-// Offline support. Bump VERSION when the list of app files changes.
+// Offline support. The bundles in dist/ (the page, each tab, their shared chunks, the worker) are listed by the
+// build in dist/files.json, so all of them are kept, and every tab opens offline once the page has been installed.
 const VERSION = 'dev'; // replaced with the commit id on deploy
 const SHELL = `shell-${VERSION}`;
 const CDN = 'cdn-v1';
@@ -6,9 +7,6 @@ const APP_FILES = [
   './',
   'index.html',
   'manifest.webmanifest',
-  'dist/app.js',
-  'dist/app.css',
-  'dist/worker.js',
   'assets/logo.svg',
   'assets/icons/icon-192.png',
   'assets/icons/icon-512.png',
@@ -18,7 +16,8 @@ self.addEventListener('install', (event) => {
   event.waitUntil(
     (async () => {
       const shell = await caches.open(SHELL);
-      await shell.addAll(APP_FILES);
+      const built = await (await fetch('dist/files.json', { cache: 'no-cache' })).json();
+      await shell.addAll([...APP_FILES, ...built]);
       await self.skipWaiting();
     })(),
   );

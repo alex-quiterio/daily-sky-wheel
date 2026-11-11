@@ -10,7 +10,7 @@ import { goTo } from '#shell/controls.ts';
 import { drawTree } from '#views/kabbalah/draw.ts';
 import { build, sunEvents } from '#views/kabbalah/model.ts';
 import type { Model } from '#views/kabbalah/types.ts';
-import '#views/kabbalah/tips.ts';
+import '#views/kabbalah/tips.tsx';
 import '#views/kabbalah/styles.css';
 
 export const he = (text: string) => (

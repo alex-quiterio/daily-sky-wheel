@@ -1,8 +1,6 @@
 // "Share image": the open tab as a picture. Title, date line, the tab's main drawing and, where there is one,
 // the reading's summary, painted on a canvas in the tab's own colours and handed to the share sheet or saved.
 import { $, one } from '#lib/dom.ts';
-import { state as st } from '#lib/state.ts';
-import { shareURL } from '#shell/controls.ts';
 
 const WIDTH = 1080,
   PAD = 64,
@@ -167,14 +165,23 @@ async function render(): Promise<Blob> {
 }
 
 // Share the picture where the device can, save it where it cannot. Says which happened.
-export async function shareImage(): Promise<'shared' | 'saved' | 'cancelled'> {
+// `date` and `view` name the file; `link` goes along with a shared image
+export async function shareImage({
+  date,
+  view,
+  link: linkOf,
+}: {
+  date: string;
+  view: string;
+  link: () => string;
+}): Promise<'shared' | 'saved' | 'cancelled'> {
   const blob = await render();
-  const file = new File([blob], `sky-wheel-${$<HTMLInputElement>('date').value}-${st.view}.jpg`, {
+  const file = new File([blob], `sky-wheel-${date}-${view}.jpg`, {
     type: 'image/jpeg',
   });
   if (navigator.canShare && navigator.canShare({ files: [file] })) {
     try {
-      await navigator.share({ files: [file], title: $('title').textContent ?? 'Daily Sky Wheel', text: shareURL() });
+      await navigator.share({ files: [file], title: $('title').textContent ?? 'Daily Sky Wheel', text: linkOf() });
       return 'shared';
     } catch (e) {
       if (e instanceof DOMException && e.name === 'AbortError') return 'cancelled';

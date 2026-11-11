@@ -1,5 +1,5 @@
 // Positions, glyphs and labels as text.
-import { Core, Western } from '#astro';
+import { Core } from '#astro';
 import { GLYPH, LABEL, SIGN_ABBR, SIGN_GLYPH, VS } from '#lib/constants.ts';
 
 export const norm = Core.norm;
@@ -31,7 +31,8 @@ export const slug = (x: unknown) =>
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-|-$/g, '');
 
-export function dms(l: number, withSign = true) {
+// 12°34′56″, the degrees within the sign; the sign itself is drawn by <Dms> in components/Tip.tsx
+export function dms(l: number) {
   l = norm(l);
   const s = Math.floor(l / 30);
   const x = l - s * 30;
@@ -46,7 +47,7 @@ export function dms(l: number, withSign = true) {
     m = 0;
     d += 1;
   }
-  return `${d}°${pad(m)}′${pad(sec)}″${withSign ? ` <span class="tg">${sg(s)}</span> ${Western.SIGNS[s]}` : ''}`;
+  return `${d}°${pad(m)}′${pad(sec)}″`;
 }
 
 export const dm = (x: number) => {
@@ -56,6 +57,5 @@ export const dm = (x: number) => {
   return `${d}°${pad(m === 60 ? 0 : m)}′`;
 };
 
-export const row = (k: string, v: string | number) => `<div class="tr"><span>${k}</span><span>${v}</span></div>`;
-
-export const pn = (n: string) => `<span class="tg">${g(n)}</span> ${LABEL[n] || n}`;
+// a planet's or point's name as shown: Node -> North Node
+export const label = (n: string) => LABEL[n] || n;

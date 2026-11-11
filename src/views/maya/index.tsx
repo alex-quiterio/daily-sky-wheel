@@ -10,7 +10,7 @@ import { DIR_COLOR } from '#views/maya/constants.ts';
 import { drawGears } from '#views/maya/draw.ts';
 import { build, utcDate } from '#views/maya/model.ts';
 import type { MayaDate, Model } from '#views/maya/types.ts';
-import '#views/maya/tips.ts';
+import '#views/maya/tips.tsx';
 import '#views/maya/styles.css';
 
 // Maya bar-and-dot numeral (0-19); 0 is the shell.
