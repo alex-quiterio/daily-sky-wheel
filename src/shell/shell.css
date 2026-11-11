@@ -183,10 +183,6 @@
   .minibar button {
     font-size: 16px;
   }
-  .controls .playbtn {
-    flex: 1 1 100%;
-    justify-content: center;
-  }
 }
 @media (prefers-reduced-motion: reduce) {
   .minibar {

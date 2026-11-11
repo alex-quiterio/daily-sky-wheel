@@ -229,8 +229,13 @@ button:hover {
 .custom input {
   width: 96px;
 }
-.spacer {
-  flex: 1;
+/* the action buttons keep to the right, also when they wrap onto a line of their own */
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: flex-end;
+  margin-left: auto;
 }
 
 .main {
@@ -1254,13 +1259,6 @@ button.primary {
   }
   .controls #place {
     width: 100%;
-  }
-  .controls > button {
-    flex: 1 1 auto;
-    justify-content: center;
-  }
-  .spacer {
-    display: none;
   }
   .wheelbox {
     padding: 8px 4px;

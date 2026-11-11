@@ -59,33 +59,35 @@ export function Controls() {
           </select>
         </label>
       </div>
-      <div class="spacer"></div>
-      <button type="button" id="locate" class="iconbtn" title="My location" aria-label="My location">
-        <Icon name="locate" />
-      </button>
-      <button type="button" id="now" class="iconbtn" title="Now: this minute, where you are" aria-label="Now">
-        <Icon name="now" />
-      </button>
-      <button type="button" id="copylink" class="iconbtn" title="Copy link" aria-label="Copy link">
-        <Icon name="link" />
-      </button>
-      <button
-        type="button"
-        id="shareimage"
-        class="iconbtn"
-        title="Share image: the open tab as a picture"
-        aria-label="Share image"
-      >
-        <Icon name="share" />
-      </button>
-      <button type="button" id="print" class="iconbtn" title="Print" aria-label="Print">
-        <Icon name="print" />
-      </button>
-      <button type="button" id="install" class="iconbtn primary" hidden title="Install app" aria-label="Install app">
-        <Icon name="install" />
-      </button>
-      {/* what a button just did, for screen readers; sighted readers see it under the button */}
-      <p class="sr-only" id="status" role="status"></p>
+      {/* the actions: always at the right-hand end, on whichever line they land */}
+      <div class="actions">
+        <button type="button" id="locate" class="iconbtn" title="My location" aria-label="My location">
+          <Icon name="locate" />
+        </button>
+        <button type="button" id="now" class="iconbtn" title="Now: this minute, where you are" aria-label="Now">
+          <Icon name="now" />
+        </button>
+        <button type="button" id="copylink" class="iconbtn" title="Copy link" aria-label="Copy link">
+          <Icon name="link" />
+        </button>
+        <button
+          type="button"
+          id="shareimage"
+          class="iconbtn"
+          title="Share image: the open tab as a picture"
+          aria-label="Share image"
+        >
+          <Icon name="share" />
+        </button>
+        <button type="button" id="print" class="iconbtn" title="Print" aria-label="Print">
+          <Icon name="print" />
+        </button>
+        <button type="button" id="install" class="iconbtn primary" hidden title="Install app" aria-label="Install app">
+          <Icon name="install" />
+        </button>
+        {/* what a button just did, for screen readers; sighted readers see it under the button */}
+        <p class="sr-only" id="status" role="status"></p>
+      </div>
       {/* the chosen house system; no value here, so a repaint never resets it */}
       <input type="hidden" id="hsys" />
       <p class="urlnote" id="urlnote" role="status" hidden></p>
