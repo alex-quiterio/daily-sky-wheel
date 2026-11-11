@@ -25,6 +25,7 @@ import '#views/kabbalah/index.tsx';
 import '#views/vedic/index.tsx';
 import '#views/islamic/index.tsx';
 import '#shell/shell.css';
+import '#shell/print.css';
 
 // Read the controls, cast the chart, and publish the moment: { when, local, place, hsys, chart, asps, byName }
 function render() {

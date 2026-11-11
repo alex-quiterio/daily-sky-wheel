@@ -1,6 +1,7 @@
 // A reading shown as a card: summary, "good for / go easy on", then sections that fold open.
 // A line with a `ref` opens that tooltip from its heading; a line with `more` unfolds a second layer of rows.
 import { useState } from 'preact/hooks';
+import { usePrinting } from '#components/usePrinting.ts';
 import type { ReadingItem } from '#astro';
 import type { ReadingCardProps } from '#lib/types.ts';
 import { Card } from '#components/Card.tsx';
@@ -24,6 +25,8 @@ export function ReadingCard({ id, heading, reading, storageKey, open, title, not
     }
   });
   const [items, setItems] = useState<string[]>([]); // unfolded lines, kept while the page is open
+  // on paper every section is open; the deeper layer of a line prints only where the reader had opened it
+  const printing = usePrinting();
   const [copied, setCopied] = useState<'' | 'Reading copied' | 'Copy failed'>('');
 
   const toggled = (list: string[], key: string, on: boolean) =>
@@ -68,9 +71,9 @@ export function ReadingCard({ id, heading, reading, storageKey, open, title, not
           <details
             class="rd-sec"
             data-sec={sec.title}
-            open={sections.includes(sec.title)}
+            open={printing || sections.includes(sec.title)}
             onToggle={(e) => {
-              if (e.target === e.currentTarget) foldSection(sec.title, e.currentTarget.open);
+              if (!printing && e.target === e.currentTarget) foldSection(sec.title, e.currentTarget.open);
             }}
           >
             <summary>

@@ -72,6 +72,12 @@ export function Controls() {
       <button type="button" id="copylink">
         Copy link
       </button>
+      <button type="button" id="shareimage" title="The open tab as a picture, to share or save">
+        Share image
+      </button>
+      <button type="button" id="print">
+        Print
+      </button>
       <button type="button" id="install" class="primary" hidden>
         Install app
       </button>

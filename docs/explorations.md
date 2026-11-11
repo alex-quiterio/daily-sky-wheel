@@ -112,8 +112,6 @@ A **"today across traditions"** strip at the top of the page, one line from each
 | Idea | What changes | Size |
 |---|---|---|
 | City search | Sixteen preset cities, or latitude and longitude by hand. A bundled list of a few thousand cities with their time zones would keep the page free of network calls and still find most places. | M |
-| Share as an image | A card with the wheel and the summary, made in the browser, for messaging apps. The Web Share API on phones. | M |
-| A print stylesheet | A reading that prints on one or two clean pages, without the night theme. | S |
 
 ### Accessibility and first impressions
 

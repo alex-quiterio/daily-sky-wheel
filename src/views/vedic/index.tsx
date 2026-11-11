@@ -151,7 +151,7 @@ function DaysAhead({ moment: { local, place } }: { moment: Moment }) {
   // until the first answer for this place arrives there is nothing to show; after that, the last list stands in
   if (!ahead || ahead.key !== key)
     return (
-      <Card title="Days ahead · utsava and vrata">
+      <Card title="Days ahead · utsava and vrata" id="vedicAheadCard">
         <Chips id="vdChips" options={AHEAD_CATS} value={cat} onPick={setCat} />
         <div class="yearlist" id="vdAhead">
           <p class="empty">Working out the festivals and fasts of the coming year…</p>
@@ -171,7 +171,7 @@ function DaysAhead({ moment: { local, place } }: { moment: Moment }) {
   });
   let month = '';
   return (
-    <Card title="Days ahead · utsava and vrata">
+    <Card title="Days ahead · utsava and vrata" id="vedicAheadCard">
       <Chips id="vdChips" options={AHEAD_CATS} value={cat} onPick={setCat} />
       <div class="yearlist" id="vdAhead">
         {!list.length && <p class="empty">Nothing of this kind in the coming year.</p>}

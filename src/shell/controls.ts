@@ -1,5 +1,6 @@
 // The moment and the place: date, time and place controls, links, tabs, the quick bar and Play.
 import { HOUSE_ALIASES, PLACES, VIEWS } from '#lib/constants.ts';
+import { shareImage } from '#shell/share.ts';
 import { $, field, isCompact, one } from '#lib/dom.ts';
 import { pad, slug } from '#lib/format.ts';
 import { render, state as st } from '#lib/state.ts';
@@ -401,6 +402,23 @@ function wireControls() {
       );
     else done(false);
   });
+  $('shareimage').addEventListener('click', () => {
+    const btn = $<HTMLButtonElement>('shareimage');
+    const say = (text: string) => {
+      btn.disabled = false;
+      btn.textContent = text;
+      setTimeout(() => {
+        btn.textContent = 'Share image';
+      }, 1800);
+    };
+    btn.disabled = true;
+    btn.textContent = 'Making image…';
+    shareImage().then(
+      (how) => say(how === 'saved' ? 'Image saved' : how === 'shared' ? 'Shared' : 'Share image'),
+      () => say('Could not make it'),
+    );
+  });
+  $('print').addEventListener('click', () => window.print());
   $('locate').addEventListener('click', locate);
   one('.tabs').addEventListener('keydown', (e) => {
     if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
