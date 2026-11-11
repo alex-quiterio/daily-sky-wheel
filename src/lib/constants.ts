@@ -1,4 +1,5 @@
 // Fixed lists the page shares: glyphs, colours, the preset places and the tabs.
+import type { HouseSystem } from '#astro';
 
 // ---------- glyphs and colours ----------
 export const VS = '︎';
@@ -92,7 +93,7 @@ export const TAB_NOTES: Record<string, [mark: string, cls: string, note: string]
 // ---------- URL parameters ----------
 // ?date=2026-11-09&time=02:02&place=new-york&houses=natural
 // ?date=2026-11-09&time=14:30&lat=44.49&lon=11.34&tz=Europe/Rome
-export const HOUSE_ALIASES = {
+export const HOUSE_ALIASES: Record<string, HouseSystem> = {
   placidus: 'placidus',
   p: 'placidus',
   whole: 'whole',

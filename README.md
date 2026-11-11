@@ -11,7 +11,7 @@
 [![Open the wheel](https://img.shields.io/badge/open_the_wheel-alex--quiterio.github.io-d8b46a?style=for-the-badge&labelColor=07061a)](https://alex-quiterio.github.io/daily-sky-wheel/)
 <br>
 [![tests](https://github.com/alex-quiterio/daily-sky-wheel/actions/workflows/test.yml/badge.svg)](https://github.com/alex-quiterio/daily-sky-wheel/actions/workflows/test.yml)
-![TypeScript](https://img.shields.io/badge/TypeScript-strict_core-a58bff?labelColor=15112f)
+![TypeScript](https://img.shields.io/badge/TypeScript-strict-a58bff?labelColor=15112f)
 ![dependencies](https://img.shields.io/badge/runtime_deps-2-a58bff?labelColor=15112f)
 
 <br>
@@ -94,7 +94,7 @@ npm run dev          # rebuilds on every save → http://localhost:8000
 | `npm run build` | Write the minified bundle to `dist/` |
 | `npm start` | Build once, then serve on http://localhost:3000 |
 | `npm test` | Run the reference tests (Node 24 runs the TypeScript directly) |
-| `npm run typecheck` | Type-check everything, then `src/astro` again in strict mode |
+| `npm run typecheck` | Type-check the whole project in strict mode |
 | `npm run lint` | Lint with ESLint |
 | `npm run format` | Format with Prettier |
 | `npm run check` | Type-check, lint, test and check formatting in one go |
@@ -130,7 +130,7 @@ GitHub Actions runs the tests on every push.
 ```
 index.html               the head, the sky canvas and the mount point
 src/app.tsx              start-up, the render loop and the <App> component
-src/astro/               the calculations: no DOM, strict TypeScript, tested with node
+src/astro/               the calculations: no DOM, tested with node
   index.ts               one namespace per tradition: Core, Western, Chinese, Vedic, Maya, Hebrew, Islamic
   reading.ts             the shape both readings produce
   core.ts                positions, houses, Ascendant / MC / Vertex (Chart, Point)

@@ -7,13 +7,13 @@ export function drawRashi(svg: SVGSVGElement, style: string) {
   if (!vdLast) return;
   const { g, lagnaSign } = vdLast;
   svg.innerHTML = '';
-  const bySign = {};
+  const bySign: Record<number, Vedic.Graha[]> = {};
   g.list.forEach((x) => {
     (bySign[x.sign] = bySign[x.sign] || []).push(x);
   });
-  const label = (x) =>
-    Vedic.GRAHAS.find((q) => q[0] === x.key)[3] + (x.retro && x.key !== 'Rahu' && x.key !== 'Ketu' ? 'ᴿ' : '');
-  const planets = (sign, cx, cy, maxW) => {
+  const label = (x: Vedic.Graha) =>
+    Vedic.GRAHAS.find((q) => q[0] === x.key)![3] + (x.retro && x.key !== 'Rahu' && x.key !== 'Ketu' ? 'ᴿ' : '');
+  const planets = (sign: number, cx: number, cy: number, maxW: number) => {
     const list = bySign[sign] || [];
     list.forEach((x, k) => {
       const perRow = maxW < 70 ? 2 : 3,
@@ -127,7 +127,7 @@ export function drawRashi(svg: SVGSVGElement, style: string) {
     );
   } else {
     // South Indian: fixed signs, Pisces at the top left
-    const cells = {
+    const cells: Record<number, [column: number, row: number]> = {
       11: [0, 0],
       0: [1, 0],
       1: [2, 0],

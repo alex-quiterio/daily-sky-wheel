@@ -1,5 +1,0 @@
-{
-  "extends": "./tsconfig.json",
-  "compilerOptions": { "strict": true, "noUncheckedIndexedAccess": false, "types": [] },
-  "include": ["src/astro"]
-}

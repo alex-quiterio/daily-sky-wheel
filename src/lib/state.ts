@@ -9,6 +9,12 @@ export const state = {
   lastWhen: null as Date | null,
 };
 
+// The chart the tooltips describe. They only run once a chart has been cast, so a missing one is a bug.
+export function chartContext(): ChartContext {
+  if (!state.ctx) throw new Error('no chart has been cast yet');
+  return state.ctx;
+}
+
 export const views: Record<string, ViewDef> = {}; // tab name -> view
 // each tab registers itself; its model type is its own business, so it is erased here
 export function defineView<M>(name: string, def: ViewDef<M>) {

@@ -76,9 +76,8 @@ export default tseslint.config(
     },
   },
   {
-    // the calculations are the strict core: no escape hatches
-    files: ['src/astro/**/*.ts'],
-    rules: { '@typescript-eslint/no-explicit-any': 'error', '@typescript-eslint/no-non-null-assertion': 'off' },
+    // no escape hatches anywhere
+    rules: { '@typescript-eslint/no-explicit-any': 'error' },
   },
   ...BOUNDARIES,
   {

@@ -59,7 +59,7 @@ function HebrewDate({ moment: { local, place }, model: { h, after, today } }: { 
 }
 
 function Month({ h }: { h: Hebrew.HebrewDate }) {
-  const [letter, letterName, sign, tribe, sense] = Hebrew.MONTH_KABBALAH[h.month];
+  const [letter, letterName, sign, tribe, sense] = Hebrew.monthKabbalah(h.month);
   return (
     <Card title="The month · Sefer Yetzirah">
       <div id="kbMonth">
@@ -231,7 +231,7 @@ function KabbalahView({ moment, model }: ViewProps<Model>) {
 
 // what the page header shows for this tab
 function header({ h, today }: Model, { place }: Moment): HeaderInfo {
-  const [letter, letterName, sign] = Hebrew.MONTH_KABBALAH[h.month];
+  const [letter, letterName, sign] = Hebrew.monthKabbalah(h.month);
   const sefira = Hebrew.SEFIROT[Hebrew.DAY_SEFIRA[h.dow]];
   return {
     title: `${h.day} ${h.monthName} ${h.year}`,

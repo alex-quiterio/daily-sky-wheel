@@ -148,7 +148,8 @@ function gematria(n: number) {
 }
 
 // Sefer Yetzirah: the twelve simple letters, signs, tribes and senses of the months (Nisan = 1)
-const MONTH_KABBALAH = [
+type MonthKabbalah = [letter: string, letterName: string, sign: string, tribe: string, sense: string];
+const MONTH_KABBALAH: (MonthKabbalah | null)[] = [
   null,
   ['ה', 'Heh', 'Aries', 'Judah', 'Speech'],
   ['ו', 'Vav', 'Taurus', 'Issachar', 'Thought'],
@@ -236,7 +237,15 @@ function hebrewDate(y: number, m: number, d: number, afterSunset: boolean): Hebr
 }
 
 export type { HebrewDay, HebrewDate };
+// the letter, sign, tribe and sense of a month (1 = Nisan ... 13 = Adar II)
+function monthKabbalah(month: number): MonthKabbalah {
+  const found = MONTH_KABBALAH[month];
+  if (!found) throw new Error(`no Hebrew month ${month}`);
+  return found;
+}
+
 export {
+  monthKabbalah,
   hebrewDate,
   hebrewFromFixed,
   fixedFromHebrew,

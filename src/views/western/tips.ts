@@ -2,16 +2,16 @@
 import { Western } from '#astro';
 import { APPROX, ASPECT_COLOR, ASPECT_GLYPH, EL_VAR, LABEL, VS } from '#lib/constants.ts';
 import { dm, dms, fmtPos, g, norm, pad, pn, row, sg } from '#lib/format.ts';
-import { state as st, tips } from '#lib/state.ts';
+import { tips, chartContext } from '#lib/state.ts';
 
-function whereIs(name) {
-  const p = st.ctx.byName[name];
+function whereIs(name: string) {
+  const p = chartContext().byName[name];
   if (!p) return '';
-  return `${fmtPos(p.lon).text}, H${st.ctx.houseOf(p.lon)}${p.retro ? ', R' : ''}`;
+  return `${fmtPos(p.lon).text}, H${chartContext().houseOf(p.lon)}${p.retro ? ', R' : ''}`;
 }
 
-function tipPlanet(name) {
-  const { chart, asps, byName, houseOf } = st.ctx;
+function tipPlanet(name: string) {
+  const { chart, asps, byName, houseOf } = chartContext();
   const p = byName[name];
   if (!p) return '';
   const sign = Math.floor(p.lon / 30);
@@ -28,7 +28,7 @@ function tipPlanet(name) {
   );
   const dig = Western.dignity(name, sign);
   if (dig) h += row('Dignity', dig);
-  const rules = [];
+  const rules: string[] = [];
   chart.cusps.forEach((c, i) => {
     const inf = Western.signInfo(Math.floor(c / 30));
     if (inf.modern === name || inf.trad === name) rules.push(`H${i + 1}${inf.modern !== name ? '*' : ''}`);
@@ -56,8 +56,8 @@ function tipPlanet(name) {
   return h;
 }
 
-function tipSign(s) {
-  const { chart, houseOf } = st.ctx;
+function tipSign(s: number) {
+  const { chart, houseOf } = chartContext();
   const inf = Western.signInfo(s);
   let h = `<div class="th"><span class="tg" style="color:var(${EL_VAR[s % 4]})">${sg(s)}</span> ${inf.name}</div>`;
   h += `<div class="muted">${inf.element} · ${inf.mode} · ${inf.polarity}</div>`;
@@ -70,7 +70,9 @@ function tipSign(s) {
     .filter(([c]) => Math.floor(c / 30) === s)
     .map(([, i]) => `H${i + 1}`);
   h += row('House cusps', cusps.join(', ') || '— (intercepted or none)');
-  const inside = st.ctx.chart.pts.filter((p) => Math.floor(p.lon / 30) === s).sort((a, b) => a.lon - b.lon);
+  const inside = chartContext()
+    .chart.pts.filter((p) => Math.floor(p.lon / 30) === s)
+    .sort((a, b) => a.lon - b.lon);
   if (inside.length) {
     h += `<div class="tsub">Bodies in ${inf.name}</div>`;
     h += inside
@@ -126,7 +128,7 @@ const HOUSE_MEANING = [
   ],
 ];
 const HOUSE_KIND = ['Angular', 'Succedent', 'Cadent'];
-const HOUSE_SYSTEMS = {
+const HOUSE_SYSTEMS: Record<string, [name: string, about: string]> = {
   placidus: [
     'Placidus',
     'Divides the time each degree takes to rise from the IC to the Ascendant to the Midheaven into thirds. The most widely used modern system. Houses come out unequal, and it breaks down above about 66° latitude.',
@@ -144,10 +146,10 @@ const HOUSE_SYSTEMS = {
     'Aries is the 1st house, Taurus the 2nd, and so on, whatever the time or place. A flat view of the sky itself, useful for daily and mundane charts.',
   ],
 };
-function tipSystem(v) {
+function tipSystem(v: string) {
   const [name, text] = HOUSE_SYSTEMS[v] || [];
   if (!name) return '';
-  const active = st.ctx && st.ctx.chart.system === v;
+  const active = chartContext() && chartContext().chart.system === v;
   return `<div class="th">${name} houses${active ? ' <span class="badge">in use</span>' : ''}</div><div class="tplain">${text}</div>`;
 }
 function tipAllHouses() {
@@ -162,8 +164,8 @@ function tipAllHouses() {
   return h;
 }
 
-function tipHouse(i) {
-  const { chart, houseOf } = st.ctx;
+function tipHouse(i: number) {
+  const { chart, houseOf } = chartContext();
   const c = chart.cusps[i],
     next = chart.cusps[(i + 1) % 12];
   const sign = Math.floor(c / 30);
@@ -192,13 +194,13 @@ function tipHouse(i) {
     h += inside.map((p) => row(pn(p.name), `${fmtPos(p.lon).text}${p.retro ? ' R' : ''}`)).join('');
   } else h += `<div class="muted tnote">Empty house</div>`;
   if (chart.system === 'natural' || chart.system === 'whole' || chart.system === 'equal')
-    h += `<div class="muted tnote">${{ natural: 'Natural houses', whole: 'Whole sign houses', equal: 'Equal houses' }[chart.system]}</div>`;
+    h += `<div class="muted tnote">${({ natural: 'Natural houses', whole: 'Whole sign houses', equal: 'Equal houses' } as Record<string, string>)[chart.system]}</div>`;
   return h;
 }
 
-function tipAngle(lab) {
-  const { chart, houseOf } = st.ctx;
-  const map = {
+function tipAngle(lab: string) {
+  const { chart, houseOf } = chartContext();
+  const map: Record<string, [name: string, lon: number]> = {
     AC: ['Ascendant', chart.asc],
     DC: ['Descendant', chart.asc + 180],
     MC: ['Midheaven', chart.mc],
@@ -227,11 +229,11 @@ function tipAngle(lab) {
   return h;
 }
 
-function tipAspect(i) {
-  const a = st.ctx.asps[i];
+function tipAspect(i: number) {
+  const a = chartContext().asps[i];
   if (!a) return '';
-  const pa = st.ctx.byName[a.a],
-    pb = st.ctx.byName[a.b];
+  const pa = chartContext().byName[a.a],
+    pb = chartContext().byName[a.b];
   let h = `<div class="th">${pn(a.a)} <span class="tg" style="color:${ASPECT_COLOR[a.type.key]}">${ASPECT_GLYPH[a.type.key]}${VS}</span> ${pn(a.b)}</div>`;
   h += `<div class="muted">${a.type.name} (${a.type.angle}°) · orb allowed ${a.type.orb}°</div>`;
   h += row('Orb', `${a.orb.toFixed(2)}° · ${a.applying ? 'applying' : 'separating'}`);
@@ -246,9 +248,9 @@ Object.assign(tips, {
   angle: tipAngle,
   hsys: tipSystem,
   houses: tipAllHouses,
-  sign: (v) => tipSign(+v),
-  house: (v) => tipHouse(+v),
-  aspect: (v) => tipAspect(+v),
-  ph: (v) =>
+  sign: (v: string) => tipSign(+v),
+  house: (v: string) => tipHouse(+v),
+  aspect: (v: string) => tipAspect(+v),
+  ph: (v: string) =>
     `<div class="th">${g(v)} ${v}</div><div class="tplain">${Western.HOUR_MEANING[v]}</div><div class="muted tnote">In the tradition of planetary hours, a matter is begun in the hour of the planet that rules it.</div>`,
 });

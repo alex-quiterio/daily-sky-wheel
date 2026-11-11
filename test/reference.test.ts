@@ -15,14 +15,14 @@ import {
 } from '#astro';
 
 const SIGNS = ['Ari', 'Tau', 'Gem', 'Can', 'Leo', 'Vir', 'Lib', 'Sco', 'Sag', 'Cap', 'Aqu', 'Pis'];
-const pos = (deg, min, sign) => SIGNS.indexOf(sign) * 30 + deg + min / 60;
-const diff = (a, b) => Math.abs(((a - b + 540) % 360) - 180);
+const pos = (deg: number, min: number, sign: string) => SIGNS.indexOf(sign) * 30 + deg + min / 60;
+const diff = (a: number, b: number) => Math.abs(((a - b + 540) % 360) - 180);
 
 const when = new Date(Date.UTC(2026, 10, 9, 7, 2, 0));
 const chart = C.chart(when, 40 + 43 / 60, -74, 'placidus');
 const by = Object.fromEntries(chart.pts.map((p) => [p.name, p]));
 
-const REF = {
+const REF: Record<string, [deg: number, min: number, sign: string, retro: boolean]> = {
   Sun: [16, 53, 'Sco', false],
   Moon: [16, 53, 'Sco', false],
   Mercury: [6, 52, 'Sco', true],
@@ -66,7 +66,7 @@ test('Yod to Mercury', () => {
 
 test('New Moon timing', () => {
   const ev = E.dayEvents(new Date(Date.UTC(2026, 10, 9, 5)), new Date(Date.UTC(2026, 10, 10, 5)));
-  const nm = ev.find((e) => e.kind === 'lunation');
+  const nm = ev.find((e) => e.kind === 'lunation')!;
   assert.strictEqual(nm.text, 'New Moon in Scorpio');
   assert.ok(Math.abs(nm.t.getTime() - when.getTime()) < 2 * 60000);
 });
@@ -93,7 +93,7 @@ test('Placidus cusps', () => {
 
 test('year ahead: eclipses, stations, ingresses and outer aspects', () => {
   const ev = E.yearAhead(new Date(Date.UTC(2026, 10, 9)));
-  const find = (title, y, m, d) =>
+  const find = (title: string, y: number, m: number, d: number) =>
     ev.find(
       (e) =>
         e.title === title &&
@@ -117,8 +117,8 @@ test('year ahead: eclipses, stations, ingresses and outer aspects', () => {
   );
 });
 
-const cstISO = (d) => new Date(d.getTime() + 8 * 3600000).toISOString().slice(0, 10);
-const sb = (p) => Z.STEMS[p.stem][0] + Z.BRANCHES[p.branch][0];
+const cstISO = (d: Date) => new Date(d.getTime() + 8 * 3600000).toISOString().slice(0, 10);
+const sb = (p: Z.Pillar) => Z.STEMS[p.stem][0] + Z.BRANCHES[p.branch][0];
 
 test('Chinese New Year dates', () => {
   const want = {
@@ -153,7 +153,7 @@ test('Four Pillars', () => {
   assert.deepStrictEqual([sb(b.year), sb(b.month), sb(b.day), sb(b.hour)], ['丙午', '己亥', '丁亥', '辛丑']);
 });
 
-const mayaText = (r) =>
+const mayaText = (r: ReturnType<typeof M.mayaDate>) =>
   `${r.longCount.join('.')} ${r.tz.number} ${M.SIGNS[r.tz.sign][0]} ${r.hb.day} ${M.HAAB[r.hb.month]} G${r.lord}`;
 
 test("Maya calendar: 21 Dec 2012 is 13.0.0.0.0 4 Ajaw 3 K'ank'in", () => {
@@ -170,7 +170,7 @@ test('Maya calendar: neighbouring days and the 260-day count', () => {
   assert.deepStrictEqual([c.hb.month, c.hb.day], [a.hb.month, a.hb.day]);
 });
 
-const heb = (y, m, d) => {
+const heb = (y: number, m: number, d: number) => {
   const h = H.hebrewDate(y, m, d, false);
   return `${h.day} ${h.monthName} ${h.year}`;
 };
@@ -192,7 +192,7 @@ test('Hebrew numerals and the Omer', () => {
   assert.strictEqual(H.gematria(15), 'ט״ו');
   assert.strictEqual(H.gematria(16), 'ט״ז');
   assert.strictEqual(H.gematria(1), 'א׳');
-  const o = H.omer(H.hebrewDate(2026, 5, 5, false)); // Lag BaOmer
+  const o = H.omer(H.hebrewDate(2026, 5, 5, false))!; // Lag BaOmer
   assert.deepStrictEqual([o.day, H.SEFIROT[o.inner][1], H.SEFIROT[o.outer][1]], [33, 'Hod', 'Hod']);
 });
 
@@ -219,7 +219,7 @@ test('Vedic panchang at the new moon', () => {
   assert.strictEqual(before.tithi.name, 'Amavasya');
 });
 
-const isoDay = (d) => d.toISOString().slice(0, 10);
+const isoDay = (d: Date) => d.toISOString().slice(0, 10);
 
 test('Hijri months by the Umm al-Qura rule', () => {
   assert.strictEqual(isoDay(I.civilOf(1445, 9, 1)), '2024-03-11', 'Ramadan 1445');
@@ -237,21 +237,21 @@ test('Prayer times and Qibla', () => {
   const q = I.qibla(52.37, 4.9);
   assert.ok(Math.abs(q.bearing - 125.6) < 0.5 && Math.abs(q.km - 4554) < 20, 'Qibla from Amsterdam');
   const p = I.prayerTimes(new Date(Date.UTC(2026, 10, 8, 23)), 52.37, 4.9, 'mwl', 1);
-  const order = ['fajr', 'sunrise', 'dhuhr', 'asr', 'maghrib', 'isha'].map((k) => p[k].getTime());
+  const order = (['fajr', 'sunrise', 'dhuhr', 'asr', 'maghrib', 'isha'] as const).map((k) => p[k]!.getTime());
   assert.ok(
     order.every((t, i) => i === 0 || t > order[i - 1]),
     'prayers in order',
   );
   const hanafi = I.prayerTimes(new Date(Date.UTC(2026, 10, 8, 23)), 52.37, 4.9, 'mwl', 2);
-  assert.ok(hanafi.asr > p.asr, 'Hanafi Asr is later');
+  assert.ok(hanafi.asr! > p.asr!, 'Hanafi Asr is later');
   const june = I.prayerTimes(new Date(Date.UTC(2026, 5, 20, 22)), 52.37, 4.9, 'mwl', 1);
   assert.ok(june.fajr && june.isha && june.adjusted, 'high-latitude fallback in June');
 });
 
 test('Vedic festivals 2026 (Delhi) follow the observance rules', () => {
   const ev = V.daysAhead(new Date(Date.UTC(2025, 11, 31, 18, 30)), 365, 28.61, 77.21);
-  const ist = (e) => new Date(e.date.getTime() + 5.5 * 3600000).toISOString().slice(0, 10);
-  const on = (name) => {
+  const ist = (e: V.Observance) => new Date(e.date.getTime() + 5.5 * 3600000).toISOString().slice(0, 10);
+  const on = (name: string) => {
     const e = ev.find((x) => x.name === name);
     return e && ist(e);
   };
@@ -300,20 +300,13 @@ test('reading of the reference chart', () => {
   const asps = E.aspects(chart.pts),
     pats = E.patterns(chart.pts, asps);
   const phase = E.moonPhase(by.Sun.lon, by.Moon.lon);
-  const houseOf = (lon) => {
-    for (let i = 0; i < 12; i++) {
-      const a = chart.cusps[i],
-        b = chart.cusps[(i + 1) % 12];
-      if (C.norm(lon - a) < C.norm(b - a)) return i + 1;
-    }
-    return 1;
-  };
+  const houseOf = (lon: number) => C.houseOf(chart.cusps, lon);
   const r = WesternReading.read({ chart, asps, pats, phase, houseOf });
   assert.match(r.summary, /^New Moon in Scorpio, with the Sun in Scorpio and Virgo rising\./);
   const titles = r.sections.map((s) => s.title);
   for (const t of ['Sun, Moon and Rising', 'Strongest contacts', 'Balance', 'Retrogrades'])
     assert.ok(titles.includes(t), t);
-  assert.ok(r.sections.find((s) => s.title === 'Retrogrades').items.some((i) => i.head === 'Mercury retrograde'));
+  assert.ok(r.sections.find((s) => s.title === 'Retrogrades')!.items.some((i) => i.head === 'Mercury retrograde'));
   assert.ok(!/undefined|NaN/.test(r.text), r.text);
   // natural houses repeat the signs, so the reading leaves houses out
   const nat = WesternReading.read({ chart: { ...chart, system: 'natural' }, asps, pats, phase, houseOf });
@@ -323,7 +316,7 @@ test('reading of the reference chart', () => {
 test('Vedic reading of the reference chart', () => {
   const p = V.panchang(when, 40 + 43 / 60, -74, new Date(Date.UTC(2026, 10, 9, 5, 0)));
   const g = V.grahas(when),
-    moon = g.list.find((x) => x.key === 'Moon');
+    moon = g.list.find((x) => x.key === 'Moon')!;
   const r = VedicReading.read({
     p,
     g,
@@ -336,11 +329,11 @@ test('Vedic reading of the reference chart', () => {
     r.sections.map((s) => s.title),
     ['The day', 'Lagna, Moon and Sun', 'Yogas', 'Graha by graha', 'House by house', 'Dasha'],
   );
-  const sec = (t) => r.sections.find((s) => s.title === t).items;
+  const sec = (t: string) => r.sections.find((s) => s.title === t)!.items;
   assert.strictEqual(sec('Graha by graha').length, 9);
   assert.strictEqual(sec('House by house').length, 12);
   assert.ok(sec('Yogas').some((i) => i.head === 'Budha-Aditya yoga')); // Sun and Mercury both in sidereal Libra
   assert.match(sec('Graha by graha')[0].head, /^Surya \(Sun\) in Tula, 3rd house$/);
-  assert.ok(sec('Graha by graha').every((i) => i.more.length >= 10));
+  assert.ok(sec('Graha by graha').every((i) => (i.more?.length ?? 0) >= 10));
   assert.ok(!/undefined|NaN/.test(r.text), r.text);
 });

@@ -1,6 +1,6 @@
 // Maya tab: SVG drawing.
 import { Maya } from '#astro';
-import { el } from '#lib/dom.ts';
+import { el, one } from '#lib/dom.ts';
 import { DIR_COLOR } from '#views/maya/constants.ts';
 import type { MayaDate } from '#views/maya/types.ts';
 
@@ -145,9 +145,9 @@ export function drawGears(svg: SVGSVGElement, r: MayaDate) {
   // turn: the current sign sits at 180° on the 20-gear, the current number at 0° on the 13-gear
   const t20 = 180 - r.tz.sign * 18,
     t13 = (-(r.tz.number - 1) * 360) / 13;
-  const near = (prev, target) => prev + (((((target - prev) % 360) + 540) % 360) - 180);
+  const near = (prev: number, target: number) => prev + (((((target - prev) % 360) + 540) % 360) - 180);
   gearAngles = gearAngles ? { a20: near(gearAngles.a20, t20), a13: near(gearAngles.a13, t13) } : { a20: t20, a13: t13 };
-  svg.querySelector<SVGGElement>('.gear20').style.transform = `rotate(${gearAngles.a20}deg)`;
-  svg.querySelector<SVGGElement>('.gear13').style.transform = `rotate(${gearAngles.a13}deg)`;
-  svg.querySelector('.gear-label').textContent = `${r.tz.number} ${Maya.SIGNS[r.tz.sign][0]}`;
+  one<SVGGElement>('.gear20', svg).style.transform = `rotate(${gearAngles.a20}deg)`;
+  one<SVGGElement>('.gear13', svg).style.transform = `rotate(${gearAngles.a13}deg)`;
+  one('.gear-label', svg).textContent = `${r.tz.number} ${Maya.SIGNS[r.tz.sign][0]}`;
 }

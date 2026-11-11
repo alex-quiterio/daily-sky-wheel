@@ -65,7 +65,6 @@ A **"today across traditions"** strip at the top of the page, one line from each
 
 | Idea | Why it matters | Size |
 |---|---|---|
-| Strict TypeScript for the page | Only `src/astro` is checked in strict mode. The page code still allows implicit `any` and unchecked nulls. The shared contract is already in `lib/types.ts`, so it can be turned on folder by folder, starting with `src/lib`, then `src/components`, then one tab's `model.ts`. | M |
 | A real state store for the controls | The date, time and place are plain form fields that `shell/controls.ts` reads and writes by id, and the render loop reads them back. Holding them in one state object, with the inputs controlled by it and the address bar following it, would remove most of `controls.ts` and every `field('date').value` in the views. | L |
 | Tooltips as components | Tooltip contents are HTML strings set with `innerHTML` (each tab's `tips.ts`). They are the last place markup is built by hand. | M |
 | The wheel as JSX | The SVG drawings (each tab's `draw.ts`) are imperative functions wrapped in `<Drawing>`. Fine for now, but the wheel as components would let a planet be a thing that can be focused, tested and animated. Do this only if the wheel needs to change. | L |
@@ -135,4 +134,3 @@ If only a few of these are done, these give the most for the least:
 2. **Click the wheel, land in the reading.** Small, and it makes the reading feel connected to the chart in both directions.
 3. **Saved moments.** It turns a daily almanac into something personal, and unlocks transits, comparisons and the Vedic birth-Moon readings.
 4. **The Moon's next aspects and the void-of-course Moon.** They make the Western reading about today rather than about the chart in general.
-5. **Strict TypeScript for the page.** Mechanical, and it removes the gap between the calculations and the page.

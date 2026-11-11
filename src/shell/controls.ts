@@ -1,6 +1,6 @@
 // The moment and the place: date, time and place controls, links, tabs, the quick bar and Play.
 import { HOUSE_ALIASES, PLACES, VIEWS } from '#lib/constants.ts';
-import { $, field, isCompact } from '#lib/dom.ts';
+import { $, field, isCompact, one } from '#lib/dom.ts';
 import { pad, slug } from '#lib/format.ts';
 import { render, state as st } from '#lib/state.ts';
 import { store } from '#lib/storage.ts';
@@ -22,9 +22,10 @@ function initControls() {
   // places are remembered by name, so adding or removing cities never shifts a saved choice
   const savedIdx = saved.place === 'custom' ? 'custom' : PLACES.findIndex((p) => slug(p[0]) === saved.place);
   sel.value = savedIdx === 'custom' ? 'custom' : savedIdx >= 0 ? String(savedIdx) : '0';
-  field('hsys').value = ['placidus', 'whole', 'equal', 'natural'].includes(saved.hsys) ? saved.hsys : 'placidus';
-  field('lat').value = saved.lat != null ? saved.lat : 38.72;
-  field('lon').value = saved.lon != null ? saved.lon : -9.14;
+  field('hsys').value =
+    saved.hsys && ['placidus', 'whole', 'equal', 'natural'].includes(saved.hsys) ? saved.hsys : 'placidus';
+  field('lat').value = saved.lat ?? '38.72';
+  field('lon').value = saved.lon ?? '-9.14';
   field('tz').value = saved.tz || 'Europe/Lisbon';
   if (savedIdx !== 'custom' && savedIdx < 0) matchBrowserPlace();
   st.fromGeo = savedIdx === 'custom' && saved.geo === true;
@@ -41,7 +42,7 @@ function initControls() {
 // ---------- current location ----------
 function locate() {
   const btn = $<HTMLButtonElement>('locate'),
-    label = btn.querySelector('span'),
+    label = one('span', btn),
     note = $('urlnote');
   if (!navigator.geolocation) {
     note.textContent = "This browser can't share its location. Pick a place or enter coordinates under Custom.";
@@ -77,10 +78,15 @@ function locate() {
 }
 
 // ---------- install as an app ----------
-let installEvent = null;
+// Chrome's install prompt, held until the Install button is pressed (not in the standard DOM types)
+interface InstallPromptEvent extends Event {
+  prompt(): Promise<void>;
+  userChoice: Promise<unknown>;
+}
+let installEvent: InstallPromptEvent | null = null;
 window.addEventListener('beforeinstallprompt', (e) => {
   e.preventDefault();
-  installEvent = e;
+  installEvent = e as InstallPromptEvent;
   $('install').hidden = false;
 });
 window.addEventListener('appinstalled', () => {
@@ -116,8 +122,8 @@ function applyQuery() {
 
   // place first: date/time are read in the place's time zone
   const placeQ = q.get('place');
-  const lat = parseFloat(q.get('lat')),
-    lon = parseFloat(q.get('lon'));
+  const lat = parseFloat(q.get('lat') ?? ''),
+    lon = parseFloat(q.get('lon') ?? '');
   if (placeQ) {
     const idx = PLACES.findIndex((p) => slug(p[0]) === slug(placeQ));
     if (idx >= 0) field('place').value = String(idx);
@@ -219,16 +225,16 @@ function browserTZ() {
 }
 // Pick the place matching the browser's time zone (keeping the current place if it already matches).
 // Canonical zone name, so aliases match (Asia/Saigon = Asia/Ho_Chi_Minh, Europe/Kiev = Europe/Kyiv, ...)
-function canonTZ(tz) {
+function canonTZ(tz: string) {
   try {
     return new Intl.DateTimeFormat('en', { timeZone: tz }).resolvedOptions().timeZone;
   } catch (e) {
     return null;
   }
 }
-const sameTZ = (a, b) => a === b || (canonTZ(a) !== null && canonTZ(a) === canonTZ(b));
+const sameTZ = (a: string, b: string) => a === b || (canonTZ(a) !== null && canonTZ(a) === canonTZ(b));
 // Select a zone in the custom list, matching aliases; returns false when the zone is unknown.
-function pickTZ(tz) {
+function pickTZ(tz: string) {
   const opt = [...$<HTMLSelectElement>('tz').options].find((o) => sameTZ(o.value, tz));
   if (opt) {
     field('tz').value = opt.value;
@@ -257,14 +263,14 @@ function matchBrowserPlace() {
   pickTZ(tz);
 }
 
-function setNow(withTime) {
+function setNow(withTime: boolean) {
   const tz = currentPlace().tz;
   const lp = localParts(new Date(), tz);
   field('date').value = lp.date;
   if (withTime) field('time').value = lp.time;
 }
 
-function shiftDay(n) {
+function shiftDay(n: number) {
   st.urlSync = true;
   const [y, m, d] = field('date').value.split('-').map(Number);
   const dt = new Date(Date.UTC(y, m - 1, d + n));
@@ -272,7 +278,7 @@ function shiftDay(n) {
   render();
 }
 
-function jumpTo(iso) {
+function jumpTo(iso: string) {
   const t = new Date(iso),
     place = currentPlace(),
     lp = localParts(t, place.tz);
@@ -319,19 +325,20 @@ function setView(v: string, fromUser = false) {
 }
 
 // ---------- sticky quick bar and play ----------
-let play = null; // { timer, left }
+// Play: the minutes still to run, and the timer for the next step
+let play: { left: number; timer: ReturnType<typeof setTimeout> | undefined } | null = null;
 function syncMini() {
   field('mDate').value = field('date').value;
   field('mTime').value = field('time').value;
   field('mPlace').value = field('place').value;
 }
-function setPlaying(on) {
+function setPlaying(on: boolean) {
   ['play', 'mPlay'].forEach((id) => {
     const b = $(id);
     b.setAttribute('aria-pressed', String(on));
     b.classList.toggle('on', on);
   });
-  $('play').querySelector('.play-label').textContent = on ? 'Pause' : 'Play 24 h';
+  one('.play-label', $('play')).textContent = on ? 'Pause' : 'Play 24 h';
   $('play').title = $('mPlay').ariaLabel = on ? 'Pause' : 'Play the next 24 hours';
 }
 function stopPlay() {
@@ -363,7 +370,7 @@ function togglePlay() {
     return;
   }
   st.urlSync = true;
-  play = { left: 24 * 60, timer: 0 };
+  play = { left: 24 * 60, timer: undefined };
   setPlaying(true);
   stepPlay();
 }
@@ -381,7 +388,7 @@ function wireControls() {
   $('copylink').addEventListener('click', () => {
     const url = shareURL(),
       btn = $('copylink');
-    const done = (ok) => {
+    const done = (ok: boolean) => {
       btn.textContent = ok ? 'Link copied' : 'Copy failed';
       setTimeout(() => {
         btn.textContent = 'Copy link';
@@ -395,7 +402,7 @@ function wireControls() {
     else done(false);
   });
   $('locate').addEventListener('click', locate);
-  document.querySelector<HTMLElement>('.tabs').addEventListener('keydown', (e) => {
+  one('.tabs').addEventListener('keydown', (e) => {
     if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
     e.preventDefault();
     e.stopPropagation();
@@ -436,7 +443,7 @@ function wireControls() {
     }),
   );
   // quick bar: mirrors the main controls
-  const fromMini = (id, mid) =>
+  const fromMini = (id: string, mid: string) =>
     $(mid).addEventListener('change', () => {
       stopPlay();
       field(id).value = field(mid).value;
@@ -457,7 +464,7 @@ function wireControls() {
   $('play').addEventListener('click', togglePlay);
   $('mPlay').addEventListener('click', togglePlay);
   // show the quick bar once the main controls have scrolled out of view
-  let mbShown = null,
+  let mbShown: boolean | null = null,
     mbRaf = 0;
   const checkMini = () => {
     mbRaf = 0;

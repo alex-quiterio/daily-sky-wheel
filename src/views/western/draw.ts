@@ -4,7 +4,7 @@ import type { Aspect, Chart, MoonPhase } from '#astro';
 import { ASPECT_COLOR, EL_VAR, GLYPH, LABEL } from '#lib/constants.ts';
 import { el, isCompact } from '#lib/dom.ts';
 import { fmtPos, g, norm, pad, sg } from '#lib/format.ts';
-import { onTipFocus, state as st } from '#lib/state.ts';
+import { onTipFocus, chartContext } from '#lib/state.ts';
 
 function drawWheel(svg: SVGSVGElement, chart: Chart, asps: Aspect[]) {
   svg.innerHTML = '';
@@ -50,8 +50,8 @@ function drawWheel(svg: SVGSVGElement, chart: Chart, asps: Aspect[]) {
         MIN: 8.6,
       };
   const left = chart.cusps[0];
-  const ang = (lon) => ((180 + norm(lon) - left) * Math.PI) / 180;
-  const P = (lon, r) => [cx + r * Math.cos(ang(lon)), cy - r * Math.sin(ang(lon))];
+  const ang = (lon: number) => ((180 + norm(lon) - left) * Math.PI) / 180;
+  const P = (lon: number, r: number): [number, number] => [cx + r * Math.cos(ang(lon)), cy - r * Math.sin(ang(lon))];
 
   const defs = el('defs', {}, svg);
   const grad = el('radialGradient', { id: 'coreGlow', cx: '50%', cy: '50%', r: '50%' }, defs);
@@ -208,12 +208,13 @@ function drawWheel(svg: SVGSVGElement, chart: Chart, asps: Aspect[]) {
     );
   });
   // angle markers ASC / MC (always drawn at their real positions)
-  [
+  const angles: [label: string, lon: number][] = [
     ['AC', chart.asc],
     ['MC', chart.mc],
     ['DC', chart.asc + 180],
     ['IC', chart.mc + 180],
-  ].forEach(([lab, lon]) => {
+  ];
+  angles.forEach(([lab, lon]) => {
     const [x0, y0] = P(lon, R0);
     const [tx, ty] = P(lon, F.angleR);
     el(
@@ -421,7 +422,7 @@ function focusWheel(key: string | null) {
     svg.querySelectorAll(`.asp[data-a="${v}"], .asp[data-b="${v}"]`).forEach((l) => l.classList.add('on'));
     svg.querySelectorAll(`.pglyph[data-tip="${key}"]`).forEach((l) => l.classList.add('on'));
   } else if (kind === 'aspect') {
-    const a = st.ctx.asps[+v];
+    const a = chartContext().asps[+v];
     if (!a) return;
     svg.classList.add('focusing');
     svg.querySelectorAll(`.asp[data-a="${a.a}"][data-b="${a.b}"]`).forEach((l) => l.classList.add('on'));

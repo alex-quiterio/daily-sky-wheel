@@ -1,17 +1,87 @@
 // Background sky: drifting, twinkling stars, the odd shooting star, and a faint zodiac ring
 // turning behind the page. Everything holds still when reduced motion is preferred.
 (function () {
-  const canvas = document.getElementById('stars') as HTMLCanvasElement | null;
-  if (!canvas || !canvas.getContext) return;
-  const ctx = canvas.getContext('2d');
+  const element = document.getElementById('stars');
+  const context = element instanceof HTMLCanvasElement ? element.getContext('2d') : null;
+  if (!(element instanceof HTMLCanvasElement) || !context) return;
+  // named with their types, so the functions below know neither can be missing
+  const canvas: HTMLCanvasElement = element;
+  const ctx: CanvasRenderingContext2D = context;
   const still = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  let stars = [],
-    meteors = [],
+  // what drifts across the sky, per theme
+  interface Star {
+    x: number;
+    y: number;
+    r: number;
+    a: number;
+    tw: number;
+    ph: number;
+    vx: number;
+    c: string;
+  }
+  interface Meteor {
+    x: number;
+    y: number;
+    vx: number;
+    vy: number;
+    life: number;
+    max: number;
+    len: number;
+  }
+  interface Spark {
+    x: number;
+    y: number;
+    vy: number;
+    sway: number;
+    ph: number;
+    r: number;
+    a: number;
+  }
+  interface Petal {
+    x: number;
+    y: number;
+    vy: number;
+    vx: number;
+    rot: number;
+    vr: number;
+    s: number;
+    ph: number;
+    c: string;
+  }
+  interface Glint {
+    x: number;
+    y: number;
+    s: number;
+    ph: number;
+    rate: number;
+  }
+  interface Fly {
+    x: number;
+    y: number;
+    vx: number;
+    vy: number;
+    ph: number;
+    rate: number;
+    r: number;
+  }
+  interface Lantern {
+    x: number;
+    y: number;
+    r: number;
+    vy: number;
+    sway: number;
+    ph: number;
+    fl: number;
+    a: number;
+  }
+
+  let stars: Star[] = [],
     w = 0,
     h = 0,
     dpr = 1,
     nextMeteor = 0,
     last = 0;
+  let meteors: Meteor[] = [];
 
   // faint zodiac ring behind everything
   (function zodiacRing() {
@@ -190,8 +260,8 @@
     document.body.insertBefore(ring, canvas.nextSibling);
   })();
   const isKab = () => document.documentElement.classList.contains('theme-kab');
-  let sparks = [];
-  function spawnSpark(anywhere) {
+  let sparks: Spark[] = [];
+  function spawnSpark(anywhere: boolean) {
     sparks.push({
       x: Math.random() * w,
       y: anywhere ? Math.random() * h : h + 10,
@@ -258,8 +328,8 @@
     document.body.insertBefore(ring, canvas.nextSibling);
   })();
   const isVedic = () => document.documentElement.classList.contains('theme-vedic');
-  let petals = [];
-  function spawnPetal(anywhere) {
+  let petals: Petal[] = [];
+  function spawnPetal(anywhere: boolean) {
     const warm = Math.random();
     petals.push({
       x: Math.random() * w,
@@ -310,9 +380,9 @@
     document.body.insertBefore(ring, canvas.nextSibling);
   })();
   const isIslamic = () => document.documentElement.classList.contains('theme-islamic');
-  let glints = [];
+  let glints: Glint[] = [];
   const isMaya = () => document.documentElement.classList.contains('theme-maya');
-  let flies = [];
+  let flies: Fly[] = [];
   function spawnFly() {
     flies.push({
       x: Math.random() * w,
@@ -325,8 +395,8 @@
     });
   }
   const isCN = () => document.documentElement.classList.contains('theme-cn');
-  let lanterns = [];
-  function spawnLantern(anywhere) {
+  let lanterns: Lantern[] = [];
+  function spawnLantern(anywhere: boolean) {
     lanterns.push({
       x: Math.random() * w,
       y: anywhere ? Math.random() * h : h + 30,
@@ -380,7 +450,7 @@
     });
   }
 
-  function draw(t) {
+  function draw(t: number) {
     const dt = last ? Math.min((t - last) / 1000, 0.05) : 0;
     last = t;
     ctx.clearRect(0, 0, w, h);

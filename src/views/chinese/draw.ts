@@ -9,8 +9,11 @@ export function drawAnimalWheel(svg: SVGSVGElement, p: Chinese.FourPillars) {
     R0 = 196,
     R1 = 128,
     R2 = 74;
-  const ang = (b, off = 0) => ((-90 + b * 30 + off) * Math.PI) / 180; // Rat at the top, clockwise
-  const P = (b, r, off = 0) => [c + r * Math.cos(ang(b, off)), c + r * Math.sin(ang(b, off))];
+  const ang = (b: number, off = 0) => ((-90 + b * 30 + off) * Math.PI) / 180; // Rat at the top, clockwise
+  const P = (b: number, r: number, off = 0): [number, number] => [
+    c + r * Math.cos(ang(b, off)),
+    c + r * Math.sin(ang(b, off)),
+  ];
   el(
     'circle',
     { cx: c, cy: c, r: R0, fill: 'var(--wheel-bg)', 'fill-opacity': 0.85, stroke: 'var(--gold)', 'stroke-width': 1.2 },
