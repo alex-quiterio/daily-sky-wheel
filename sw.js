@@ -2,7 +2,7 @@
 // build in dist/files.json, so all of them are kept, and every tab opens offline once the page has been installed.
 const VERSION = 'dev'; // replaced with the commit id on deploy
 const SHELL = `shell-${VERSION}`;
-const CDN = 'cdn-v1';
+const CDN = 'cdn-v2';
 const APP_FILES = [
   './',
   'index.html',
@@ -12,12 +12,41 @@ const APP_FILES = [
   'assets/icons/icon-512.png',
 ];
 
+// Keep every web font the page asks for: the stylesheets linked from index.html, and the font files they point to.
+// Without this a font is only kept after it has been drawn once online, so the scripts of tabs not yet opened
+// (Chinese, Hebrew, Devanagari, Arabic) would fall back to system fonts offline.
+async function keepFonts() {
+  try {
+    const cdn = await caches.open(CDN);
+    const html = await (await fetch('index.html', { cache: 'no-cache' })).text();
+    const sheets = [...html.matchAll(/href="(https:\/\/fonts\.googleapis\.com\/[^"]+)"/g)].map((m) =>
+      m[1].replaceAll('&amp;', '&'),
+    );
+    for (const sheet of sheets) {
+      try {
+        const res = await fetch(sheet);
+        if (!res.ok) continue;
+        await cdn.put(sheet, res.clone());
+        const files = new Set(
+          [...(await res.text()).matchAll(/url\((https:\/\/fonts\.gstatic\.com\/[^)]+)\)/g)].map((m) => m[1]),
+        );
+        await Promise.all([...files].map((f) => cdn.add(f).catch(() => {})));
+      } catch (e) {
+        /* this one stays online-only */
+      }
+    }
+  } catch (e) {
+    /* fonts stay online-only */
+  }
+}
+
 self.addEventListener('install', (event) => {
   event.waitUntil(
     (async () => {
       const shell = await caches.open(SHELL);
       const built = await (await fetch('dist/files.json', { cache: 'no-cache' })).json();
       await shell.addAll([...APP_FILES, ...built]);
+      await keepFonts(); // best effort: a failure here must not stop the app from installing
       await self.skipWaiting();
     })(),
   );
