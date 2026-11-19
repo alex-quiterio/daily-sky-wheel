@@ -189,3 +189,67 @@
     transition: none;
   }
 }
+
+/* the install offer at the foot of the page */
+.install-toast-wrap {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 40;
+  pointer-events: none;
+}
+.install-toast {
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px max(14px, env(safe-area-inset-right, 0px)) calc(10px + env(safe-area-inset-bottom, 0px))
+    max(14px, env(safe-area-inset-left, 0px));
+  background: var(--sheet-solid);
+  color: var(--ink);
+  border-top: 1px solid var(--rule);
+  font: 16px/1.4 var(--f-body);
+}
+.install-toast p {
+  margin: 0;
+}
+.install-toast-actions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+.install-toast button {
+  min-height: 36px;
+  padding: 4px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--rule);
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  cursor: pointer;
+}
+.install-toast button.primary {
+  background: var(--gold);
+  border-color: var(--gold);
+  color: var(--void);
+}
+.install-toast button:focus-visible {
+  outline: 2px solid var(--gold-bright);
+  outline-offset: 2px;
+}
+@media (max-width: 599px) {
+  .install-toast {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .install-toast-actions {
+    justify-content: flex-end;
+  }
+}
+@media print {
+  .install-toast-wrap {
+    display: none;
+  }
+}

@@ -13,6 +13,7 @@ import { TabBoundary, TabLoading } from '#components/TabBoundary.tsx';
 import { Tooltip, hideTip } from '#components/Tooltip.tsx';
 import { Controls } from '#shell/Controls.tsx';
 import { Header } from '#shell/Header.tsx';
+import { InstallToast } from '#shell/InstallToast.tsx';
 import { MethodNotes } from '#shell/MethodNotes.tsx';
 import { MiniBar } from '#shell/MiniBar.tsx';
 import { Tabs } from '#shell/Tabs.tsx';
@@ -158,6 +159,7 @@ function App() {
         <MethodNotes />
       </div>
       <Tooltip />
+      <InstallToast />
     </>
   );
 }

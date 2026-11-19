@@ -55,7 +55,7 @@ Move through the days with **‹ ›** or the arrow keys. **Now** casts the char
 
 ## ☾ Install it as an app
 
-In Chrome or Edge, click **Install app** on the page, or use the install icon in the address bar. It opens in its own window with the logo as its icon, and works offline once it has loaded. On iPhone and iPad, use Safari's **Share → Add to Home Screen**.
+In Chrome or Edge, click **Install app** on the page, or use the install icon in the address bar. It opens in its own window with the logo as its icon, and works offline once it has loaded. On iPhone and iPad, use Safari's **Share → Add to Home Screen**; on a Mac, Safari's **File → Add to Dock** (Safari 17 and later). Safari never offers to install, so there the page shows these steps in a toast, and the **Install app** button repeats them.
 
 ## ⚹ Link to any moment
 

@@ -5,6 +5,7 @@ import type { HouseSystem, LilithKind } from '#astro';
 import { HOUSE_ALIASES, PLACES, VIEWS } from '#lib/constants.ts';
 import { $, isCompact, flash, unflash } from '#lib/dom.ts';
 import { pad, slug } from '#lib/format.ts';
+import { installDismissed, rememberInstallDismissed, safariInstallHint } from '#lib/install.ts';
 import { createStore } from '#lib/store.ts';
 import { store as saved } from '#lib/storage.ts';
 import { dateFormat, localParts } from '#lib/time.ts';
@@ -26,7 +27,8 @@ export interface ControlsState {
   playing: boolean; // Play is running through the next 24 hours
   locating: boolean; // waiting for the device's location
   installable: boolean; // the browser offered to install the page as an app
-  note: string; // why a link or the location could not be used; '' when all is well
+  installToast: '' | 'prompt' | 'safari'; // the install offer at the foot of the page: Chrome's, Safari's steps, or none
+  note: string; // why a link or the location could not be used, or how to install in Safari; '' otherwise
 }
 
 export const controls = createStore<ControlsState>({
@@ -44,6 +46,7 @@ export const controls = createStore<ControlsState>({
   playing: false,
   locating: false,
   installable: false,
+  installToast: '',
   note: '',
 });
 
@@ -350,18 +353,40 @@ let installEvent: InstallPromptEvent | null = null;
 window.addEventListener('beforeinstallprompt', (e) => {
   e.preventDefault();
   installEvent = e as InstallPromptEvent;
-  controls.set({ installable: true });
+  controls.set({ installable: true, installToast: installDismissed() ? '' : 'prompt' });
 });
 window.addEventListener('appinstalled', () => {
   installEvent = null;
-  controls.set({ installable: false });
+  controls.set({ installable: false, installToast: '' });
 });
+// Safari has no install prompt, so there a toast and the Install button explain how to add the page as an app
+const standalone = (() => {
+  try {
+    if (matchMedia('(display-mode: standalone)').matches) return true;
+  } catch (e) {
+    /* no matchMedia */
+  }
+  return (navigator as Navigator & { standalone?: boolean }).standalone === true;
+})();
+const safariHint = standalone
+  ? ''
+  : safariInstallHint(navigator.userAgent, navigator.platform, navigator.maxTouchPoints);
+export const SAFARI_HINT = safariHint;
+if (safariHint) controls.set({ installable: true, installToast: installDismissed() ? '' : 'safari' });
+// close the install toast and keep it closed for 30 days
+export function dismissInstall() {
+  rememberInstallDismissed();
+  controls.set({ installToast: '' });
+}
 export function install() {
-  if (!installEvent) return;
+  if (!installEvent) {
+    if (safariHint) controls.set({ note: safariHint });
+    return;
+  }
   installEvent.prompt();
   installEvent.userChoice.finally(() => {
     installEvent = null;
-    controls.set({ installable: false });
+    controls.set({ installable: false, installToast: '' });
   });
 }
 if ('serviceWorker' in navigator && location.protocol === 'https:') {
