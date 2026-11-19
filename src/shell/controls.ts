@@ -369,6 +369,8 @@ if ('serviceWorker' in navigator && location.protocol === 'https:') {
     navigator.serviceWorker.register('sw.js').catch(() => {
       /* offline support unavailable */
     });
+    // ask the browser not to clear what the app has kept when the phone runs low on space
+    navigator.storage?.persist?.().catch(() => {});
   });
 }
 

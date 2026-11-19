@@ -3,6 +3,8 @@
 const VERSION = 'dev'; // replaced with the commit id on deploy
 const SHELL = `shell-${VERSION}`;
 const CDN = 'cdn-v2';
+let deadUntil = 0; // after one request has run out of patience, the next ones do not wait again for a while
+const SLOW_MS = 3000; // how long to wait for the network before using the kept copy
 const APP_FILES = [
   './',
   'index.html',
@@ -45,7 +47,13 @@ self.addEventListener('install', (event) => {
     (async () => {
       const shell = await caches.open(SHELL);
       const built = await (await fetch('dist/files.json', { cache: 'no-cache' })).json();
-      await shell.addAll([...APP_FILES, ...built]);
+      // One file that fails to download must not lose the rest (addAll is all or nothing). Only the files the page
+      // cannot start without have to arrive; any other is kept the first time it is asked for.
+      const needed = new Set(['./', 'index.html', 'dist/app.js', 'dist/app.css']);
+      const files = [...new Set([...APP_FILES, ...built])];
+      const results = await Promise.allSettled(files.map((f) => shell.add(f)));
+      const missing = files.filter((f, i) => results[i].status === 'rejected' && needed.has(f));
+      if (missing.length) throw new Error(`could not keep ${missing.join(', ')}`);
       await keepFonts(); // best effort: a failure here must not stop the app from installing
       await self.skipWaiting();
     })(),
@@ -67,18 +75,33 @@ self.addEventListener('fetch', (event) => {
   if (req.method !== 'GET') return;
   const url = new URL(req.url);
 
-  // Own files: network first so updates show up straight away, cache when offline.
+  // Own files: network first so updates show up straight away, the kept copy when offline. A connection that is
+  // there but dead (wifi without internet, one bar of signal) never fails, it just hangs, so after a few seconds
+  // the kept copy is used while the request carries on and refreshes the cache for next time.
   if (url.origin === self.location.origin) {
     event.respondWith(
       (async () => {
-        try {
-          // no-cache: always revalidate with the server, so a new deploy never mixes old and new files
-          const res = await fetch(req, { cache: 'no-cache' });
-          if (res.ok) (await caches.open(SHELL)).put(req, res.clone());
+        const kept = () => caches.match(req, { ignoreSearch: true }).then((hit) => hit || caches.match('index.html'));
+        // no-cache: always revalidate with the server, so a new deploy never mixes old and new files
+        const network = fetch(req, { cache: 'no-cache' }).then(async (res) => {
+          deadUntil = 0;
+          if (res.ok) await (await caches.open(SHELL)).put(req, res.clone());
           return res;
+        });
+        const patience = new Promise((resolve) =>
+          self.setTimeout(
+            async () => {
+              const hit = await kept();
+              if (hit) deadUntil = Date.now() + 30000;
+              resolve(hit);
+            },
+            Date.now() < deadUntil ? 0 : SLOW_MS,
+          ),
+        );
+        try {
+          return (await Promise.race([network, patience])) || (await network);
         } catch (e) {
-          const hit = await caches.match(req, { ignoreSearch: true });
-          return hit || caches.match('index.html');
+          return (await kept()) || self.Response.error();
         }
       })(),
     );
