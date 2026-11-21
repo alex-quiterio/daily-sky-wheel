@@ -91,6 +91,29 @@ function TipMoon() {
   );
 }
 
+function TipLilith() {
+  if (!shown) return null;
+  const { moon } = shown;
+  return (
+    <>
+      <TipHead>
+        <span class="tg">⚸</span> Black Moon Lilith · {moon.lilithKind}
+      </TipHead>
+      <TipText>
+        Not a body but a direction: the apogee, where the Moon's orbit runs farthest from the Earth. The Moon itself
+        need not be there; it passes this point once a month.
+        {moon.lilithKind === 'true'
+          ? ' The true point follows the Moon\u2019s orbit as it is at this instant, so it swings back and forth.'
+          : ' The mean point smooths out the swings and turns steadily, once every 8.85 years.'}
+      </TipText>
+      <TipRow k="Position">
+        <Dms lon={moon.lilith} />
+      </TipRow>
+      <TipRow k="From the Moon">{Math.round(Western.sep(moon.geoLon, moon.lilith))}° away</TipRow>
+    </>
+  );
+}
+
 function TipSun() {
   return (
     <>
@@ -121,5 +144,6 @@ Object.assign(tips, {
   'sol-body': (v: string) => <TipBody name={v} />,
   'sol-moon': () => <TipMoon />,
   'sol-sun': () => <TipSun />,
+  'sol-lilith': () => <TipLilith />,
   'sol-sign': (v: string) => <TipSign s={+v} />,
 });

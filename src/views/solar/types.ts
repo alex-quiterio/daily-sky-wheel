@@ -21,6 +21,8 @@ export interface MoonInfo {
   km: number; // centre to centre
   phase: MoonPhase;
   sunLon: number; // the Sun as seen from the Earth
+  lilith: number; // Black Moon Lilith, the Moon's apogee: mean or true, as chosen on the wheel
+  lilithKind: 'mean' | 'true';
 }
 
 export interface Model {

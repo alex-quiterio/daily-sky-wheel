@@ -17,7 +17,7 @@ function progress(name: string, lon: number): number {
   return Core.norm((M * 180) / Math.PI) / 360;
 }
 
-export function build({ when, byName }: Moment): Model {
+export function build({ when, byName, chart }: Moment): Model {
   const t = Astronomy.MakeTime(when);
   const bodies: Body[] = PLANETS.map((name) => {
     const b = Astronomy.Body[name as keyof typeof Astronomy.Body];
@@ -56,6 +56,8 @@ export function build({ when, byName }: Moment): Model {
       km: Astronomy.GeoMoon(t).Length() * KM_PER_AU,
       phase: Western.moonPhase(sunLon, moonLon),
       sunLon,
+      lilith: byName.Lilith.lon,
+      lilithKind: chart.lilith,
     },
     closest: others.reduce((a, b) => (b.earth < a.earth ? b : a)),
   };

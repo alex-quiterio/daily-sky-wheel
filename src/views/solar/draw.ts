@@ -54,6 +54,7 @@ export const BODY_GLYPH: Record<string, string> = {
   Neptune: '♆',
   Pluto: '♇',
   Moon: '☽',
+  Lilith: '⚸',
 };
 
 function gradients(svg: SVGSVGElement) {
@@ -263,6 +264,38 @@ export function drawEarthMoon(svg: SVGSVGElement, model: Model) {
       g,
     );
   };
+  // Black Moon Lilith: the direction of the Moon's apogee, marked at the edge, where an apogee distance falls
+  const la = moon.lilith * D2R;
+  el(
+    'line',
+    {
+      x1: c + 26 * Math.cos(la),
+      y1: c - 26 * Math.sin(la),
+      x2: c + 128 * Math.cos(la),
+      y2: c - 128 * Math.sin(la),
+      stroke: 'rgba(196, 150, 255, 0.4)',
+      'stroke-dasharray': '2 3',
+    },
+    svg,
+  );
+  const lg = el('g', { class: 'tipzone', 'data-tip': 'sol-lilith:', tabindex: 0, 'aria-label': 'Lilith details' }, svg);
+  const lx = c + 128 * Math.cos(la),
+    ly = c - 128 * Math.sin(la);
+  el('circle', { cx: lx, cy: ly, r: 10, fill: 'rgba(10, 8, 24, 0.9)', stroke: '#c496ff', 'stroke-width': 1 }, lg);
+  el(
+    'text',
+    {
+      x: lx,
+      y: ly,
+      'text-anchor': 'middle',
+      'dominant-baseline': 'central',
+      'font-size': 12,
+      fill: '#c496ff',
+      'font-family': 'var(--f-glyph)',
+    },
+    lg,
+    '⚸' + VS,
+  );
   lit(c, c, 22, COLOR.Earth, 'sol-body:Earth');
   lit(c + orbit * Math.cos(moonA), c - orbit * Math.sin(moonA), 8, COLOR.Moon, 'sol-moon:');
 }

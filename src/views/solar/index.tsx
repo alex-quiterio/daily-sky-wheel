@@ -87,9 +87,9 @@ function EarthMoon({ moment, model }: ViewProps<Model>) {
         <Drawing
           id="solEarthMoon"
           viewBox="0 0 360 360"
-          aria-label="The Earth and the Moon from above, lit from the Sun's side"
+          aria-label="The Earth and the Moon from above, lit from the Sun's side, with Lilith, the Moon's apogee"
           draw={(svg) => drawEarthMoon(svg, model)}
-          deps={[moment.when.getTime()]}
+          deps={[moment.when.getTime(), moment.chart.lilith]}
         />
         <div class="sol-phase">
           <Drawing
@@ -106,6 +106,9 @@ function EarthMoon({ moment, model }: ViewProps<Model>) {
       <Row k="Light takes">{(moon.km / 299792.458).toFixed(2)} s</Row>
       <Row k="Moon in">
         {sg(Math.floor(moon.geoLon / 30))} {Western.SIGNS[Math.floor(moon.geoLon / 30)]}
+      </Row>
+      <Row k={`Lilith (${moon.lilithKind})`}>
+        {sg(Math.floor(moon.lilith / 30))} {Math.floor(moon.lilith % 30)}° {Western.SIGNS[Math.floor(moon.lilith / 30)]}
       </Row>
       <Row k="Earth from the Sun">{au(model.byName.Earth.sun)}</Row>
     </Card>
