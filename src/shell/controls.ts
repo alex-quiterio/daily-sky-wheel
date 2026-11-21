@@ -2,7 +2,7 @@
 // The form, the quick bar and the tabs read the store; the render loop in app.tsx casts the chart whenever
 // the moment, the place or the house system in it changes.
 import type { HouseSystem, LilithKind } from '#astro';
-import { HOUSE_ALIASES, PLACES, VIEWS } from '#lib/constants.ts';
+import { HOUSE_ALIASES, PLACES, VIEWS, isHidden } from '#lib/constants.ts';
 import { $, isCompact, flash, unflash } from '#lib/dom.ts';
 import { pad, slug } from '#lib/format.ts';
 import { installDismissed, rememberInstallDismissed, safariInstallHint } from '#lib/install.ts';
@@ -272,6 +272,18 @@ export function setView(v: string) {
   controls.set({ view: knownView(v), urlSync: true });
 }
 
+// The hidden Solar System tab: the globe at the foot of the page, or "orrery" typed anywhere.
+// Back to the wheel (or the same again) returns to the tab you came from.
+let beforeSecret = 'western';
+export function toggleSecret() {
+  const now = controls.get().view;
+  if (isHidden(now)) setView(beforeSecret);
+  else {
+    beforeSecret = now;
+    setView('solar');
+  }
+}
+
 // this minute, where the browser is
 export function goNow() {
   const s = controls.get(),
@@ -475,8 +487,18 @@ export function startControls() {
   });
   syncURL();
 
+  const SECRET = 'orrery';
+  let typed = '';
   document.addEventListener('keydown', (e) => {
-    if (e.target instanceof Element && e.target.matches('input, select, textarea, [role="tab"]')) return;
+    if (e.target instanceof Element && e.target.matches('input, select, textarea')) return;
+    if (e.key.length === 1 && !e.metaKey && !e.ctrlKey && !e.altKey) {
+      typed = (typed + e.key.toLowerCase()).slice(-SECRET.length);
+      if (typed === SECRET) {
+        typed = '';
+        toggleSecret();
+      }
+    }
+    if (e.target instanceof Element && e.target.matches('[role="tab"]')) return;
     if (e.key === 'ArrowLeft') shiftDay(-1);
     if (e.key === 'ArrowRight') shiftDay(1);
   });

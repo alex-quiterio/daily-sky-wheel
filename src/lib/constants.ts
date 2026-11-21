@@ -67,16 +67,18 @@ export const PLACES: [name: string, lat: number, lon: number, tz: string][] = [
 ];
 
 // ---------- tabs ----------
-// ---------- tabs ----------
-// in order of earliest documented practice
-export const VIEWS = [
+// in order of earliest documented practice; a fifth field 'hidden' keeps a tab out of the tab row
+// until it is opened (see isHidden and the secret in shell/controls.ts)
+export const VIEWS: [name: string, label: string, color: string, theme: string, hidden?: 'hidden'][] = [
   ['western', 'Western', '#07061a', ''],
   ['chinese', 'Chinese', '#0d0506', 'theme-cn'],
   ['vedic', 'Vedic', '#1a0712', 'theme-vedic'],
   ['maya', 'Maya', '#03110d', 'theme-maya'],
   ['kabbalah', 'Kabbalah', '#050a24', 'theme-kab'],
   ['islamic', 'Islamic', '#031319', 'theme-islamic'],
+  ['solar', 'Solar System', '#020309', 'theme-solar', 'hidden'],
 ];
+export const isHidden = (name: string) => VIEWS.some(([k, , , , h]) => k === name && h === 'hidden');
 
 // what marks each tab, and when its tradition was first documented
 export const TAB_NOTES: Record<string, [mark: string, cls: string, note: string]> = {
@@ -86,6 +88,7 @@ export const TAB_NOTES: Record<string, [mark: string, cls: string, note: string]
   maya: ['', '', 'The Mesoamerican 260-day count, c. 600–300 BCE'],
   kabbalah: ['א', 'he', 'Sefer Yetzirah, c. 2nd–6th century CE'],
   islamic: ['هـ', 'ar', 'The Hijri calendar, instituted 638 CE'],
+  solar: ['☉', 'glyph', 'The Sun, the planets and the Moon, seen from above'],
 };
 
 // ---------- links ----------

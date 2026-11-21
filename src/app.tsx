@@ -16,6 +16,7 @@ import { Header } from '#shell/Header.tsx';
 import { InstallToast } from '#shell/InstallToast.tsx';
 import { MethodNotes } from '#shell/MethodNotes.tsx';
 import { MiniBar } from '#shell/MiniBar.tsx';
+import { OrreryLink } from '#shell/OrreryLink.tsx';
 import { Tabs } from '#shell/Tabs.tsx';
 import { CHART_KEYS, controls, currentPlace, initControls, startControls } from '#shell/controls.ts';
 import '#shell/base.css';
@@ -32,6 +33,7 @@ const CODE: Record<string, () => Promise<unknown>> = {
   maya: () => import('#views/maya/index.tsx'),
   kabbalah: () => import('#views/kabbalah/index.tsx'),
   islamic: () => import('#views/islamic/index.tsx'),
+  solar: () => import('#views/solar/index.tsx'),
 };
 
 // a tab's stylesheet sits next to this bundle and carries the same version stamp
@@ -157,6 +159,7 @@ function App() {
           {moment && View ? <View key={view} moment={moment} model={model} /> : <TabLoading label={label} />}
         </TabBoundary>
         <MethodNotes />
+        <OrreryLink view={view} />
       </div>
       <Tooltip />
       <InstallToast />

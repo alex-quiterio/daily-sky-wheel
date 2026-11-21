@@ -253,3 +253,27 @@
     display: none;
   }
 }
+
+/* the globe at the foot of the page, into the hidden Solar System tab */
+.orrery-link {
+  display: flex;
+  justify-content: center;
+  padding: 8px 0 24px;
+}
+.orrery-link button {
+  opacity: 0.55;
+  border-radius: 50%;
+  min-width: 36px;
+  height: 36px;
+  padding: 0;
+  transition: opacity 0.3s;
+}
+.orrery-link button:hover,
+.orrery-link button:focus-visible {
+  opacity: 1;
+}
+@media print {
+  .orrery-link {
+    display: none;
+  }
+}

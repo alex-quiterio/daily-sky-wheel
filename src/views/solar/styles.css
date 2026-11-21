@@ -1,0 +1,171 @@
+/* ---------- Solar System theme: deep space, sunlight and cold blue ---------- */
+:root.theme-solar {
+  --void: #020309;
+  --nebula-1: #0b1430;
+  --nebula-2: #14102a;
+  --nebula-3: #1a1206;
+  --sheet: rgba(10, 14, 30, 0.7);
+  --sheet-solid: #0a0e1e;
+  --ink: #eef2ff;
+  --muted: #9aa6c8;
+  --rule: rgba(160, 180, 230, 0.2);
+  --gold: #ffcf6b;
+  --gold-bright: #fff0c2;
+  --violet: #8fb4ff;
+  --title-end: #9fc4ff;
+  --glow: rgba(255, 207, 107, 0.45);
+  --wheel-bg: #060914;
+  --wheel-core: #03050c;
+  --sol-orbit: rgba(170, 190, 240, 0.22);
+}
+.theme-solar body::before {
+  background:
+    radial-gradient(30vmax 24vmax at 30% 30%, rgba(255, 190, 90, 0.1), transparent 70%),
+    radial-gradient(28vmax 20vmax at 80% 70%, rgba(80, 110, 220, 0.14), transparent 70%);
+}
+.theme-solar section.card,
+.theme-solar .controls,
+.theme-solar .tabs {
+  background: linear-gradient(170deg, rgba(16, 22, 48, 0.72), rgba(4, 6, 16, 0.84));
+  border-color: rgba(160, 180, 230, 0.2);
+}
+.theme-solar .tabs button[aria-selected='true'] {
+  color: #1a1004;
+  background: linear-gradient(180deg, #fff3cf, #ffc456);
+  box-shadow: 0 0 20px -4px rgba(255, 200, 90, 0.7);
+}
+
+.sol-bar {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 14px;
+}
+.sol-bar .muted {
+  font-style: italic;
+}
+#solOrrery {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-width: 640px;
+  margin: 0 auto;
+  overflow: visible;
+}
+#solOrrery .sol-body {
+  cursor: pointer;
+  outline: none;
+}
+#solOrrery .sol-body:focus-visible circle:first-child {
+  stroke: var(--gold);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .sol-halo {
+    animation: sol-breathe 6s ease-in-out infinite;
+    transform-origin: 300px 180px;
+  }
+}
+@keyframes sol-breathe {
+  50% {
+    opacity: 0.6;
+    transform: scale(1.08);
+  }
+}
+.sol-steps {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 8px;
+}
+.sol-steps button {
+  font-family: var(--f-data);
+  font-size: 13px;
+  padding: 6px 10px;
+  min-width: 48px;
+}
+
+.sol-em {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+.sol-em svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+#viewSolarSystem .tr {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 5px 0;
+  border-top: 1px solid var(--rule);
+}
+#viewSolarSystem .tr > span:first-child {
+  color: var(--muted);
+  flex: none;
+}
+.sol-phase {
+  text-align: center;
+}
+.sol-phase svg {
+  max-width: 120px;
+  margin: 0 auto 6px;
+  filter: drop-shadow(0 0 14px rgba(245, 236, 208, 0.25));
+}
+.sol-phase-name {
+  font-family: var(--f-display);
+  letter-spacing: 0.08em;
+  color: var(--gold-bright);
+}
+
+.sol-table {
+  display: grid;
+  font-size: 15px;
+}
+.sol-tr {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr 1.25fr 0.9fr;
+  gap: 8px;
+  align-items: baseline;
+  padding: 6px 4px;
+  border-bottom: 1px solid var(--rule);
+}
+.sol-tr > span:not(:first-child) {
+  font-family: var(--f-data);
+  font-size: 13px;
+}
+.sol-tr small {
+  display: block;
+  color: var(--muted);
+  font-size: 11px;
+}
+.sol-th {
+  color: var(--muted);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.sol-th > span {
+  font-family: var(--f-body) !important;
+}
+.sol-tr.tipzone:hover,
+.sol-tr.tipzone:focus-visible {
+  background: rgba(255, 207, 107, 0.06);
+}
+.sol-rx {
+  color: var(--fire);
+}
+@media (max-width: 599px) {
+  .sol-em {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .sol-tr {
+    grid-template-columns: 1.1fr 1fr 1.2fr 0.9fr;
+    gap: 4px;
+  }
+}

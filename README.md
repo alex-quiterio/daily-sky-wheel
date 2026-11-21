@@ -38,6 +38,7 @@ Pick a day, a time and a place and the sky comes back as a chart.
 | **א Kabbalah tab** | The Hebrew date in Hebrew letters, with the day turning at local sunset; holy days; sunset, nightfall, and Shabbat candle-lighting and Havdalah times for the place; the month's letter, sign, tribe and sense from Sefer Yetzirah; the coming holy days; the sefira and planet of the weekday; the Counting of the Omer in season; and the Tree of Life with the day's sefirot lit. Its theme is sapphire and white-gold light, with Hebrew letters and rising sparks. Open with `view=kabbalah`. |
 | **ॐ Vedic tab** | Jyotish with the Lahiri ayanamsa. The Panchang shows tithi, vara, nakshatra, yoga and karana, each with the time it ends, plus the amanta month with adhika months. It also shows sunrise and sunset, Rahu Kaal, Yamaganda, Gulika and Abhijit muhurta; a North or South Indian rashi chart (whole-sign houses from the Lagna); the grahas with nakshatra, pada, house and dignity; the Vimshottari dasha for someone born at that moment; a **reading** that leads the tab, with the day's five limbs explained (tithi group, the nakshatra's nature and gana, auspicious and inauspicious yogas, Vishti karana), the Lagna, Moon and Sun, classical yogas (Gajakesari, Budha-Aditya, the five Mahapurusha yogas, Kala Sarpa, Kemadruma, combustion, vargottama and more), then every graha and every house as a line that unfolds into its sign lord, nakshatra, navamsa, aspects cast and received, and condition; and the **days ahead**, a year of festivals, Ekadashis, Purnimas, Amavasyas and Sankrantis, each placed by its traditional observance rule (the tithi at sunrise, midday, afternoon, pradosh or midnight, with skipped tithis, Bhadra for Holika Dahan, and no festivals in an adhika month). Its theme is saffron and marigold, with a lotus and a nakshatra ring, falling petals and Devanagari lettering. Open with `view=vedic`. |
 | **هـ Islamic tab** | The Hijri date in Arabic, with months by the Umm al-Qura rule and the day turning at Maghrib. Prayer times for the place: five methods, a Shafi'i or Hanafi Asr, the current prayer and a countdown to the next, and a high-latitude fallback. Also the Qibla compass and distance, Islamic dates ahead, and the Moon's age with tonight's crescent visibility. The Arab lunar mansions are shown as heritage sky-lore. Its theme is night teal and gold, with an eight-pointed star tiling, arched panels and Amiri lettering. Open with `view=islamic`. |
+| **☉ Solar System** (hidden) | Not in the tab row: open it with the small globe at the foot of the page, or by typing `orrery`, and leave with **Back to the wheel**. An orrery of the Sun and the planets seen from above for the chosen moment, on a log scale of distance so Mercury and Pluto both fit, with the Moon beside the Earth. Then the Earth and Moon from above, lit from the Sun's side, with the Moon's phase as seen from here; and a table of each planet's distance from the Sun and from the Earth (in au and in light time) and where it stands in our sky. Step a week, a month or a year at a time, or **Spin** to run the planets forward. Open with `view=solar`. |
 | **♄ Planetary hours** | The 24 unequal hours from sunrise to the next sunrise, in Chaldean order from the weekday's ruler. Shows the day ruler, the current hour with a countdown, every hour's start time, and each planet's traditional uses. Click an hour to cast the chart for its start. |
 | **✶ Positions** | Degree, sign and minute for every body, with retrograde flags and the house each one falls in. |
 | **△ Balance and patterns** | Counts by element and mode, the chart ruler, and any Yod, T-square, Grand Trine or stellium. |
@@ -75,7 +76,7 @@ Add the date, time and place to the URL and the page opens on that chart. Once a
 | `lat`, `lon` | decimal degrees | For places not in the list. North and east are positive. |
 | `tz` | IANA zone, e.g. `Europe/Rome` | Used with `lat`/`lon`. Defaults to your browser's zone. |
 | `houses` | `placidus`, `whole`, `equal`, `natural` | |
-| `view` | `western`, `chinese`, `vedic`, `maya`, `kabbalah` or `islamic` | Which tab opens |
+| `view` | `western`, `chinese`, `vedic`, `maya`, `kabbalah`, `islamic` or `solar` | Which tab opens |
 
 If part of a link can't be read, the page says which part and uses its default for that field.
 
@@ -164,7 +165,7 @@ src/shell/               the page around the tabs
   share.ts               the open tab as a picture, to share or save
   base.css, shell.css    the night theme and page layout
   print.css              the page on paper
-src/views/<tab>/         one folder per tab: western, chinese, vedic, maya, kabbalah, islamic
+src/views/<tab>/         one folder per tab: western, chinese, vedic, maya, kabbalah, islamic, solar (hidden)
   index.tsx              the components, and nothing else
   model.ts               build(moment): everything worked out for one moment, as plain data
   types.ts               the model's shape
