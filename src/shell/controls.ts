@@ -133,8 +133,10 @@ export function initControls() {
     view: knownView(view),
   };
   if (idx === -1) state = { ...state, ...browserPlace(state) };
-  state.date = localParts(new Date(), currentPlace(state).tz).date;
-  state.time = '12:00';
+  // the current date and time of the browser, read in the place's time zone
+  const lp = localParts(new Date(), currentPlace(state).tz);
+  state.date = lp.date;
+  state.time = lp.time;
   controls.set(applyQuery(state));
 }
 
